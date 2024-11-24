@@ -7,7 +7,7 @@ using Models.Models;
 
 namespace Infrastructures.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUsers>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -25,6 +25,7 @@ namespace Infrastructures.Data
         public DbSet<ReservationRoom> ReservationRooms { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<RoomType> RoomTypes { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,27 +40,28 @@ namespace Infrastructures.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<HotelAmenities>()
                 .HasKey(e => new { e.HotelId, e.AmenityId });
 
             modelBuilder.Entity<ReservationRoom>()
                 .HasKey(e => new { e.ReservationID, e.RoomId });
 
-            modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
-            {
-                entity.HasKey(login => new { login.LoginProvider, login.ProviderKey });
-            });
+            //modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
+            //{
+            //    entity.HasKey(login => new { login.LoginProvider, login.ProviderKey });
+            //});
 
-            modelBuilder.Entity<IdentityUserRole<string>>(entity =>
-            {
-                entity.HasKey(role => new { role.UserId, role.RoleId });
-            });
+            //modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+            //{
+            //    entity.HasKey(role => new { role.UserId, role.RoleId });
+            //});
 
-            modelBuilder.Entity<IdentityUserToken<string>>(entity =>
-            {
-                entity.HasKey(token => new { token.UserId, token.LoginProvider, token.Name });
-            });
-
+            //modelBuilder.Entity<IdentityUserToken<string>>(entity =>
+            //{
+            //    entity.HasKey(token => new { token.UserId, token.LoginProvider, token.Name });
+            //});
 
             modelBuilder.Entity<Hotel>()
             .HasOne(h => h.company)

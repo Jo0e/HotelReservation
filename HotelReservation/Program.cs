@@ -20,18 +20,16 @@ namespace HotelReservation
             builder.Services.AddDbContext<ApplicationDbContext>(options => options
            .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
-
-            // Other service registrations...
-            builder.Services.AddIdentity<ApplicationUsers, IdentityRole>(options =>
+            //Other service registrations...
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = false;
             })
-                .AddDefaultUI()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+               .AddDefaultUI()
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddDefaultTokenProviders();
 
 
             //builder.Services.AddAuthentication().AddGoogle(googleOptions =>
@@ -41,16 +39,16 @@ namespace HotelReservation
             //});
 
             // Other service registrations...
-            
+
 
             //builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             //{
             //    options.SignIn.RequireConfirmedAccount = false;
             //    options.SignIn.RequireConfirmedEmail = false;
             //})
-                //.AddDefaultUI()
-                //.AddEntityFrameworkStores<ApplicationDbContext>()
-                //.AddDefaultTokenProviders();
+            //.AddDefaultUI()
+            //.AddEntityFrameworkStores<ApplicationDbContext>()
+            //.AddDefaultTokenProviders();
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -77,7 +75,7 @@ namespace HotelReservation
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseAuthentication(); 
             app.UseAuthorization();
             //app.MapStaticAssets();
 
@@ -87,7 +85,7 @@ namespace HotelReservation
                 name: "default",
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
-           
+
             app.Run();
         }
     }

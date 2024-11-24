@@ -1,9 +1,10 @@
 using System.Diagnostics;
-using HotelReservation.Models;
 using Microsoft.AspNetCore.Mvc;
+using Models.Models;
 
-namespace HotelReservation.Controllers
+namespace HotelReservation.Areas.Customer.Controllers
 {
+    [Area("Customer")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

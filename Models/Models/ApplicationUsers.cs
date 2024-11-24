@@ -2,7 +2,7 @@
 
 namespace Models.Models
 {
-    public class ApplicationUsers : IdentityUser
+    public class ApplicationUser : IdentityUser
     {
         public string City { get; set; }
     }

@@ -123,5 +123,20 @@ namespace Infrastructures.Repository
             }
         }
 
+        public void DeleteHotelFolder(ICollection<ImageList> images,string hotelName)
+        {
+            // Path to the hotel-specific folder
+            var hotelFolderPath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\subImage\\{hotelName}");
+
+            // Check if the directory exists
+            if (Directory.Exists(hotelFolderPath))
+            {
+                Directory.Delete(hotelFolderPath, true);
+            }
+            dbSet.RemoveRange(images);
+            context.SaveChanges();
+        }
+
+
     }
 }
