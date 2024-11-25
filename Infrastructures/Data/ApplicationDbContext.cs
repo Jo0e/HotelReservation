@@ -97,6 +97,12 @@ namespace Infrastructures.Data
             .HasForeignKey(rt => rt.HotelId)
             .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Reservation>()
+            .HasOne(r => r.User)
+            .WithMany(u => u.Reservations)
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }
