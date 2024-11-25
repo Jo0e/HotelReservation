@@ -9,19 +9,24 @@ namespace HotelReservation.Areas.Customer.Controllers
     public class BookingController : Controller
     {
         private readonly IReservationRepository reservationRepository;
-        private readonly UserManager<ApplicationUsers> userManager;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly IRepository<ReservationRoom> reservationRoomRepository;
 
-        public BookingController(IReservationRepository reservationRepository, UserManager<ApplicationUsers> userManager)
+        public BookingController(IReservationRepository reservationRepository, UserManager<IdentityUser> userManager,IRepository<ReservationRoom> reservationRoomRepository)
         {
             this.reservationRepository = reservationRepository;
             this.userManager = userManager;
+            this.reservationRoomRepository = reservationRoomRepository;
         }
 
         public IActionResult Index(int id)
         {
             var appUser = userManager.GetUserId(User);
 
-            var Booking = reservationRepository.Get([e => e.Hotel], e => e.ApplicationUserId == appUser && e.HotelId == id).ToList();
+            //var Booking = reservationRepository.Get([e => e.Hotel], e => e.UserId == appUser && e.HotelId == id).ToList();
+            var Booking = reservationRoomRepository.Get(include: [r => r.Reservation, h => h.Room] 
+            ,where: a=>a.Reservation.UserId==appUser && a.Room.HotelId==id);
+
 
             return View(Booking);
 
@@ -40,7 +45,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             }
 
 
-            model.ApplicationUserId = appUser;
+            model.UserId = appUser;
             reservationRepository.Create(model);
             reservationRepository.Commit();
             TempData["Success"] = "Booking successfully created!";
@@ -49,7 +54,8 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Delete(int hotelId)
         {
             var appUser = userManager.GetUserId(User);
-            var cartDB = reservationRepository.GetOne(where: e => e.HotelId == hotelId && e.ApplicationUserId == appUser);
+            //var cartDB = reservationRepository.GetOne(where: e => e.HotelId == hotelId && e.UserId == appUser);
+            var cartDB = reservationRepository.GetOne(where: e => e.UserId == appUser);
 
             if (cartDB != null)
             {
@@ -63,7 +69,8 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Pay()
         {
             var appUser = userManager.GetUserId(User);
-            var cartDBs = reservationRepository.Get([e => e.Hotel], where: e => e.ApplicationUserId == appUser).ToList();
+            //var cartDBs = reservationRepository.Get([e => e.Hotel], where: e => e.UserId == appUser).ToList();
+            var cartDBs = reservationRepository.Get(where: e => e.UserId == appUser).ToList();
 
             var options = new SessionCreateOptions
             {
@@ -83,7 +90,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                         Currency = "egp",
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = item.Hotel.Name,
+                            //Name = item.Hotel.Name,
                         },
 
                     },
@@ -102,7 +109,8 @@ namespace HotelReservation.Areas.Customer.Controllers
         {
             var appUser = userManager.GetUserId(User);
 
-            var shoppingCarts = reservationRepository.Get([e => e.Hotel, e => e.ApplicationUser], e => e.ApplicationUserId == appUser).ToList();
+            //var shoppingCarts = reservationRepository.Get([e => e.Hotel, e => e.User], e => e.UserId == appUser).ToList();
+            var shoppingCarts = reservationRepository.Get([ e => e.User], e => e.UserId == appUser).ToList();
 
 
             foreach (var item in shoppingCarts)

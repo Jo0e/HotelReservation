@@ -6,5 +6,7 @@ namespace Models.Models
     {
         public string City { get; set; }
         public string? ProfileImage { get; set; }
+
+        public ICollection<Reservation> Reservations { get; set; }
     }
 }
