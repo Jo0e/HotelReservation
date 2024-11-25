@@ -9,13 +9,13 @@ namespace HotelReservation.Areas.Admin.Controllers
     {
         private readonly IRoomRepository roomRepository;
         private readonly IHotelRepository hotelRepository;
-        private readonly IRepository<RoomType> typeRepository;
+        private readonly IRoomTypeRepository typeRepository;
 
-        public RoomController(IRoomRepository roomRepository, IHotelRepository hotelRepository, IRepository<RoomType> TypeRepository)
+        public RoomController(IRoomRepository roomRepository, IHotelRepository hotelRepository, IRoomTypeRepository TypeRepository)
         {
             this.roomRepository = roomRepository;
             this.hotelRepository = hotelRepository;
-            typeRepository = TypeRepository;
+            this.typeRepository = TypeRepository;
         }
 
         // GET: RoomController
@@ -25,14 +25,17 @@ namespace HotelReservation.Areas.Admin.Controllers
             IEnumerable<Room> rooms;
             if (id != 0)
             {
-                Response.Cookies.Append("HotelId", id.ToString());
+                Response.Cookies.Append("HotelIdCookie", id.ToString());
                 rooms = roomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
+                ViewBag.roomsCount = rooms.Select(e=>e.RoomType.AvailableRooms.Value);
+                ViewBag.HotelId = id;
                 return View(rooms);
             }
             else if (id == 0)
             {
-                var hotelId = int.Parse(Request.Cookies["HotelId"]);
+                var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
                 rooms = roomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
+                ViewBag.HotelId = hotelId;
                 return View(rooms);
             }
             return NotFound();
@@ -41,9 +44,9 @@ namespace HotelReservation.Areas.Admin.Controllers
 
 
         // GET: RoomController/Create
-        public ActionResult Create()
+        public ActionResult Create(int hotelId)
         {
-            var hotelId = int.Parse(Request.Cookies["HotelId"]);
+            //var hotelId = int.Parse(Request.Cookies["HotelId"]);
             ViewBag.HotelId = hotelId;
             ViewBag.Type = typeRepository.Get();
             return View();

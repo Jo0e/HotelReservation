@@ -78,6 +78,25 @@ namespace Infrastructures.Data
             .WithOne(r => r.Hotel)
             .HasForeignKey<Report>(r => r.HotelId);
 
+
+            modelBuilder.Entity<Hotel>()
+            .HasMany(r => r.Rooms)
+            .WithOne(h => h.Hotel)
+            .HasForeignKey(r => r.HotelId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Room>()
+            .HasOne(r => r.RoomType)
+            .WithMany(rt => rt.Rooms)
+            .HasForeignKey(r => r.RoomTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RoomType>()
+            .HasOne(rt => rt.Hotel)
+            .WithMany(h => h.RoomTypes)
+            .HasForeignKey(rt => rt.HotelId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

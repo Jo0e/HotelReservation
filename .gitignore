@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /HotelReservation/wwwroot/images/homeImage/36ce0fce-f261-4c51-b1be-121f8c6e0b98.jpg
 /HotelReservation/wwwroot/images/profile/ykj627@gmail.com/33a6f2d5-ca51-4a76-ae04-88d66bd25b36.jpg
+*.jpg
+*.png
