@@ -10,6 +10,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using Infrastructures.Repository;
+using Infrastructures.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Models.Models;
+using NuGet.Protocol.Core.Types;
 using Utilities.Utility;
 
 namespace HotelReservation.Areas.Identity.Pages.Account
@@ -34,6 +37,7 @@ namespace HotelReservation.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IUserRepository userRepository;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -41,7 +45,7 @@ namespace HotelReservation.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager , IUserRepository userRepository)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -50,6 +54,7 @@ namespace HotelReservation.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             this.roleManager = roleManager;
+            this.userRepository = userRepository;
         }
 
         /// <summary>
@@ -95,8 +100,14 @@ namespace HotelReservation.Areas.Identity.Pages.Account
             [Display(Name = "City")]
             public string City { get; set; }
 
-           
 
+            [Display(Name = "Profile Photo")]
+            public IFormFile ProfileImage { get; set; }
+
+            [Required]
+            [Display(Name = "Phone Number")]
+            [Phone]
+            public string PhoneNumber { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -116,10 +127,9 @@ namespace HotelReservation.Areas.Identity.Pages.Account
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
 
-            [Required]
-            [Display(Name = "Phone Number")]
-            [Phone]
-            public string PhoneNumber { get; set; }
+            
+
+            
 
         }
 
@@ -148,6 +158,7 @@ namespace HotelReservation.Areas.Identity.Pages.Account
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 user.City = Input.City;
                 user.PhoneNumber = Input.PhoneNumber;
+                userRepository.CreateProfileImage(user , Input.ProfileImage);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)

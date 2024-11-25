@@ -9,7 +9,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <h2>Create a new account</h2>
             <hr />
@@ -34,6 +34,13 @@
                 <label asp-for="Input.PhoneNumber">Phone Number</label>
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
+            
+            <div class="form-floating mb-3">
+                <input  asp-for="Input.ProfileImage" class="form-control" placeholder="Profile Picture" type="file" />
+                <label asp-for="Input.ProfileImage">Profile Picture</label>
+                <span asp-validation-for="Input.ProfileImage" class="text-danger"></span>
+            </div>
+
 
            
             <div class="form-floating mb-3">
