@@ -32,7 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Company\Controllers\" />
     <Folder Include="wwwroot\images\profile\" />
     <Folder Include="wwwroot\images\profile\ykj627%40gmail.com\" />
     <Folder Include="wwwroot\images\subImage\Silver Star Hotel\" />

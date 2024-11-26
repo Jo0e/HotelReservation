@@ -2,7 +2,7 @@
 
 namespace Infrastructures.Repository.IRepository
 {
-    public interface ICompanyRepository : IRepository<Company>
+    public interface ICompanyRepository : IRepository<Companie>
     {
     }
 }

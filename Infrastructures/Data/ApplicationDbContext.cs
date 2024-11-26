@@ -14,7 +14,7 @@ namespace Infrastructures.Data
         }
 
         public DbSet<Amenity> Amenities { get; set; }
-        public DbSet<Company> Companies { get; set; }
+        public DbSet<Companie> Companies { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<HotelAmenities> HotelAmenities { get; set; }
