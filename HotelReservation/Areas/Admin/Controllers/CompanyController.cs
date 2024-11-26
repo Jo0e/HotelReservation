@@ -9,6 +9,7 @@ using Utilities.Utility;
 namespace HotelReservation.Areas.Admin.Controllers
 {
     [Authorize(SD.AdminRole)]
+    [Area("Admin")]
     public class CompanyController : Controller
     {
         private readonly ICompanyRepository companyRepository;
@@ -35,7 +36,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(Company company)
+        public async Task<IActionResult> Create(Companie company)
         {
             if (ModelState.IsValid)
             {
@@ -81,7 +82,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View(company);
         }
         [HttpPost]
-        public IActionResult Edit(Company company)
+        public IActionResult Edit(Companie company)
         {
             if (ModelState.IsValid)
             {
