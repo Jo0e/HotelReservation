@@ -5,7 +5,6 @@ using Models.Models;
 
 namespace HotelReservation.Areas.Customer.Controllers
 {
-
     [Area("Customer")]
     public class HomeController : Controller
     {
@@ -16,59 +15,76 @@ namespace HotelReservation.Areas.Customer.Controllers
         {
             _logger = logger;
             this.hotelRepository = hotelRepository;
-
         }
 
-
-        public IActionResult Index(int page = 1, string? search = null)
-        {
-
-            if (page <= 0)
-                page = 1;
-
+        
+        public IActionResult Index()
+        {           
             var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
+            var hotelsByCity = hotels.GroupBy(h => h.City)
+                                     .Select(g => g.First())
+                                     .ToList();
 
-            if (search != null && search.Length > 0)
+            return View(hotelsByCity);
+        }
+
+        public IActionResult HotelsByCity(string city, string search = null, int pageNumber = 1)
+        {
+            const int pageSize = 5; 
+
+            if (string.IsNullOrWhiteSpace(city))
             {
-                search = search.TrimStart();
-                search = search.TrimEnd();
-                hotels = hotels.Where(e => e.Name.Contains(search));
+                return RedirectToAction("Index");
             }
-            hotels = hotels.Skip((page - 1) * 5).Take(5);
-
-            if (hotels.Any())
+            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
+                                        .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                return View(hotels);
+                search = search.Trim();
+                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                                            h.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
             }
 
-            return RedirectToAction("NotFound");
+            int totalHotels = hotels.Count(); 
+            var paginatedHotels = hotels.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            ViewBag.city = city;
+            ViewBag.pageNumber = pageNumber;
+            ViewBag.totalPages = (int)Math.Ceiling((double)totalHotels / pageSize);
+            ViewBag.search = search;
+
+            return View(paginatedHotels);
         }
 
 
-
-
+        // Displays hotel details by ID
         public IActionResult Details(int id)
         {
-            var hotels = hotelRepository.GetOne([h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities], where: h => h.Id == id);
-            if (hotels != null)
-                return View(hotels);
+            var hotel = hotelRepository.GetOne(
+                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities] ,
+                where: h => h.Id == id
+            );
+
+            if (hotel != null)
+            {
+                return View(hotel);
+            }
 
             return RedirectToAction("NotFound");
         }
 
-
-        public IActionResult NotFound()
-        {
-            return View();
-        }
-
-
-
+        // Privacy page (static content)
         public IActionResult Privacy()
         {
             return View();
         }
 
+        // Custom not found page
+        public IActionResult NotFound()
+        {
+            return View();
+        }
+
+        // Error page for unhandled exceptions
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

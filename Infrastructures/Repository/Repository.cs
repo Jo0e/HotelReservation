@@ -91,21 +91,49 @@ namespace Infrastructures.Repository
         {
             if (imageFile != null && imageFile.Length > 0)
             {
+               
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\{imageFolder}", fileName);
+                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\{imageFolder}");
 
-                using (var stream = File.Create(filePath))
+                
+                if (!Directory.Exists(directoryPath))
                 {
-                    imageFile.CopyTo(stream);
+                    Directory.CreateDirectory(directoryPath);
                 }
 
-                var property = typeof(T).GetProperty(imageUrlProperty);
-                if (property != null)
+                var filePath = Path.Combine(directoryPath, fileName);
+
+                Console.WriteLine($"File Path: {filePath}");
+
+                try
                 {
-                    property.SetValue(entity, fileName);
+                    
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        imageFile.CopyTo(stream);
+                    }
+
+                   
+                    var property = typeof(T).GetProperty(imageUrlProperty);
+                    if (property != null)
+                    {
+                        property.SetValue(entity, fileName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    
+                    Console.WriteLine($"Error saving file: {ex.Message}");
+                    throw; 
                 }
             }
+            else
+            {
+                
+                Console.WriteLine("No image file uploaded.");
+            }
 
+            
             dbSet.Add(entity);
             context.SaveChanges();
         }
