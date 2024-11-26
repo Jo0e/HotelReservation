@@ -20,7 +20,7 @@ namespace HotelReservation
             builder.Services.AddDbContext<ApplicationDbContext>(options => options
            .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             //Other service registrations...
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
@@ -61,6 +61,7 @@ namespace HotelReservation
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
             builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            
 
             var app = builder.Build();
 

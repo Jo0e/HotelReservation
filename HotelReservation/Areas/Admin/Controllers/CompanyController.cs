@@ -4,50 +4,53 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using Models.ViewModels;
 using Utilities.Utility;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
-    [Authorize(SD.AdminRole)]
+    [Authorize(Roles = SD.AdminRole)]
     [Area("Admin")]
     public class CompanyController : Controller
     {
         private readonly ICompanyRepository companyRepository;
         private readonly IMapper mapper;
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
-        public CompanyController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ICompanyRepository companyRepository ,IMapper mapper)
+        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, ICompanyRepository companyRepository, IMapper mapper)
         {
             this.companyRepository = companyRepository;
             this.mapper = mapper;
             this.userManager = userManager;
-            
+
             this.roleManager = roleManager;
         }
         public IActionResult Index()
         {
             var Company = companyRepository.Get();
             return View(Company);
-            
+
         }
         public IActionResult Create()
         {
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(Companie company)
+        public async Task<IActionResult> Create(CompanyViewModel companyVM,IFormFile ProfileImage)
         {
+            ModelState.Remove(nameof(ProfileImage));
             if (ModelState.IsValid)
             {
 
-                var newUser = mapper.Map<ApplicationUser>(company);
-                               
-                var result = await userManager.CreateAsync(newUser, company.Passwords);
+                var newUser = mapper.Map<ApplicationUser>(companyVM);
+                var email = companyVM.Email;
+                newUser.UserName = email;
+                var result = await userManager.CreateAsync(newUser, companyVM.Passwords);
 
                 if (result.Succeeded)
                 {
-                    
+                    companyRepository.CreateProfileImage(newUser, ProfileImage);
                     if (!await roleManager.RoleExistsAsync(SD.CompanyRole))
                     {
                         await roleManager.CreateAsync(new IdentityRole(SD.CompanyRole));
@@ -55,15 +58,18 @@ namespace HotelReservation.Areas.Admin.Controllers
 
                     await userManager.AddToRoleAsync(newUser, SD.CompanyRole);
 
+                    var company = mapper.Map<Models.Models.Company>(companyVM);
+                    company.UserName = newUser.UserName;
+                    company.ProfileImage = newUser.ProfileImage;
+                    company.Passwords = newUser.PasswordHash;
                     companyRepository.Create(company);
                     companyRepository.Commit();
 
-                    TempData["SuccessMessage"] = "Company created and role assigned successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    
+
                     foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
@@ -71,18 +77,17 @@ namespace HotelReservation.Areas.Admin.Controllers
                 }
             }
 
-            TempData["ErrorMessage"] = "There was an error creating the company.";
-            return View(company);
+            return View(companyVM);
         }
         public IActionResult Edit(int id)
         {
-            var company = companyRepository.GetOne(where:e=>e.Id==id);
+            var company = companyRepository.GetOne(where: e => e.Id == id);
             if (company == null) return NotFound();
 
             return View(company);
         }
         [HttpPost]
-        public IActionResult Edit(Companie company)
+        public IActionResult Edit(Models.Models.Company company)
         {
             if (ModelState.IsValid)
             {
@@ -98,8 +103,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
         public IActionResult DeleteConfirmed(int id)
         {
-            var company = companyRepository.GetOne(where:e=>e.Id==id);
-            if (company == null) 
+            var company = companyRepository.GetOne(where: e => e.Id == id);
+            if (company == null)
                 return NotFound();
 
             companyRepository.Delete(company);
