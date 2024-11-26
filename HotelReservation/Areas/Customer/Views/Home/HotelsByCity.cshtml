@@ -1,0 +1,60 @@
+﻿@model ICollection<Hotel>
+
+<div class="container mt-4">
+    <h1 class="text-center">Hotels in @ViewBag.city</h1>
+
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="search" class="form-control" placeholder="Search by hotel name or description"
+                   value="@ViewBag.search" />
+            <input type="hidden" name="city" value="@ViewBag.city" />
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <div class="row">
+        @if (Model.Any())
+        {
+            @foreach (var hotel in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="~/imges/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@hotel.Name</h5>
+                            <p class="card-text">@hotel.Description</p>
+                            <p class="card-text"><strong>Address:</strong> @hotel.Address</p>
+                            <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center">No hotels found in this city matching your search.</p>
+        }
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation example" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(ViewBag.pageNumber <= 1 ? "disabled" : "")">
+                <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber - 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            @for (int i = 1; i <= ViewBag.totalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.pageNumber ? "active" : "")">
+                    <a class="page-link" href="?pageNumber=@i&city=@ViewBag.city&search=@ViewBag.search">@i</a>
+                </li>
+            }
+            <li class="page-item @(ViewBag.pageNumber >= ViewBag.totalPages ? "disabled" : "")">
+                <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber + 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>

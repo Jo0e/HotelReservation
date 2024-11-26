@@ -28,8 +28,9 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var user = userManager.GetUserId(User);
-                var Hotels = hotelRepository.Get(where: e => e.CompanyId.ToString() == user);
+                var user = userManager.GetUserName(User);
+                var Company = companyRepository.GetOne(where:e=>e.UserName==user).Id;
+                var Hotels = hotelRepository.Get(where: e => e.CompanyId == Company);
                 return View(Hotels.ToList());
             }
             catch (Exception ex)
@@ -50,11 +51,28 @@ namespace HotelReservation.Areas.Company.Controllers
         // GET: HotelsController/Create
         public ActionResult Create()
         {
-            var user = userManager.GetUserId(User);
-            var Company = companyRepository.GetOne(where:e=>e.Id.ToString()==user);
-            ViewData["CompanyId"] = Company?.Id;
-            return View(Company);
+            var userName = userManager.GetUserName(User);  
+            var company = companyRepository.GetOne(where: e => e.UserName == userName);
+
+            if (company == null)
+            {
+                
+                ModelState.AddModelError("", "No company found for this user.");
+                return View(); 
+            }
+
+           
+            var hotel = new Hotel
+            {
+                CompanyId = company.Id
+            };
+
+            ViewData["CompanyId"] = company?.Id; 
+
+            return View(hotel); 
         }
+
+
 
         // POST: HotelsController/Create
         [HttpPost]
@@ -64,8 +82,8 @@ namespace HotelReservation.Areas.Company.Controllers
             ModelState.Remove(nameof(ImgFile));
             if (ModelState.IsValid)
             {
-                var userId = userManager.GetUserId(User);
-                var company = companyRepository.GetOne(where: e => e.Id.ToString() == userId);
+                var userId = userManager.GetUserName(User);
+                var company = companyRepository.GetOne(where: e => e.UserName == userId);
 
                 if (company == null)
                 {
@@ -74,9 +92,8 @@ namespace HotelReservation.Areas.Company.Controllers
                 }
 
                 hotel.CompanyId = company.Id;
-
-                
-                hotelRepository.CreateWithImage(hotel, ImgFile, "Main imgs", "CoverImg");
+                ViewBag.Img = userId;
+                hotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -86,8 +103,8 @@ namespace HotelReservation.Areas.Company.Controllers
         // GET: HotelsController/Edit/5
         public ActionResult Edit(int id)
         {
-            var user = userManager.GetUserId(User);
-            ViewBag.CompanyId = companyRepository.Get(where: e => e.Id.ToString() == user);
+            var user = userManager.GetUserName(User);
+            ViewBag.CompanyId = companyRepository.GetOne(where: e => e.UserName == user);
             var hotel = hotelRepository.GetOne(where: e => e.Id == id);
             return View(hotel);
         }
@@ -100,8 +117,9 @@ namespace HotelReservation.Areas.Company.Controllers
             ModelState.Remove(nameof(ImgFile));
             if (ModelState.IsValid)
             {
+                var user = userManager.GetUserName(User);
                 var oldHotel = hotelRepository.GetOne(where: e => e.Id == hotel.Id);
-                hotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "Main imgs", "CoverImg");
+                hotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
             }
             return NotFound();
@@ -122,7 +140,8 @@ namespace HotelReservation.Areas.Company.Controllers
         public ActionResult Delete(Hotel hotel)
         {
             var oldHotel = hotelRepository.GetOne(where: e => e.Id == hotel.Id);
-            hotelRepository.DeleteWithImage(oldHotel, "Main imgs", oldHotel.CoverImg);
+            var user = userManager.GetUserName(User);
+            hotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
             hotelRepository.Commit();
             return RedirectToAction(nameof(Index));
         }
