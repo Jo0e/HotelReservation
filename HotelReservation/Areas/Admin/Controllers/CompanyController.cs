@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Models.ViewModels;
 using Utilities.Utility;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
@@ -83,34 +84,58 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var company = companyRepository.GetOne(where: e => e.Id == id);
             if (company == null) return NotFound();
-
             return View(company);
         }
         [HttpPost]
-        public IActionResult Edit(Models.Models.Company company)
+        public async Task<IActionResult> Edit(CompanyViewModel companyVM , IFormFile ProfileImage)
         {
+            ModelState.Remove(nameof(ProfileImage));
+            ModelState.Remove(nameof(companyVM.Passwords));
+            ModelState.Remove(nameof(companyVM.ConfirmPassword));
+            
             if (ModelState.IsValid)
             {
+                var company = companyRepository.GetOne(where:e => e.Id == companyVM.Id ,tracked:false);
+                var user= await userManager.FindByEmailAsync(company.Email);
+                var appUser = user as ApplicationUser;
+
+                appUser.Email=company.Email;
+                appUser.PhoneNumber=company.PhoneNumber;
+                appUser.City=company.Addres;
+                companyRepository.UpdateProfileImage(appUser,ProfileImage);
+                
+                var result = await userManager.UpdateAsync(appUser);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(companyVM);
+                }
+                mapper.Map(companyVM,company);
+                company.ProfileImage = appUser.ProfileImage;
                 companyRepository.Update(company);
                 companyRepository.Commit();
 
-                TempData["SuccessMessage"] = "Company details updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = "There was an error updating the company details.";
-            return View(company);
+            return View(companyVM);
         }
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var company = companyRepository.GetOne(where: e => e.Id == id);
             if (company == null)
                 return NotFound();
 
+            var user = await userManager.FindByEmailAsync(company.Email);
+            userManager.DeleteAsync(user);
+            Thread.Sleep(500);
+            companyRepository.DeleteProfileImage(company);
             companyRepository.Delete(company);
             companyRepository.Commit();
 
-            TempData["SuccessMessage"] = "Company deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 

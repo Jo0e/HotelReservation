@@ -10,6 +10,7 @@ namespace Models.ViewModels
 {
     public class CompanyViewModel
     {
+        public int Id { get; set; }
         [ValidateNever]
         public string UserName { get; set; }
         [Required]
