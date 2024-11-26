@@ -38,6 +38,57 @@ namespace Infrastructures.Repository
 
         }
 
+        public void UpdateProfileImage(ApplicationUser entity, IFormFile newImageFile)
+        {
+            if (newImageFile != null && newImageFile.Length > 0)
+            {
+                var profileFolderPath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\profile\\{entity.Email}");
+
+                // Ensure the directory exists
+                if (!Directory.Exists(profileFolderPath))
+                {
+                    Directory.CreateDirectory(profileFolderPath);
+                }
+
+                var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(newImageFile.FileName);
+                var newFilePath = Path.Combine(profileFolderPath, newFileName);
+
+                // Delete the old profile photo if it exists
+                if (!string.IsNullOrEmpty(entity.ProfileImage))
+                {
+                    var oldFilePath = Path.Combine(profileFolderPath, entity.ProfileImage);
+                    if (File.Exists(oldFilePath))
+                    {
+                        File.Delete(oldFilePath);
+                    }
+                }
+
+                // Save the new profile photo
+                using (var stream = new FileStream(newFilePath, FileMode.Create, FileAccess.Write))
+                {
+                    newImageFile.CopyTo(stream);
+                }
+
+                // Update the entity with the new file name
+                entity.ProfileImage = newFileName;
+
+            }
+        }
+
+        public void DeleteProfileImage(Company company)
+        {
+            var profileFolderPath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\profile\\{company.Email}");
+            var newFileName = company.ProfileImage;
+            var finalFilePath = Path.Combine(profileFolderPath, newFileName);
+            if (File.Exists(finalFilePath)) 
+            {
+                File.Delete(finalFilePath);
+            }
+
+        }
+
+
+
 
     }
 }
