@@ -91,11 +91,10 @@ namespace Infrastructures.Repository
         {
             if (imageFile != null && imageFile.Length > 0)
             {
-               
+
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
                 var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\{imageFolder}");
 
-                
                 if (!Directory.Exists(directoryPath))
                 {
                     Directory.CreateDirectory(directoryPath);
@@ -103,37 +102,18 @@ namespace Infrastructures.Repository
 
                 var filePath = Path.Combine(directoryPath, fileName);
 
-                Console.WriteLine($"File Path: {filePath}");
-
-                try
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        imageFile.CopyTo(stream);
-                    }
-
-                   
-                    var property = typeof(T).GetProperty(imageUrlProperty);
-                    if (property != null)
-                    {
-                        property.SetValue(entity, fileName);
-                    }
+                    imageFile.CopyTo(stream);
                 }
-                catch (Exception ex)
+
+                var property = typeof(T).GetProperty(imageUrlProperty);
+                if (property != null)
                 {
-                    
-                    Console.WriteLine($"Error saving file: {ex.Message}");
-                    throw; 
+                    property.SetValue(entity, fileName);
                 }
             }
-            else
-            {
-                
-                Console.WriteLine("No image file uploaded.");
-            }
 
-            
             dbSet.Add(entity);
             context.SaveChanges();
         }
