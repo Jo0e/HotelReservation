@@ -61,7 +61,8 @@ namespace HotelReservation
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
             builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            
+            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+
 
             var app = builder.Build();
 
