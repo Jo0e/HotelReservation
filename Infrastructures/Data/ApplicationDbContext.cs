@@ -103,6 +103,13 @@ namespace Infrastructures.Data
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        
+        
+        
+        
+            
+        
+        
         }
     }
 }
