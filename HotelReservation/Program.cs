@@ -23,16 +23,17 @@ namespace HotelReservation
            .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             //Other service registrations...
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedAccount = true;
                 options.SignIn.RequireConfirmedEmail = false;
             })
                .AddDefaultUI()
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
-
+           
 
             //builder.Services.AddAuthentication().AddGoogle(googleOptions =>
             //{
@@ -68,6 +69,7 @@ namespace HotelReservation
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             var app = builder.Build();
 
