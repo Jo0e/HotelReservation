@@ -72,7 +72,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Details(int id)
         {
             var hotel = hotelRepository.GetOne(
-                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities] ,
+                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes] ,
                 where: h => h.Id == id
             );
 
