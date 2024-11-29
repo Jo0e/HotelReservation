@@ -42,7 +42,6 @@
     <Folder Include="wwwroot\images\profile\" />
     <Folder Include="wwwroot\images\profile\ykj627%40gmail.com\" />
     <Folder Include="wwwroot\images\subImage\Silver Star Hotel\" />
-    <Folder Include="wwwroot\images\subImage\test\" />
   </ItemGroup>
 
 </Project>

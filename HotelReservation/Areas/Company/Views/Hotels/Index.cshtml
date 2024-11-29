@@ -11,6 +11,9 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<p>
+    <a asp-controller="Amenity" asp-action="Index">Amenities</a>
+</p>
 <table class="table">
     <thead>
         <tr>
@@ -61,6 +64,7 @@
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="ImageList" asp-route-hotelId="@item.Id">ViewImageList</a> | |
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>||
+                    <a asp-controller="HotelAmenity" asp-action="Index" asp-route-id="@item.Id">View Amenities</a> |
                     <a asp-controller="Rooms" asp-action="Index" asp-route-id="@item.Id">Rooms</a>
                 </td>
             </tr>
