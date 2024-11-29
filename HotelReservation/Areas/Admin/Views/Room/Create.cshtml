@@ -2,13 +2,12 @@
 @model Room
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Room";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ICollection<RoomType> roomTypes = ViewBag.Type ;
-
+    ICollection<RoomType> roomTypes = ViewBag.RoomTypes;
 }
 
-<h1>Create</h1>
+<h1>Create Room</h1>
 
 <h4>Room</h4>
 <hr />
@@ -16,23 +15,30 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" type="hidden" value="true" asp-for="IsAvailable" /> 
-                </label>
+
+            <!-- Hidden HotelId field -->
+            <input asp-for="HotelId" type="hidden" value="@ViewBag.HotelId" />
+
+            <!-- RoomType dropdown list -->
+            <div class="form-group">
+                <label asp-for="RoomTypeId" class="control-label"></label>
+                <select class="form-select" asp-for="RoomTypeId">
+                    <option selected disabled hidden>Choose a room type</option>
+                    @foreach (var item in roomTypes)
+                    {
+                        <option value="@item.Id">@item.Type</option>
+                    }
+                </select>
+                <span asp-validation-for="RoomTypeId" class="text-danger"></span>
             </div>
-            <input type="hidden" name="HotelId" value="@ViewBag.HotelId">
 
+            <!-- Availability checkbox -->
+            <div class="form-group form-check">
+                <label asp-for="IsAvailable" class="form-check-label"></label>
+                <input asp-for="IsAvailable" class="form-check-input" type="checkbox" />
+            </div>
 
-            <label asp-for="RoomTypeId" class="control-label"></label>
-            <select class="form-select" name="RoomTypeId">
-                <option selected disabled hidden>Open this select menu</option>
-                @foreach (var item in roomTypes)
-                {
-                    <option value="@item.Id">@item.Type</option>
-                }
-            </select>
-
+            <!-- Submit button -->
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -41,9 +47,11 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-route-id="@ViewBag.HotelId">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -1,46 +1,61 @@
 ﻿
+using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Utilities.Profles;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
     [Area("Company")]
     public class HotelsController : Controller
     {
+        private readonly IImageListRepository imageListRepository;
         private readonly IReportRepository reportRepository;
         private readonly IHotelRepository hotelRepository;
         private readonly ICompanyRepository companyRepository;
         private readonly UserManager<IdentityUser> userManager;
-        public HotelsController(IReportRepository reportRepository,IHotelRepository hotelRepository,ICompanyRepository companyRepository,UserManager<IdentityUser> userManager)
+        public HotelsController(IImageListRepository imageListRepository,IReportRepository reportRepository,IHotelRepository hotelRepository,ICompanyRepository companyRepository,UserManager<IdentityUser> userManager)
         {
+            this.imageListRepository = imageListRepository;
             this.reportRepository = reportRepository;
             this.hotelRepository = hotelRepository;
             this.companyRepository = companyRepository;
             this.userManager = userManager;
         }
-        
+
         // GET: HotelsController
-        public ActionResult Index()
+        public IActionResult Index()
         {
             try
             {
-                var user = userManager.GetUserName(User);
-                var Company = companyRepository.GetOne(where:e=>e.UserName==user).Id;
-                var Hotels = hotelRepository.Get(where: e => e.CompanyId == Company);
-                return View(Hotels.ToList());
+                var userName = userManager.GetUserName(User);
+
+                if (string.IsNullOrEmpty(userName))
+                {
+                    return RedirectToAction("Index", "Home", new { area = "Customer" });
+                }
+
+                var company = companyRepository.GetOne(where: e => e.UserName == userName);
+
+                if (company == null)
+                {
+                    return NotFound("No associated company found for the current user.");
+                }
+
+                var hotels = hotelRepository.Get(where: e => e.CompanyId == company.Id);
+                return View(hotels.ToList());
             }
             catch (Exception ex)
-            {
-                
+            {               
                 return RedirectToAction("Error", "Home");
             }
         }
+        
 
-        // GET: HotelsController/Details/5
         public ActionResult Details(int id)
         {
             var user = userManager.GetUserId(User);
@@ -48,15 +63,12 @@ namespace HotelReservation.Areas.Company.Controllers
             return View(Hotels);
         }
 
-        // GET: HotelsController/Create
         public ActionResult Create()
         {
             var userName = userManager.GetUserName(User);  
             var company = companyRepository.GetOne(where: e => e.UserName == userName);
-
             if (company == null)
-            {
-                
+            {            
                 ModelState.AddModelError("", "No company found for this user.");
                 return View(); 
             }
@@ -92,7 +104,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 }
 
                 hotel.CompanyId = company.Id;
-                ViewBag.Img = userId;
+                //ViewBag.Img = userId;
                 hotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
             }
@@ -100,13 +112,20 @@ namespace HotelReservation.Areas.Company.Controllers
             return View(hotel); 
         }
 
-        // GET: HotelsController/Edit/5
+        
         public ActionResult Edit(int id)
         {
-            var user = userManager.GetUserName(User);
-            ViewBag.CompanyId = companyRepository.GetOne(where: e => e.UserName == user);
-            var hotel = hotelRepository.GetOne(where: e => e.Id == id);
-            return View(hotel);
+            var user = userManager.GetUserName(User);         
+           
+            var Comapny= companyRepository.GetOne(where: e => e.UserName == user);
+            var hotel = new Hotel
+            {
+                CompanyId = Comapny.Id
+            };
+            ViewData["CompanyId"] = Comapny?.Id;
+
+            var Hotel = hotelRepository.GetOne(where: e => e.Id == id);
+            return View(Hotel);
         }
 
         // POST: HotelsController/Edit/5
@@ -117,7 +136,6 @@ namespace HotelReservation.Areas.Company.Controllers
             ModelState.Remove(nameof(ImgFile));
             if (ModelState.IsValid)
             {
-                var user = userManager.GetUserName(User);
                 var oldHotel = hotelRepository.GetOne(where: e => e.Id == hotel.Id);
                 hotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
@@ -126,24 +144,61 @@ namespace HotelReservation.Areas.Company.Controllers
 
         }
 
-        // GET: HotelController/Delete/5
+        
         public ActionResult Delete(int id)
         {
-            var hotel = hotelRepository.GetOne(where: e => e.Id == id);
-
-            return View(hotel);
-        }
-
-        // POST: HotelsController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(Hotel hotel)
-        {
-            var oldHotel = hotelRepository.GetOne(where: e => e.Id == hotel.Id);
-            var user = userManager.GetUserName(User);
+            var oldHotel = hotelRepository.GetOne(where: e => e.Id == id);
+            if(oldHotel!=null)
+            {
+                imageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
+            }
             hotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
+            
             hotelRepository.Commit();
             return RedirectToAction(nameof(Index));
         }
+        public ActionResult ImageList(int hotelId)
+        {
+            if (hotelId != 0)
+            {
+                Response.Cookies.Append("HotelId", hotelId.ToString());
+            }
+            if (hotelId == 0)
+            {
+                hotelId = int.Parse(Request.Cookies["HotelId"]);
+            }
+            ViewBag.HotelId = hotelId;
+            ViewBag.HotelName = hotelRepository.GetOne(where: n => n.Id == hotelId)?.Name;
+            var imgs = imageListRepository.Get(where: p => p.HotelId == hotelId);
+            return View(imgs);
+        }
+        public ActionResult CreateImgList(int hotelId)
+        {
+            ViewBag.HotelId = hotelId;
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateImgList(ImageList imageList, ICollection<IFormFile> ImgUrl)
+        {
+            var hotel = hotelRepository.GetOne(where: e => e.Id == imageList.HotelId, tracked: false);
+            imageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
+            return RedirectToAction(nameof(ImageList));
+        }
+        public ActionResult DeleteImgList(int id)
+        {
+            var img = imageListRepository.GetOne(where: e => e.Id == id, tracked: false);
+            var hotel = hotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
+            imageListRepository.DeleteImageList(id, hotel.Name);
+            return RedirectToAction(nameof(ImageList));
+        }
+
+        public ActionResult DeleteAllImgList(int id)
+        {
+            var hotel = hotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == id, tracked: false);
+            imageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
+            return RedirectToAction(nameof(ImageList));
+        }
+
     }
 }

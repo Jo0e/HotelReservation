@@ -1,5 +1,40 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Models.Models
+@model IEnumerable<ImageList>
+
 @{
+    ViewData["Title"] = "ImageList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string folderName = ViewBag.HotelName;
 }
+
+<h1>ImageList</h1>
+
+<p>
+    <a asp-action="CreateImgList" asp-route-hotelId="@ViewBag.HotelId">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ImgUrl)
+            </th>
+            <th>
+                <a asp-action="DeleteAllImgList" asp-route-id="@ViewBag.HotelId">Delete All</a>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <img src="~/images/subImage/@folderName/@item.ImgUrl" class="w-25 h-25" alt="Alternate Text" />
+                </td>
+
+                <td>
+                    <a asp-action="DeleteImgList" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
