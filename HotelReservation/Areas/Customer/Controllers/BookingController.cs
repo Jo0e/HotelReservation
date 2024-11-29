@@ -3,6 +3,7 @@ using Infrastructures.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Models.Models;
 using Models.ViewModels;
 
@@ -20,8 +21,10 @@ namespace HotelReservation.Areas.Customer.Controllers
         private readonly IHotelRepository hotelRepository;
         private readonly ICouponRepository couponRepository;
         private readonly IRoomTypeRepository roomTypeRepository;
+        private readonly IRoomRepository roomRepository;
 
-        public BookingController(IReservationRepository reservationRepository, UserManager<IdentityUser> userManager,IRepository<ReservationRoom> reservationRoomRepository,IHotelRepository hotelRepository,ICouponRepository couponRepository,IRoomTypeRepository roomTypeRepository)
+        public BookingController(IReservationRepository reservationRepository, UserManager<IdentityUser> userManager, IRepository<ReservationRoom> reservationRoomRepository, IHotelRepository hotelRepository, ICouponRepository couponRepository
+            , IRoomTypeRepository roomTypeRepository, IRoomRepository roomRepository)
         {
             this.reservationRepository = reservationRepository;
             this.userManager = userManager;
@@ -29,127 +32,39 @@ namespace HotelReservation.Areas.Customer.Controllers
             this.hotelRepository = hotelRepository;
             this.couponRepository = couponRepository;
             this.roomTypeRepository = roomTypeRepository;
+            this.roomRepository = roomRepository;
         }
 
-        
+
         [HttpGet]
-        public IActionResult Book(int hotelId)
+        public IActionResult Book(ReservationViewModel viewModel)
         {
-            var hotel = hotelRepository.GetOne(
-                include: [h => h.RoomTypes],
-                where: h => h.Id == hotelId,
-                tracked: false
-            );
+            if (viewModel.ChildrenAge != null && viewModel.NChildren == viewModel.ChildrenAge.Count)
+                foreach (var item in viewModel.ChildrenAge)
+                    if (item >= 5)
+                        viewModel.NAdult += 1;
+             
 
-            if (hotel == null)
-            {
-                return RedirectToAction("NotFound");
-            }
+            
+            var rooms = roomRepository.Get(where: h => h.HotelId == viewModel.HotelId 
+            && h.RoomType.MaxPersons>= viewModel.NAdult
+            && h.RoomType.Type == viewModel.RoomType
+            , include: [e => e.RoomType]);
 
-            ViewBag.RoomTypes = hotel.RoomTypes.Select(rt => new SelectListItem
-            {
-                Value = rt.Id.ToString(),
-                Text = $"{rt.Type} - {rt.PricePN.ToString("C")}"
-            }).ToList();
+            var roomsCount = rooms.Select(a => a.IsAvailable == true).Count();
+            if (roomsCount <= viewModel.RoomCount )
+                return View(rooms);
 
-            return View(new ReservationViewModel { 
-                HotelId = hotelId,
-               
-            });
+            return RedirectToAction("Index","Home");
         }
-        
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Book(ReservationViewModel model)
-        {
-            var appUser = userManager.GetUserId(User);
 
-            if (string.IsNullOrEmpty(appUser))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (ModelState.IsValid)
-            {
-                var roomType = roomTypeRepository.GetOne(where: rt => rt.Id == model.RoomTypeId);
-                if (roomType == null)
-                {
-                    TempData["Error"] = "Invalid room type selected.";
-                    return RedirectToAction("Book", new { hotelId = model.HotelId });
-                }
-
-                double totalPrice = roomType.PricePN * model.RoomCount;
-                if (model.IncludesMeal)
-                {
-                    totalPrice += model.RoomCount * 20; 
-                }
-
-                
-                Coupon? appliedCoupon = null;
-                if (!string.IsNullOrWhiteSpace(model.CouponCode))
-                {
-                    appliedCoupon = couponRepository.GetOne(where: c => c.Code == model.CouponCode);
-
-                    if (appliedCoupon != null)
-                    {
-                        totalPrice -= totalPrice * (appliedCoupon.Discount / 100); 
-                    }
-                    else
-                    {
-                        TempData["Error"] = "Invalid or expired coupon code.";
-                        return RedirectToAction("Book", new { hotelId = model.HotelId });
-                    }
-                }
-                var reservation = new Reservation
-                {
-                    UserId = appUser,
-                    NAdult = model.NAdult,
-                    NChildren = model.NChildren,
-                    RoomCount=model.RoomCount,
-                    CheckInDate=model.CheckInDate,
-                    CheckOutDate=model.CheckOutDate,
-                    CouponId = appliedCoupon?.Id,
-
-                };
-                reservationRepository.Create(reservation);
-                reservationRepository.Commit();
-
-                for (int i = 0; i < model.RoomCount; i++)
-                {
-                    var reservationRoom = new ReservationRoom
-                    {
-                        ReservationID = reservation.Id,
-                        RoomId = model.RoomTypeId
-                    };
-                    reservationRoomRepository.Create(reservationRoom);
-                }
-
-                reservationRoomRepository.Commit();
-                TempData["Success"] = "Booking successfully created!";
-                return RedirectToAction("Index", "Home");
-            }
-
-            var hotel = hotelRepository.GetOne(
-                include: [h => h.RoomTypes],
-                where: h => h.Id == model.HotelId,
-                tracked: false
-            );
-
-            ViewBag.RoomTypes = hotel?.RoomTypes.Select(rt => new SelectListItem
-            {
-                Value = rt.Id.ToString(),
-                Text = $"{rt.Type} - {rt.PricePN.ToString("C")}"
-            }).ToList();
-
-            TempData["Error"] = "Failed to create the booking. Please try again.";
-            return View(model);
-        }
+       
         public IActionResult Pay()
         {
             var appUser = userManager.GetUserId(User);
             var reservations = reservationRepository.Get(
-             include: [ r => r.ReservationRooms],
+             include: [r => r.ReservationRooms],
              where: r => r.UserId == appUser
              ).ToList();
             var options = new SessionCreateOptions
@@ -172,7 +87,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                         {
                             Name = $"Hotel:................., Room(s): {item.RoomCount}"
                         },
-                        UnitAmountDecimal = 1000 *100, //static             // reservation.TotalPrice * 100,
+                        UnitAmountDecimal = 1000 * 100, //static             // reservation.TotalPrice * 100,
                     },
                     Quantity = 1,
                 };

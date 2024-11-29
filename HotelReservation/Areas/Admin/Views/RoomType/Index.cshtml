@@ -21,27 +21,75 @@
             <th>
                 @Html.DisplayNameFor(model => model.PricePN)
             </th>
-            
+            <th>
+                @Html.DisplayNameFor(model => model.MealPrice)
+            </th>
+
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaxPersons)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PricePN)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaxPersons)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PricePN)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MealPrice)
+                </td>
+                <td>
+                    <a asp-action="Edit" class="btn btn-secondary" asp-route-id="@item.Id">Edit</a> |
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" data-code="@item.Type">
+                        <i class="bi bi-trash3-fill"></i> Delete
+                    </button>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the type <strong id="typeCode"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDelete" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var typeId = button.getAttribute('data-id');
+            var typeCode = button.getAttribute('data-code');
+
+            // Set the coupon code in the modal
+            document.getElementById('typeCode').textContent = typeCode;
+
+            // Set the delete link
+            var confirmDelete = document.getElementById('confirmDelete');
+            confirmDelete.href = '/Admin/RoomType/Delete?id=' + typeId;
+        });
+    </script>
+    }

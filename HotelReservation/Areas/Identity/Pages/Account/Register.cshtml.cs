@@ -25,6 +25,7 @@ using Microsoft.IdentityModel.Tokens;
 using Models.Models;
 using NuGet.Protocol.Core.Types;
 using Utilities.Utility;
+using IEmailSender = Microsoft.AspNetCore.Identity.UI.Services.IEmailSender;
 
 namespace HotelReservation.Areas.Identity.Pages.Account
 {
