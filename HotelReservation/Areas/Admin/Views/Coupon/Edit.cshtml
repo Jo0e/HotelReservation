@@ -1,38 +1,53 @@
-﻿@model Coupon
-<div class="text-center">
+﻿@using Models.Models
+@model Coupon
 
-    <h1 class="display-4">Editing Coupon</h1>
-</div>
-<br />
-<br />
-<div>
-    <label for="exampleInputCoupon" class="form-label mt-4">Code</label>
-    <input type="number" class="form-control" id="exampleInputCoupon" placeholder="@Model.Code">
-</div>
-<br />
-<br />
-<div>
-    <label for="exampleInputCoupon" class="form-label mt-4">Limit</label>
-    <input type="number" class="form-control" id="exampleInputCoupon" placeholder="@Model.Limit">
-</div>
-<br />
-<br />
-<div>
-    <label for="exampleInputCoupon" class="form-label mt-4">Discount</label>
-    <input type="number" class="form-control" id="exampleInputCoupon" placeholder="@Model.Discount">
-</div>
-<br />
-<br />
-<div>
-    <label for="exampleInputCoupon" class="form-label mt-4">Expire Date</label>
-    <input type="date" class="form-control" id="exampleInputCoupon" placeholder="@Model.ExpireDate">
-</div>
-<br />
-<br />
-<div>
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
+<h1>Edit</h1>
 
-    <button type="submit" class="btn btn-primary">Edit</button>
-
-
+<h4>Coupon</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Code" class="control-label"></label>
+                <input asp-for="Code" class="form-control" />
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Limit" class="control-label"></label>
+                <input asp-for="Limit" class="form-control" />
+                <span asp-validation-for="Limit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Discount" class="control-label"></label>
+                <input asp-for="Discount" class="form-control" />
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExpireDate" class="control-label"></label>
+                <input asp-for="ExpireDate" type="date" class="form-control" />
+                <span asp-validation-for="ExpireDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
 </div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

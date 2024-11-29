@@ -17,17 +17,13 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var coupons = couponRepository.Get();
 
-            return View(model:coupons);
+            return View(model: coupons);
         }
         [HttpGet]
-        public IActionResult Create() {
+        public IActionResult Create()
+        {
 
-            Coupon coupon = new Coupon();
-
-            return View(model:coupon);
-
-
-            
+            return View();
         }
         [HttpPost]
         public IActionResult Create(Coupon coupon)
@@ -38,18 +34,20 @@ namespace HotelReservation.Areas.Admin.Controllers
                 couponRepository.Commit();
                 return RedirectToAction(nameof(Index));
             }
-            
-                return View(model:coupon);
-        }
-        public IActionResult Edit(int couponid) {
-            var coupon = couponRepository.GetOne(where: o => o.Id == couponid);
 
-            if(coupon!=null)
-            { return View(model: coupon);
+            return View(model: coupon);
+        }
+        public IActionResult Edit(int couponId)
+        {
+            var coupon = couponRepository.GetOne(where: o => o.Id == couponId);
+
+            if (coupon != null)
+            {
+                return View(model: coupon);
             }
 
-            return RedirectToAction("NotFound","Home");
-        
+            return RedirectToAction("NotFound", "Home");
+
         }
 
         [HttpPost]
@@ -60,12 +58,9 @@ namespace HotelReservation.Areas.Admin.Controllers
                 couponRepository.Update(coupon);
                 couponRepository.Commit();
 
-                RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
-
-
             return View(coupon);
-
         }
 
         public IActionResult Delete(int couponid)
@@ -75,17 +70,10 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (coupon == null)
                 RedirectToAction("NotFound", "Home");
 
-
             couponRepository.Delete(coupon);
             couponRepository.Commit();
 
             return RedirectToAction(nameof(Index));
-
-
-
         }
-    
-    
-    
     }
 }

@@ -9,6 +9,7 @@ namespace Infrastructures.Repository.IRepository
         void Create(T entity);
         void Update(T entity);
         void Delete(T entity);
+        void DeleteRange(IEnumerable<T> entity);
         void Commit();
 
         IEnumerable<T> Get(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true);

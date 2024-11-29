@@ -5,42 +5,38 @@
     <p>@Model.Description</p>
 
     <h3>Images</h3>
-    <div id="hotelImagesCarousel" class="carousel slide" data-ride="carousel">
-        <div class="carousel-inner">
-            @foreach (var img in Model.ImageLists)
-            {
-                <div class="carousel-item active ">
-                    <img src="~/images/subImage/@Model.Name/@img.ImgUrl" class="d-block w-25" alt="Hotel Image">
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 mb-4">
+                <img src="~/images//homeImage/@Model.CoverImg" class="main-img" id="mainImage" alt="Main Image">
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    @foreach (var img in Model.ImageLists)
+                    {
+                        <div class="col-6 mb-2">
+                            <img src="~/images/subImage/@Model.Name/@img.ImgUrl" class="img-fluid thumbnail-img" onclick="changeMainImage('@Url.Content($"~/images/subImage/{@Model.Name}/{@img.ImgUrl}")')" alt="Hotel Image">
+                        </div>
+                    }
                 </div>
-            }
+            </div>
         </div>
-        <a class="carousel-control-prev" href="#hotelImagesCarousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#hotelImagesCarousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
     </div>
 
-     <h3>Rooms</h3>
-    <p>Total Rooms: @Model.Rooms.Count</p>
-    <p>Available Rooms: @Model.Rooms.Count(r => r.IsAvailable)</p>
-
-    <ul>
-        @foreach (var room in Model.RoomTypes)
-        {
-            <li>
-                <strong>@room.AvailableRooms . @room.Type</strong> - @room.PricePN.ToString("C")
-
-               
-                
-            </li>
+    <script>
+        function changeMainImage(src) {
+            document.getElementById('mainImage').src = src;
         }
-        <a asp-area="Customer" asp-controller="Booking" asp-action="Book" asp-route-hotelId="@Model.Id"  class="btn btn-primary">Book Room</a>
+    </script>
 
-    </ul>
-
-    
 </div>
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

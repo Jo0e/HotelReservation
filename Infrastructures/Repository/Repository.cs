@@ -78,6 +78,12 @@ namespace Infrastructures.Repository
             dbSet.Remove(entity);
         }
 
+        public void DeleteRange(IEnumerable<T> entity)
+        {
+            dbSet.RemoveRange(entity);
+        }
+
+
         public void Commit()
         {
             context.SaveChanges();
