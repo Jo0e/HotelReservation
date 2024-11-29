@@ -1,11 +1,42 @@
-﻿<form action="/Booking/Index">
-    <input type="hidden" name="HotelId" value="@Model.Id" />
-    <div class="row d-flex mb-3">
-        <div class="col-8">
-            <input type="number" class="form-control" name="count" placeholder="Count...">
-        </div>
-        <div class="col-4">
-            <button type="submit" class="btn btn-primary">Book </button>
+﻿@model Hotel
+
+<div class="hotel-details">
+    <h1>@Model.Name</h1>
+    <p>@Model.Description</p>
+
+    <h3>Images</h3>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 mb-4">
+                <img src="~/images//homeImage/@Model.CoverImg" class="main-img" id="mainImage" alt="Main Image">
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    @foreach (var img in Model.ImageLists)
+                    {
+                        <div class="col-6 mb-2">
+                            <img src="~/images/subImage/@Model.Name/@img.ImgUrl" class="img-fluid thumbnail-img" onclick="changeMainImage('@Url.Content($"~/images/subImage/{@Model.Name}/{@img.ImgUrl}")')" alt="Hotel Image">
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-</form>
+
+    <script>
+        function changeMainImage(src) {
+            document.getElementById('mainImage').src = src;
+        }
+    </script>
+
+</div>
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

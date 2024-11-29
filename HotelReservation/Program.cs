@@ -4,6 +4,8 @@ using Infrastructures.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Models;
+using Stripe;
+using Utilities.Utility;
 
 namespace HotelReservation
 {
@@ -18,19 +20,21 @@ namespace HotelReservation
             builder.Services.AddRazorPages();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options
-           .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+           .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
+           ,b=>b.MigrationsAssembly("Infrastructures")));
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             //Other service registrations...
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedAccount = true;
                 options.SignIn.RequireConfirmedEmail = false;
             })
                .AddDefaultUI()
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
-
+           
 
             //builder.Services.AddAuthentication().AddGoogle(googleOptions =>
             //{
@@ -61,7 +65,12 @@ namespace HotelReservation
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
             builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            
+            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             var app = builder.Build();
 

@@ -17,14 +17,26 @@ namespace HotelReservation.Areas.Customer.Controllers
             this.hotelRepository = hotelRepository;
         }
 
-        
-        public IActionResult Index()
-        {           
-            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
-            var hotelsByCity = hotels.GroupBy(h => h.City)
-                                     .Select(g => g.First())
-                                     .ToList();
 
+        public IActionResult Index(string search = null)
+        {
+            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
+
+
+          
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                                            h.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+            var hotelsByCity = hotels.GroupBy(h => h.City)
+                               .Select(g => g.First())
+                               .ToList();
+            int TotalResult = hotels.Count();
+
+            ViewBag.totalResult = TotalResult;
+            ViewBag.search = search;
             return View(hotelsByCity);
         }
 
@@ -60,7 +72,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Details(int id)
         {
             var hotel = hotelRepository.GetOne(
-                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities] ,
+                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes] ,
                 where: h => h.Id == id
             );
 
