@@ -1,8 +1,24 @@
 ﻿@model ICollection<Hotel>
-
+ 
 <div class="container mt-4">
-    <h1 class="text-center">Explore Hotels by City</h1>
+        <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
+            <input class="form-control me-sm-2"
+            type="search"
+            placeholder="Search by Name or Description"
+            value="@ViewBag.search"
+            name="search" />
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+        </form>
 
+    @if (ViewBag.search != null)
+    {
+        <h6 class="row-cols-1">
+            Total Results: @ViewBag.totalResult
+    </h6>
+    }
+    <br />   
+    <h1 class="text-center">Explore Hotels by City</h1>
+    <br />
     <div class="row">
         @if (Model.Any())
         {
