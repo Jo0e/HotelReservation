@@ -11,6 +11,9 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<p>
+    <a asp-controller="Amenity" asp-action="Index">Amenities</a>
+</p>
 <table class="table">
     <thead>
         <tr>
@@ -52,16 +55,17 @@
                     @Html.DisplayFor(modelItem => item.City)
                 </td>
                 <td width="30%">
-                    <img src="images/homeImage/@item.CoverImg" class="w-25 h-auto" alt="Alternate Text" />
+                    <img src="~/images/homeImage/@item.CoverImg" class="w-25 h-auto" alt="Alternate Text" />
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.company.Email)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="" asp-route-id="@item.Id">Edit image List</a> | |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    <a asp-controller="Room" asp-action="Create">AddRooms</a>
+                    <a asp-action="ImageList" asp-route-hotelId="@item.Id">ViewImageList</a> | |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>||
+                    <a asp-controller="HotelAmenity" asp-action="Index" asp-route-id="@item.Id">View Amenities</a> |
+                    <a asp-controller="Rooms" asp-action="Index" asp-route-id="@item.Id">Rooms</a>
                 </td>
             </tr>
         }

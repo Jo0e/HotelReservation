@@ -1,0 +1,61 @@
+﻿@model Models.Models.HotelAmenities
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<int> hotelAmenities = ViewBag.HotelAmenities as List<int>;
+}
+
+<h1>Create</h1>
+
+<h4>HotelAmenities</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input asp-for="HotelId" type="hidden" name="HotelId" value="@ViewBag.HotelId">
+            </div>
+            <div class="form-group">
+                <label asp-for="AmenityId" class="control-label"></label>
+
+
+                <div class="container mt-6">
+                    <div class="form-group">
+                        <label for="amenities">Select Amenities:</label>
+                        <div class="row">
+                            @foreach (var item in ViewBag.Amenity)
+                            {
+                                var isChecked = hotelAmenities.Contains(item.Id);
+                                <div class="col-md-5 amenity-checkbox">
+                                    <input type="checkbox" class="form-check-input" id="amenity_@item.Id" name="amenitiesId" value="@item.Id" @(isChecked ? "checked" : "") />
+                                    <label class="form-check-label" for="amenity_@item.Id">
+                                        &nbsp;
+                                        <img src="~/images/amenities/@item.Img" class="rounded-circle w-25" alt="@item.Name" /> @item.Name
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

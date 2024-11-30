@@ -19,7 +19,7 @@
     </div>
 </div>
 
-<form asp-action="DeleteConfirmed" method="post">
+<form asp-action="Delete" method="post">
     <input type="hidden" asp-for="Id" />
     <input type="submit" value="Delete" class="btn btn-danger" />
     <a asp-action="Index" asp-route-id="@Model.HotelId" class="btn btn-secondary">Cancel</a>

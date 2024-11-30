@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Models.Models.RoomType>
+
+@{
+    ViewData["Title"] = "Room Types";
+}
+
+<h1>Room Types</h1>
+
+<p>
+    <a asp-action="Create" asp-route-hotelId="@ViewBag.HotelId" class="btn btn-primary">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Type)</th>
+            <th>@Html.DisplayNameFor(model => model.MaxPersons)</th>
+            <th>@Html.DisplayNameFor(model => model.PricePN)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Type)</td>
+                <td>@Html.DisplayFor(modelItem => item.MaxPersons)</td>
+                <td>@Html.DisplayFor(modelItem => item.PricePN)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

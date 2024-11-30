@@ -1,98 +1,103 @@
 ﻿using Infrastructures.Repository.IRepository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
+    [Area("Company")]
     public class RoomsController : Controller
     {
+        private readonly IRoomTypeRepository typeRepository;
         private readonly IRoomRepository roomRepository;
         private readonly IHotelRepository hotelRepository;
         private readonly IRepository<RoomType> roomTypeRepository;
 
-        public RoomsController(IRoomRepository roomRepository,IHotelRepository hotelRepository,IRepository<RoomType> roomTypeRepository)
+        public RoomsController(IRoomTypeRepository typeRepository,IRoomRepository roomRepository, IHotelRepository hotelRepository, IRepository<RoomType> roomTypeRepository)
         {
+            this.typeRepository = typeRepository;
             this.roomRepository = roomRepository;
             this.hotelRepository = hotelRepository;
             this.roomTypeRepository = roomTypeRepository;
         }
+
         // GET: RoomsController
         public ActionResult Index(int id)
         {
-            var rooms = roomRepository.Get(
-                [e=>e.Hotel],
-                where: e => e.HotelId == id
-            );
 
-            if (rooms == null || !rooms.Any())
+            IEnumerable<Room> rooms;
+            if (id != 0)
             {
-                return NotFound("No rooms found for the specified hotel.");
+                Response.Cookies.Append("HotelIdCookie", id.ToString());
+                rooms = roomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
+                ViewBag.roomsCount = rooms.Select(e => e.RoomType.AvailableRooms.Value);
+                ViewBag.HotelId = id;
+                return View(rooms);
             }
+            else if (id == 0)
+            {
+                var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
+                rooms = roomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
+                ViewBag.HotelId = hotelId;
+                return View(rooms);
+            }
+            return NotFound();
 
-            ViewBag.HotelId = id; 
-            return View(rooms);
         }
-
 
         // GET: RoomsController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
-        }
+            var room = roomRepository.GetOne(
+                [e => e.Hotel, w => w.RoomType],
+                where: r => r.Id == id
+            );
 
-        public ActionResult Create(int id)
-        {
-            var hotel = hotelRepository.GetOne(where: e => e.Id == id);
-            if (hotel == null)
+            if (room == null)
             {
-                return NotFound("Hotel not found.");
+                return NotFound("Room not found.");
             }
 
-            ViewBag.HotelId = hotel.Id;
-            ViewBag.RoomTypes = roomTypeRepository.Get(); 
+            return View(room);
+        }
+        // GET: RoomsController/Create
+        public ActionResult Create(int hotelId)
+        {
+           
+            ViewBag.HotelId = hotelId;
+            ViewBag.Type = typeRepository.Get();
             return View();
         }
 
-
-
+        // POST: RoomController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Room room)
         {
-            if (!ModelState.IsValid)
+            roomRepository.Create(room);
+            roomRepository.Commit();
+            return RedirectToAction(nameof(Index), new {id=room.HotelId});
+        }
+        // POST: RoomsController/Book/5
+        public ActionResult Book(int id)
+        {
+            var room = roomRepository.GetOne(where: r => r.Id == id);
+            if (room == null)
             {
-                ViewBag.RoomTypes = roomTypeRepository.Get(); 
-                return View(room);
+                return NotFound("Room not found.");
             }
 
-            roomRepository.Create(room);
+            room.IsAvailable = !room.IsAvailable;
+
+            roomRepository.Update(room);
             roomRepository.Commit();
 
             return RedirectToAction(nameof(Index), new { id = room.HotelId });
         }
 
-
-        public ActionResult Book(int id)
-        {
-            var room = roomRepository.GetOne(where: r => r.Id == id);
-            if (room.IsAvailable == true)
-            {
-                room.IsAvailable = false;
-            }
-            else
-            {
-                room.IsAvailable = true;
-            }
-            roomRepository.Update(room);
-            roomRepository.Commit();
-            return RedirectToAction(nameof(Index));
-        }
-        // GET: RoomsController/Delete/5
         public ActionResult Delete(int id)
         {
             var room = roomRepository.GetOne(
-               [e => e.Hotel, w => w.RoomType], 
+               [e => e.Hotel, w => w.RoomType],
                 where: a => a.Id == id
             );
 
@@ -104,8 +109,7 @@ namespace HotelReservation.Areas.Company.Controllers
             return View(room);
         }
 
-
-        // POST: RoomController/Delete/5
+        // POST: RoomsController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(Room room)
@@ -114,21 +118,10 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 return NotFound("Room not found.");
             }
-
-            try
-            {
                 roomRepository.Delete(room);
-                roomRepository.Commit();
-            }
-            catch (Exception ex)
-            {
-                
-                ModelState.AddModelError("", "Unable to delete room. It may be related to other records.");
-                return View(room);
-            }
+                 roomRepository.Commit();
 
             return RedirectToAction(nameof(Index), new { id = room.HotelId });
         }
-
     }
 }
