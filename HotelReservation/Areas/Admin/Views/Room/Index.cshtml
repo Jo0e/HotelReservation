@@ -30,6 +30,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.RoomType)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoomType.MaxPersons)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoomType.PricePN)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoomType.MealPrice)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -51,6 +60,15 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.RoomType.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
                 </td>
                 <td>
                     @if (!item.IsAvailable)
@@ -85,6 +103,15 @@
                     @Html.DisplayFor(modelItem => item.RoomType.Type)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
+                </td>
+                <td>
                     @if (!item.IsAvailable)
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">Book </a>
@@ -117,6 +144,15 @@
                     @Html.DisplayFor(modelItem => item.RoomType.Type)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
+                </td>
+                <td>
                     @if (!item.IsAvailable)
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">Book </a>
@@ -147,6 +183,15 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.RoomType.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
                 </td>
                 <td>
                     @if (!item.IsAvailable)

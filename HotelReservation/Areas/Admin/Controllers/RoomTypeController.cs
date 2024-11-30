@@ -62,43 +62,43 @@ namespace HotelReservation.Areas.Admin.Controllers
         // GET: RoomTypeController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
+            var type = typeRepository.GetOne(where: e => e.Id == id);
+            return View(type);
         }
 
         // POST: RoomTypeController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(RoomType roomType)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            typeRepository.Update(roomType);
+            typeRepository.Commit();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: RoomTypeController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var type = typeRepository.GetOne(where: e => e.Id == id);
+            typeRepository.Delete(type);
+            typeRepository.Commit();
+            return RedirectToAction(nameof(Index));
         }
 
-        // POST: RoomTypeController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //// POST: RoomTypeController/Delete/5
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Delete(int id, IFormCollection collection)
+        //{
+        //    try
+        //    {
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
     }
 }

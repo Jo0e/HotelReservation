@@ -11,6 +11,7 @@ namespace Models.Models
         public int? AvailableRooms => Rooms.Count;
         public int MaxPersons { get; set; }
         public int PricePN { get; set; }
+        public int? MealPrice { get; set; }
 
         public int HotelId { get; set; }        
         public Hotel Hotel { get; set; }       

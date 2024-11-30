@@ -27,7 +27,6 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
                 rooms = roomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
-                ViewBag.roomsCount = rooms.Select(e=>e.RoomType.AvailableRooms.Value);
                 ViewBag.HotelId = id;
                 return View(rooms);
             }
@@ -64,14 +63,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: RoomController/Edit/5
-        //public ActionResult Book(int id)
-        //{
-        //    var room = roomRepository.GetOne(where: r => r.Id == id);
-        //    roomRepository.Update(room);
-        //    return View();
-        //}
-
+        
         // POST: RoomController/Edit/5
 
         public ActionResult Book(int id)
