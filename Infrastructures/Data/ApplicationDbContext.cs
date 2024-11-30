@@ -49,10 +49,6 @@ namespace Infrastructures.Data
             modelBuilder.Entity<ReservationRoom>()
                 .HasKey(e => new { e.ReservationID, e.RoomId });
 
-            modelBuilder.Entity<RoomType>()
-            .Property(rt => rt.Id)
-            .ValueGeneratedOnAdd();
-
             //modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
             //{
             //    entity.HasKey(login => new { login.LoginProvider, login.ProviderKey });
@@ -108,13 +104,13 @@ namespace Infrastructures.Data
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        
-        
-        
-        
-            
-        
-        
+
+
+
+
+
+
+
         }
     }
 }

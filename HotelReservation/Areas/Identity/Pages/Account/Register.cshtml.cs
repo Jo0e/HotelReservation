@@ -36,7 +36,7 @@ namespace HotelReservation.Areas.Identity.Pages.Account
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender;
+        private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IUserRepository userRepository;
 
@@ -45,8 +45,8 @@ namespace HotelReservation.Areas.Identity.Pages.Account
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender,
-            RoleManager<IdentityRole> roleManager , IUserRepository userRepository)
+            IEmailSender emailSender,
+            RoleManager<IdentityRole> roleManager, IUserRepository userRepository)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -128,9 +128,9 @@ namespace HotelReservation.Areas.Identity.Pages.Account
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
 
-            
 
-            
+
+
 
         }
 
@@ -159,7 +159,7 @@ namespace HotelReservation.Areas.Identity.Pages.Account
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 user.City = Input.City;
                 user.PhoneNumber = Input.PhoneNumber;
-                userRepository.CreateProfileImage(user , Input.ProfileImage);
+                userRepository.CreateProfileImage(user, Input.ProfileImage);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)

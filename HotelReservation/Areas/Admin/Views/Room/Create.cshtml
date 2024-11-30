@@ -2,12 +2,13 @@
 @model Room
 
 @{
-    ViewData["Title"] = "Create Room";
+    ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ICollection<RoomType> roomTypes = ViewBag.RoomTypes;
+    ICollection<RoomType> roomTypes = ViewBag.Type;
+
 }
 
-<h1>Create Room</h1>
+<h1>Create</h1>
 
 <h4>Room</h4>
 <hr />
@@ -15,22 +16,14 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="HotelId" type="hidden" value="@ViewBag.HotelId" />
-            <div class="form-group">
-                <label asp-for="RoomTypeId" class="control-label"></label>
-                <select class="form-select" asp-for="RoomTypeId">
-                    <option selected disabled hidden>Choose a room type</option>
-                    @foreach (var item in roomTypes)
-                    {
-                        <option value="@item.Id">@item.Type</option>
-                    }
-                </select>
-                <span asp-validation-for="RoomTypeId" class="text-danger"></span>
-            </div>
             <div class="form-group form-check">
-                <label asp-for="IsAvailable" class="form-check-label"></label>
-                <input asp-for="IsAvailable" class="form-check-input" type="checkbox" />
+                <label class="form-check-label">
+                    <input class="form-check-input" type="hidden" value="true" asp-for="IsAvailable" />
+                </label>
             </div>
+            <input type="hidden" name="HotelId" value="@ViewBag.HotelId">
+
+
             <label asp-for="RoomTypeId" class="control-label"></label>
             <select class="form-select" name="RoomTypeId">
                 <option selected disabled hidden>Open this select menu</option>
@@ -39,7 +32,7 @@
                     <option value="@item.Id">@item.Type -PricePN: @item.PricePN -Meal: @item.MealPrice</option>
                 }
             </select>
-            
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -48,7 +41,7 @@
 </div>
 
 <div>
-    <a asp-action="Index" asp-route-id="@ViewBag.HotelId">Back to List</a>
+    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
