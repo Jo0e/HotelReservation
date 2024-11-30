@@ -15,11 +15,7 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <!-- Hidden HotelId field -->
             <input asp-for="HotelId" type="hidden" value="@ViewBag.HotelId" />
-
-            <!-- RoomType dropdown list -->
             <div class="form-group">
                 <label asp-for="RoomTypeId" class="control-label"></label>
                 <select class="form-select" asp-for="RoomTypeId">
@@ -31,14 +27,19 @@
                 </select>
                 <span asp-validation-for="RoomTypeId" class="text-danger"></span>
             </div>
-
-            <!-- Availability checkbox -->
             <div class="form-group form-check">
                 <label asp-for="IsAvailable" class="form-check-label"></label>
                 <input asp-for="IsAvailable" class="form-check-input" type="checkbox" />
             </div>
-
-            <!-- Submit button -->
+            <label asp-for="RoomTypeId" class="control-label"></label>
+            <select class="form-select" name="RoomTypeId">
+                <option selected disabled hidden>Open this select menu</option>
+                @foreach (var item in roomTypes)
+                {
+                    <option value="@item.Id">@item.Type -PricePN: @item.PricePN -Meal: @item.MealPrice</option>
+                }
+            </select>
+            
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
