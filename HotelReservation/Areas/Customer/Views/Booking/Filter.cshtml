@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Models.Models.Room>
+
+@{
+    ViewData["Title"] = "Available Rooms";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <h1 class="my-4">Available Rooms</h1>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var room in Model)
+            {
+
+
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                             <form asp-controller="Booking" asp-action="Book" method="get" class="booking-form">
+                                <input type="hidden" name="HotelId" value="@room.HotelId" />
+                                <input type="hidden" name="RoomType" value="@room.RoomType.Type" />
+
+                                <h5 class="card-title">@Html.DisplayFor(modelItem => room.RoomType.Type)</h5>
+                                <p class="card-text">Price per night: <strong>@Html.DisplayFor(modelItem => room.RoomType.PricePN)</strong></p>
+                                <p class="card-text">Meal Price: <strong>@Html.DisplayFor(modelItem => room.RoomType.MealPrice)</strong></p>
+                                <button type="submit" class="btn btn-primary">Book</button>
+                                 @* <a href="@Url.Action("Book", new { id = room.Id })" class="btn btn-primary">Book</a> *@
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+            }
+        </div>
+  
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            No rooms available matching your requirements. Please try adjusting your search criteria.
+        </div>
+    }
