@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Linq;
 using Infrastructures.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -10,58 +11,89 @@ namespace HotelReservation.Areas.Customer.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IHotelRepository hotelRepository;
-
-        public HomeController(ILogger<HomeController> logger, IHotelRepository hotelRepository)
+        private readonly IHotelAmenitiesRepository hotelAmenitiesRepository;
+        private readonly IRoomRepository roomRepository;
+        public HomeController(ILogger<HomeController> logger, IHotelRepository hotelRepository,IHotelAmenitiesRepository hotelAmenitiesRepository,IRoomRepository roomRepository)
         {
             _logger = logger;
             this.hotelRepository = hotelRepository;
+            this.hotelAmenitiesRepository = hotelAmenitiesRepository;
+            this.roomRepository = roomRepository;
         }
 
 
         public IActionResult Index(string search = null)
         {
             var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
-
-
-          
+            var hotelAmenities = hotelAmenitiesRepository.Get([o => o.Amenity]);
+            //var roomCondition = roomRepository.Get([n => n.IsAvailable]);
+            var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                            h.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+                hotels = hotels.Where(h=>
+                h.City.Contains(search, StringComparison.OrdinalIgnoreCase)); 
             }
+
+
+           // ViewBag.HotelAmenities = hotelAmenities;
+
             var hotelsByCity = hotels.GroupBy(h => h.City)
-                               .Select(g => g.First())
+                               .Select(g => g.First() )
                                .ToList();
             int TotalResult = hotels.Count();
 
             ViewBag.totalResult = TotalResult;
             ViewBag.search = search;
+            
             return View(hotelsByCity);
         }
 
         public IActionResult HotelsByCity(string city, string search = null, int pageNumber = 1)
         {
-            const int pageSize = 5; 
+
+            const int pageSize = 5;
+
+            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
+                                         .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+            var hotelAmenities = hotelAmenitiesRepository.Get([o => o.Amenity]);
+            var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
+
+
 
             if (string.IsNullOrWhiteSpace(city))
             {
                 return RedirectToAction("Index");
             }
-            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
-                                        .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                            h.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
+                || h.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
+                || h.Address.Contains(search, StringComparison.OrdinalIgnoreCase) || h.City.Contains(search, StringComparison.OrdinalIgnoreCase)); //|| h.HotelAmenities.Any(a => a.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();   /*Contains(search, StringComparison.OrdinalIgnoreCase) || h.Rooms.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));*/
             }
 
-            int totalHotels = hotels.Count(); 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                var amenities = hotelAmenitiesRepository.Get([ha => ha.Amenity])
+                            .Where(ha => ha.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+                            .Select(ha => ha.Hotel)
+                            .ToList();
+
+                hotelAmenitiesResults = amenities;
+            }
+            hotels = hotels.Union(hotelAmenitiesResults).ToList();
+
+
+            int TotalResult = hotels.Count();
             var paginatedHotels = hotels.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
             ViewBag.city = city;
             ViewBag.pageNumber = pageNumber;
-            ViewBag.totalPages = (int)Math.Ceiling((double)totalHotels / pageSize);
+            ViewBag.totalPages = (int)Math.Ceiling((double)TotalResult / pageSize);
+
+            ViewBag.totalResult = TotalResult;
             ViewBag.search = search;
 
             return View(paginatedHotels);

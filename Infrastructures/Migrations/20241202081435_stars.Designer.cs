@@ -4,6 +4,7 @@ using Infrastructures.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241202081435_stars")]
+    partial class stars
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -487,9 +490,6 @@ namespace Infrastructures.Migrations
                     b.Property<int?>("CouponId")
                         .HasColumnType("int");
 
-                    b.Property<int>("HotelId")
-                        .HasColumnType("int");
-
                     b.Property<int>("NAdult")
                         .HasColumnType("int");
 
@@ -499,9 +499,6 @@ namespace Infrastructures.Migrations
                     b.Property<int>("RoomCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("float");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -509,8 +506,6 @@ namespace Infrastructures.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CouponId");
-
-                    b.HasIndex("HotelId");
 
                     b.HasIndex("UserId");
 
@@ -734,12 +729,6 @@ namespace Infrastructures.Migrations
                         .WithMany("reservations")
                         .HasForeignKey("CouponId");
 
-                    b.HasOne("Models.Models.Hotel", "Hotel")
-                        .WithMany("Reservations")
-                        .HasForeignKey("HotelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Models.Models.ApplicationUser", "User")
                         .WithMany("Reservations")
                         .HasForeignKey("UserId")
@@ -747,8 +736,6 @@ namespace Infrastructures.Migrations
                         .IsRequired();
 
                     b.Navigation("Coupon");
-
-                    b.Navigation("Hotel");
 
                     b.Navigation("User");
                 });
@@ -825,8 +812,6 @@ namespace Infrastructures.Migrations
 
                     b.Navigation("Report")
                         .IsRequired();
-
-                    b.Navigation("Reservations");
 
                     b.Navigation("RoomTypes");
 

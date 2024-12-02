@@ -1,10 +1,31 @@
 ﻿@model ICollection<Hotel>
- 
+
+
+<div class="container">
+    <div class="row">
+        <div class="col text-start">
+            <div class="dropdown mt-2 me-2 ">
+                <a class="nav-link dropdown" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><h1> <i class="bi bi-list"></i></h1> </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Separated link</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 <div class="container mt-4">
         <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
             <input class="form-control me-sm-2"
             type="search"
-            placeholder="Search by Name or Description"
+            placeholder="Search by City "
             value="@ViewBag.search"
             name="search" />
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
@@ -28,8 +49,8 @@
                     <div class="card">
                         <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
-                            <h5 class="card-title">@hotel.Name</h5>
-                            <p class="card-text">@hotel.City</p>
+                            <h5 class="card-title"><strong>@hotel.City</strong> </h5>
+                            
                             <a href="@Url.Action("HotelsByCity", "Home", new { city = hotel.City })" class="btn btn-primary">
                                 View All Hotels in @hotel.City
                             </a>
@@ -43,4 +64,5 @@
             <p class="text-center">No hotels found.</p>
         }
     </div>
+</div>
 </div>
