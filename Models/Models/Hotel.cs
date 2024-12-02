@@ -30,5 +30,7 @@ namespace Models.Models
 
         [ValidateNever]
         public ICollection<HotelAmenities> HotelAmenities { get; set; } = new List<HotelAmenities>();
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+
     }
 }

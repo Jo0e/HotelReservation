@@ -27,7 +27,7 @@ namespace HotelReservation
             //Other service registrations...
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = true;
+                options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = false;
             })
                .AddDefaultUI()
