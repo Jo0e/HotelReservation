@@ -31,24 +31,12 @@ namespace HotelReservation.Areas.Customer.Controllers
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
-                || h.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
-                || h.Address.Contains(search, StringComparison.OrdinalIgnoreCase) || h.City.Contains(search, StringComparison.OrdinalIgnoreCase)); //|| h.HotelAmenities.Any(a => a.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();   /*Contains(search, StringComparison.OrdinalIgnoreCase) || h.Rooms.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));*/
+                hotels = hotels.Where(h=>
+                h.City.Contains(search, StringComparison.OrdinalIgnoreCase)); 
             }
 
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                search=search.Trim();
-                var amenities = hotelAmenitiesRepository.Get([ha => ha.Amenity])
-                            .Where(ha => ha.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
-                            .Select(ha => ha.Hotel)
-                            .ToList();
-
-                hotelAmenitiesResults = amenities;
-            }
 
            // ViewBag.HotelAmenities = hotelAmenities;
-            hotels = hotels.Union(hotelAmenitiesResults).ToList();
 
             var hotelsByCity = hotels.GroupBy(h => h.City)
                                .Select(g => g.First() )
@@ -63,26 +51,49 @@ namespace HotelReservation.Areas.Customer.Controllers
 
         public IActionResult HotelsByCity(string city, string search = null, int pageNumber = 1)
         {
-            const int pageSize = 5; 
+
+            const int pageSize = 5;
+
+            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
+                                         .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+            var hotelAmenities = hotelAmenitiesRepository.Get([o => o.Amenity]);
+            var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
+
+
 
             if (string.IsNullOrWhiteSpace(city))
             {
                 return RedirectToAction("Index");
             }
-            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
-                                        .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                            h.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
+                || h.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
+                || h.Address.Contains(search, StringComparison.OrdinalIgnoreCase) || h.City.Contains(search, StringComparison.OrdinalIgnoreCase)); //|| h.HotelAmenities.Any(a => a.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();   /*Contains(search, StringComparison.OrdinalIgnoreCase) || h.Rooms.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));*/
             }
 
-            int totalHotels = hotels.Count(); 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                var amenities = hotelAmenitiesRepository.Get([ha => ha.Amenity])
+                            .Where(ha => ha.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+                            .Select(ha => ha.Hotel)
+                            .ToList();
+
+                hotelAmenitiesResults = amenities;
+            }
+            hotels = hotels.Union(hotelAmenitiesResults).ToList();
+
+
+            int TotalResult = hotels.Count();
             var paginatedHotels = hotels.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
             ViewBag.city = city;
             ViewBag.pageNumber = pageNumber;
-            ViewBag.totalPages = (int)Math.Ceiling((double)totalHotels / pageSize);
+            ViewBag.totalPages = (int)Math.Ceiling((double)TotalResult / pageSize);
+
+            ViewBag.totalResult = TotalResult;
             ViewBag.search = search;
 
             return View(paginatedHotels);
