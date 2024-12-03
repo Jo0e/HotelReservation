@@ -12,10 +12,13 @@ namespace Models.Models
         public DateOnly CheckInDate { get; set; }
         [CustomValidation(typeof(Reservation) , "ValidateCheckInOutDate")]
         public DateOnly CheckOutDate { get; set; }
+        public double TotalPrice { get; set; }
         public int? CouponId { get; set; }
         public Coupon Coupon { get; set; }
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
+        public int HotelId { get; set; }
+        public Hotel Hotel { get; set; }
         public ICollection<ReservationRoom> ReservationRooms { get; set; }
 
 

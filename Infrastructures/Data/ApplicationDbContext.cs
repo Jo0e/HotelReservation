@@ -110,6 +110,11 @@ namespace Infrastructures.Data
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Reservation>()
+           .HasOne(r => r.Hotel)
+           .WithMany(u => u.Reservations)
+           .HasForeignKey(r => r.HotelId)
+           .OnDelete(DeleteBehavior.Restrict);
 
 
 
@@ -118,5 +123,13 @@ namespace Infrastructures.Data
 
 
         }
+
+
+
+
+
     }
+    
 }
+
+

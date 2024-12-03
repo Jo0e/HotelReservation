@@ -9,6 +9,7 @@ namespace Models.Models
         public string Description { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
+        public int Stars { get; set; }
         [ValidateNever]
         public string CoverImg { get; set; }
 
@@ -33,5 +34,7 @@ namespace Models.Models
 
         [ValidateNever]
         public ICollection<HotelAmenities> HotelAmenities { get; set; } = new List<HotelAmenities>();
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+
     }
 }

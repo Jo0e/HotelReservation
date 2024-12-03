@@ -1,33 +1,138 @@
-﻿@model IEnumerable<Models.Models.Room>
+﻿@model Hotel
 
-@{
-    ViewData["Title"] = "Available Rooms";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+<div class="hotel-details">
+    <h1>@Model.Name</h1>
+    <p>@Model.Description</p>
 
-<h1 class="my-4">Available Rooms</h1>
-
-@if (Model.Any())
-{
-    <div class="row">
-        @foreach (var room in Model)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">@Html.DisplayFor(modelItem => room.RoomType.Type)</h5>
-                        <p class="card-text">Price per night: <strong>@Html.DisplayFor(modelItem => room.RoomType.PricePN)</strong></p>
-                        <p class="card-text">Meal Price: <strong>@Html.DisplayFor(modelItem => room.RoomType.MealPrice)</strong></p>
-                        <a href="@Url.Action("ConfirmBooking", new { id = room.Id })" class="btn btn-primary">Book</a>
-                    </div>
-                </div>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="~/images/homeImage/@Model.CoverImg" class="img-fluid" alt="Hotel Image">
             </div>
+            <div class="col-md-8">
+                <h4>Available Rooms: @ViewBag.AvailableRooms</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
+    <input type="hidden" name="HotelId" value="@Model.Id" />
+    <input type="hidden" name="RoomType" value="@ViewBag.Type.RoomType" />
+    <input type="hidden" name="PricePN" value="@ViewBag.Type.PricePN" />
+    <input type="hidden" name="MealPrice" value="@ViewBag.Type.MealPrice" />
+
+
+    <div class="form-group">
+        <label for="adults">Number of Adults:</label>
+        <input type="number" id="adults" name="NAdult" value="1" min="1" required class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="children">Number of Children:</label>
+        <input type="number" id="children" name="NChildren" value="0" min="0" class="form-control" onchange="updateChildAgeInputs()" />
+    </div>
+
+    <div class="form-group" id="childAgesContainer">
+        <!-- Dynamic child age inputs will be appended here -->
+    </div>
+
+    <div class="form-group">
+        <label for="checkInDate">Check-In Date:</label>
+        <input type="date" id="checkInDate" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="checkOutDate">Check-Out Date:</label>
+        <input type="date" id="checkOutDate" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="meals">Include Meals:</label>
+        <select id="meals" name="IncludesMeal" class="form-control">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="rooms">Number of Rooms:</label>
+        <input type="number" id="rooms" name="RoomCount" value="1" min="1" required class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="coupon">Have a Coupon?</label>
+        <input type="text" id="coupon" name="CouponCode" placeholder="Optional" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+</form>
+<script>
+    function updateChildAgeInputs() {
+        const numberOfChildren = document.getElementById("children").value;
+        const childAgesContainer = document.getElementById("childAgesContainer");
+        childAgesContainer.innerHTML = "";
+        
+        // Initialize the counter for children above 6 years old
+        let childrenAboveSix = 0;
+
+        // Loop to generate inputs for each child
+        for (let i = 0; i < numberOfChildren; i++) {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.name = `ChildrenAge[${i}]`;
+            input.placeholder = `Age of Child ${i + 1}`;
+            input.className = "form-control mt-2";
+            input.required = true;
+
+            // Listen for changes in the age input
+            input.addEventListener('input', function() {
+                const childAge = parseInt(input.value);
+                // Check if the child's age is above 6
+                if (childAge > 6) {
+                    childrenAboveSix++;
+                } else {
+                    childrenAboveSix = Math.max(childrenAboveSix - 1, 0); // Avoid negative count
+                }
+
+                // Update the number of adults based on the number of children above 6 years
+                const currentAdultCount = document.getElementById("adults").value;
+                const newAdultCount = 1 + childrenAboveSix;
+
+                if (newAdultCount !== parseInt(currentAdultCount)) {
+                    document.getElementById("adults").value = newAdultCount;
+
+                    // Display the notification message
+                    showNotification(`Number of adults has been updated to ${newAdultCount}`);
+                }
+            });
+
+            childAgesContainer.appendChild(input);
         }
-    </div>
-}
-else
-{
-    <div class="alert alert-warning" role="alert">
-        No rooms available matching your requirements. Please try adjusting your search criteria.
-    </div>
-}
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.className = "alert alert-info alert-dismissible fade show";
+        notification.role = "alert";
+        notification.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+        
+        // Append the notification to the form
+        const form = document.querySelector('.booking-form');
+        form.insertBefore(notification, form.firstChild);
+
+        // Remove the notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+
+            // Scroll the form back to the top after the notification disappears
+            form.scrollIntoView({ behavior: 'smooth' });
+        }, 3000);
+    }
+</script>
+
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+ 

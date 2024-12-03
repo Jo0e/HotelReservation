@@ -1,40 +1,125 @@
 ﻿@model ICollection<Hotel>
 
-<div class="container mt-4">
-    <h1 class="text-center">Hotels in @ViewBag.city</h1>
 
-    <form method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="search" class="form-control" placeholder="Search by hotel name or description"
-                   value="@ViewBag.search" />
-            <input type="hidden" name="city" value="@ViewBag.city" />
-            <button class="btn btn-primary" type="submit">Search</button>
-        </div>
-    </form>
-
+<div class="container">
     <div class="row">
-        @if (Model.Any())
+        <div class="col text-start">
+            <div class="dropdown mt-2 me-2 ">
+                <a class="nav-link dropdown" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><h1> <i class="bi bi-list"></i></h1> </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Separated link</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div class="container mt-4">
+        <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
+            <input class="form-control me-sm-2"
+                   type="search"
+                   placeholder="Search by Name or Description or City or Address or Amenities"
+                   value="@ViewBag.search"
+                   name="search" />
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+        </form>
+
+        @if (ViewBag.search != null)
         {
-            @foreach (var hotel in Model)
+            <h6 class="row-cols-1">
+                Total Results: @ViewBag.totalResult
+            </h6>
+        }
+        <br />
+        <h1 class="text-center">Explore Hotels by City</h1>
+        <br />
+        <div class="row">
+            @if (Model.Any())
             {
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title">@hotel.Name</h5>
-                            <p class="card-text">@hotel.Description</p>
-                            <p class="card-text"><strong>Address:</strong> @hotel.Address</p>
-                            <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary">View Details</a>
+                @foreach (var hotel in Model)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title"><strong>@hotel.Name</strong> </h5>
+                                <br />
+                                <p>
+                                    @for (int i = 0; i < hotel.Stars; i++)
+                                    {
+                                        <i class="bi bi-star-fill" style="color: gold;"></i>
+                                    }
+                                </p>
+                                <p class="card-text">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(hotel.Address)"
+                                       target="https://ar.trivago.com/ar-145?themeId=280&sem_keyword=trivago&sem_creativeid=719176583703&sem_matchtype=e&sem_network=g&sem_device=c&sem_placement=&sem_target=&sem_adposition=&sem_param1=&sem_param2=&sem_campaignid=283863652&sem_adgroupid=25643578372&sem_targetid=aud-1811962056193:kwd-5593367084&sem_location=9195686&cipc=br&cip=9661900005&gad_source=1&gclid=Cj0KCQiAr7C6BhDRARIsAOUKifivzz4QERxqbjmiyQ68dGNJvjyV1TE9OmiGOMDCz75KYnit1EWd6jEaArJPEALw_wcB"
+                                       class=""
+                                       title="Open location of @hotel.Name in Google Maps">
+                                        <i class="bi bi-geo-alt"></i>@hotel.City
+                                    </a>
+                                </p>
+                                <p class="card-text">
+                                    @if (hotel.Rooms.Any())
+                                    {
+                                        @foreach (var con in hotel.Rooms)
+                                        {
+                                            if (con.IsAvailable == true)
+                                            {
+                                                <span class="badge bg-success">Rooms Available </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">No Available Rooms</span>
+                                            }
+
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">No Available Rooms</span>
+                                    }
+
+
+
+
+                                </p>
+
+                                <p class="card-text">
+                                    @if (hotel.HotelAmenities.Any())
+                                    {
+                                        @foreach (var amenity in hotel.HotelAmenities)
+                                        {
+                                            <span class="badge bg-info">@amenity.Amenity.Name</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span>No amenities available</span>
+                                    }
+                                </p>
+
+                                <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary">View Details</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
-        }
-        else
-        {
-            <p class="text-center">No hotels found in this city matching your search.</p>
-        }
+            else
+            {
+                <p class="text-center">No hotels found.</p>
+            }
+        </div>
     </div>
+
 
     <!-- Pagination -->
     <nav aria-label="Page navigation example" class="mt-4">

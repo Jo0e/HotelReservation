@@ -26,39 +26,8 @@
 
 
 
-    <form asp-controller="Booking" asp-action="Book" method="get" class="booking-form">
+    <form asp-controller="Booking" asp-action="Filter" method="get" class="booking-form">
         <input type="hidden" name="HotelId" value="@Model.Id" />
-        <div class="form-group">
-            <label for="adults">Number of Adults:</label>
-            <input type="number" id="adults" name="NAdult" value="1" min="1" required class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="children">Number of Children:</label>
-            <input type="number" id="children" name="NChildren" value="0" min="0" class="form-control" onchange="updateChildAgeInputs()" />
-        </div>
-        <div class="form-group" id="childAgesContainer">
-            <!-- Dynamic child age inputs will be appended here -->
-        </div>
-        <div class="form-group">
-            <label for="CheckInDate">CheckInDate:</label>
-            <input type="date" id="CheckInDate" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="CheckOutDate">CheckOutDate:</label>
-            <input type="date" id="CheckOutDate" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
-        </div>
-
-        <div class="form-group">
-            <label for="meals">Includes Meal:</label>
-            <select id="meals" name="IncludesMeal" class="form-control">
-                <option value="@true">Yes</option>
-                <option value="@false">No</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="rooms">Number of Rooms:</label>
-            <input type="number" id="rooms" name="RoomCount" value="1" min="1" required class="form-control" />
-        </div>
         <div class="form-group">
             <label for="roomType">Room Type:</label>
             <select id="roomType" name="RoomType" class="form-control">
@@ -68,10 +37,7 @@
                 <option value="Quadruple">Quadruple</option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="Coupon">Do you Have Coupon?</label>
-            <input type="text" id="Coupon" placeholder="(Optional)" name="CouponCode" class="form-control" />
-        </div>
+        
         <button type="submit" class="btn btn-primary">Search for Room suits you</button>
     </form>
 

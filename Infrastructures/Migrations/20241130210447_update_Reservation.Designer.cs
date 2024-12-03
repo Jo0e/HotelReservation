@@ -4,6 +4,7 @@ using Infrastructures.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241130210447_update_Reservation")]
+    partial class update_Reservation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -247,7 +250,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Amenities", (string)null);
+                    b.ToTable("Amenities");
                 });
 
             modelBuilder.Entity("Models.Models.Company", b =>
@@ -283,7 +286,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("Models.Models.Coupon", b =>
@@ -309,7 +312,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupons", (string)null);
+                    b.ToTable("Coupons");
                 });
 
             modelBuilder.Entity("Models.Models.Hotel", b =>
@@ -346,14 +349,11 @@ namespace Infrastructures.Migrations
                     b.Property<int>("ReportId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Stars")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Hotels", (string)null);
+                    b.ToTable("Hotels");
                 });
 
             modelBuilder.Entity("Models.Models.HotelAmenities", b =>
@@ -368,7 +368,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("AmenityId");
 
-                    b.ToTable("HotelAmenities", (string)null);
+                    b.ToTable("HotelAmenities");
                 });
 
             modelBuilder.Entity("Models.Models.ImageList", b =>
@@ -390,7 +390,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("HotelId");
 
-                    b.ToTable("ImageLists", (string)null);
+                    b.ToTable("ImageLists");
                 });
 
             modelBuilder.Entity("Models.Models.Rating", b =>
@@ -409,7 +409,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Ratings", (string)null);
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("Models.Models.Report", b =>
@@ -438,7 +438,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("HotelId")
                         .IsUnique();
 
-                    b.ToTable("Reports", (string)null);
+                    b.ToTable("Reports");
                 });
 
             modelBuilder.Entity("Models.Models.ReportDetails", b =>
@@ -467,7 +467,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ReportDetails", (string)null);
+                    b.ToTable("ReportDetails");
                 });
 
             modelBuilder.Entity("Models.Models.Reservation", b =>
@@ -499,9 +499,6 @@ namespace Infrastructures.Migrations
                     b.Property<int>("RoomCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("float");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -514,7 +511,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reservations", (string)null);
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("Models.Models.ReservationRoom", b =>
@@ -529,7 +526,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ReservationRooms", (string)null);
+                    b.ToTable("ReservationRooms");
                 });
 
             modelBuilder.Entity("Models.Models.Room", b =>
@@ -555,7 +552,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("RoomTypeId");
 
-                    b.ToTable("Rooms", (string)null);
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Models.Models.RoomType", b =>
@@ -585,7 +582,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("HotelId");
 
-                    b.ToTable("RoomTypes", (string)null);
+                    b.ToTable("RoomTypes");
                 });
 
             modelBuilder.Entity("Models.Models.ApplicationUser", b =>
