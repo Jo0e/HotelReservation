@@ -10,25 +10,93 @@
     var user = await UserManager.GetUserAsync(User);
     var appUser = user as ApplicationUser;
     var profileImagePath = appUser?.ProfileImage ?? "default-profile.png";
-    <li class="nav-item">
-        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-    </li>
-    <li>
-        <img src="~/images/profile/@user.Email/@profileImagePath" class="rounded-circle w-25 h-50" alt="Alternate Text" />
 
-    </li>
-    <li class="nav-item">
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
+    <div class="profile-container d-flex align-items-center">
+        <img src="~/images/profile/@user.Email/@profileImagePath"
+             class="profile-image rounded-circle"
+             alt="@UserManager.GetUserName(User)"
+             data-bs-toggle="tooltip"
+             title="View your profile" />
+
+        <div class="profile-details ms-3">
+            <h5 class="mb-0">Hello, @UserManager.GetUserName(User)!</h5>
+            <a id="manage" class="btn btn-outline-primary btn-sm" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
+        </div>
+        <form id="logoutForm" class="ms-3" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button id="logout" type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
         </form>
-    </li>
+    </div>
 }
 else
 {
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
+    <div class="auth-links d-flex">
+        <a class="btn btn-primary me-2" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        <a class="btn btn-secondary" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </div>
 }
+<style>
+    /* Profile container styling */
+    .profile-container {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Profile image styling */
+    .profile-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: 2px solid #007bff;
+    }
+
+    /* Profile details */
+    .profile-details {
+        margin-left: 15px;
+    }
+
+        .profile-details h5 {
+            margin: 0;
+            color: #333;
+        }
+
+    /* Buttons */
+    .btn-outline-primary {
+        color: #007bff;
+        border-color: #007bff;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+    /* Auth links */
+    .auth-links .btn {
+        margin-right: 10px;
+    }
+
+</style>
+<script>
+        // Initialize tooltips
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+</script>
