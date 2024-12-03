@@ -2,71 +2,227 @@
 @model IEnumerable<Hotel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Hotels";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f7fa;
+        margin: 0;
+        padding: 0;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CoverImg)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.company)
-            </th>
+    h1 {
+        color: #17a2b8;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-align: center;
+    }
 
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Address)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.City)
-                </td>
-                <td width="30%">
-                    <img src="~/images/homeImage/@item.CoverImg" class="w-25 h-auto" alt="Alternate Text" />
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.company.Email)
-                </td>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="ImageList" asp-route-hotelId="@item.Id">Edit image List</a> |
-                    <a asp-controller="Room" asp-action="Index" asp-route-id="@item.Id">Edit Rooms</a> |
-                    <a asp-controller="HotelAmenity" asp-action="Index" asp-route-id="@item.Id">Edit Amenities</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
+    /* Button Styling */
+    .btn {
+        margin-right: 10px;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
-    </tbody>
-</table>
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: white;
+    }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+    .btn-sm {
+        font-size: 0.875rem;
+        padding: 5px 10px;
+    }
+
+    .btn i {
+        margin-right: 5px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-size: 1rem;
+        text-transform: uppercase;
+    }
+
+    td {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+
+    .table-container {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .img-thumbnail {
+        max-width: 100px;
+        height: auto;
+        border-radius: 5px;
+    }
+
+    .hotel-actions {
+        text-align: center;
+    }
+
+        .hotel-actions a {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+            .hotel-actions a:hover {
+                text-decoration: underline;
+            }
+
+    media (max-width: 768px) {
+        .table
+
+    {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+
+    .img-thumbnail {
+        max-width: 80px;
+    }
+
+    .hotel-actions {
+        text-align: left;
+        margin-top: 10px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+
+    }
+</style>
+
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-success btn-sm">
+            <i class="fas fa-plus"></i> Create New
+        </a>
+    </p>
+    <p>
+        <a asp-action="Index" asp-controller="Coupon" class="btn btn-success btn-sm">
+            Coupon
+        </a>
+    </p>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Name)</th>
+                    <th>@Html.DisplayNameFor(model => model.Description)</th>
+                    <th>@Html.DisplayNameFor(model => model.Address)</th>
+                    <th>@Html.DisplayNameFor(model => model.City)</th>
+                    <th>@Html.DisplayNameFor(model => model.CoverImg)</th>
+                    <th>@Html.DisplayNameFor(model => model.company)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Address)</td>
+                        <td>@Html.DisplayFor(modelItem => item.City)</td>
+                        <td>
+                            <img src="~/images/homeImage/@item.CoverImg" class="img-thumbnail" alt="Image" />
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.company.Email)</td>
+                        <td class="hotel-actions">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a asp-action="ImageList" asp-route-hotelId="@item.Id" class="btn btn-info btn-sm">
+                                <i class="fas fa-image"></i> Edit Images
+                            </a>
+                            <a asp-controller="Room" asp-action="Index" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
+                                <i class="fas fa-bed"></i> Edit Rooms
+                            </a>
+                            <a asp-controller="HotelAmenity" asp-action="Index" asp-route-id="@item.Id" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-cogs"></i> Edit Amenities
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

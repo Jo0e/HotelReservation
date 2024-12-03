@@ -1,5 +1,4 @@
-﻿
-using Infrastructures.Repository;
+﻿using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +17,7 @@ namespace HotelReservation.Areas.Company.Controllers
         private readonly IHotelRepository hotelRepository;
         private readonly ICompanyRepository companyRepository;
         private readonly UserManager<IdentityUser> userManager;
-        public HotelsController(IImageListRepository imageListRepository,IReportRepository reportRepository,IHotelRepository hotelRepository,ICompanyRepository companyRepository,UserManager<IdentityUser> userManager)
+        public HotelsController(IImageListRepository imageListRepository, IReportRepository reportRepository, IHotelRepository hotelRepository, ICompanyRepository companyRepository, UserManager<IdentityUser> userManager)
         {
             this.imageListRepository = imageListRepository;
             this.reportRepository = reportRepository;
@@ -50,38 +49,38 @@ namespace HotelReservation.Areas.Company.Controllers
                 return View(hotels.ToList());
             }
             catch (Exception ex)
-            {               
+            {
                 return RedirectToAction("Error", "Home");
             }
         }
-        
+
 
         public ActionResult Details(int id)
         {
             var user = userManager.GetUserId(User);
-            var Hotels = hotelRepository.Get([e => e.HotelAmenities, e => e.Rooms, e => e.ImageLists],where: e => e.CompanyId.ToString() == user && e.Id==id);
+            var Hotels = hotelRepository.Get([e => e.HotelAmenities, e => e.Rooms, e => e.ImageLists], where: e => e.CompanyId.ToString() == user && e.Id == id);
             return View(Hotels);
         }
 
         public ActionResult Create()
         {
-            var userName = userManager.GetUserName(User);  
+            var userName = userManager.GetUserName(User);
             var company = companyRepository.GetOne(where: e => e.UserName == userName);
             if (company == null)
-            {            
+            {
                 ModelState.AddModelError("", "No company found for this user.");
-                return View(); 
+                return View();
             }
 
-           
+
             var hotel = new Hotel
             {
                 CompanyId = company.Id
             };
 
-            ViewData["CompanyId"] = company?.Id; 
+            ViewData["CompanyId"] = company?.Id;
 
-            return View(hotel); 
+            return View(hotel);
         }
 
 
@@ -109,15 +108,15 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(hotel); 
+            return View(hotel);
         }
 
-        
+
         public ActionResult Edit(int id)
         {
-            var user = userManager.GetUserName(User);         
-           
-            var Comapny= companyRepository.GetOne(where: e => e.UserName == user);
+            var user = userManager.GetUserName(User);
+
+            var Comapny = companyRepository.GetOne(where: e => e.UserName == user);
             var hotel = new Hotel
             {
                 CompanyId = Comapny.Id
@@ -144,16 +143,16 @@ namespace HotelReservation.Areas.Company.Controllers
 
         }
 
-        
+
         public ActionResult Delete(int id)
         {
             var oldHotel = hotelRepository.GetOne(where: e => e.Id == id);
-            if(oldHotel!=null)
+            if (oldHotel != null)
             {
                 imageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
             }
             hotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
-            
+
             hotelRepository.Commit();
             return RedirectToAction(nameof(Index));
         }

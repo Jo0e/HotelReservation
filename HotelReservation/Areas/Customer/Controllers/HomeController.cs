@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Linq;
 using Infrastructures.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Customer.Controllers
 {
@@ -134,5 +136,97 @@ namespace HotelReservation.Areas.Customer.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        [Authorize(Roles = SD.AdminRole)]
+        public IActionResult AddLogo()
+        {
+
+            return View();
+        }
+
+        // POST: HotelController/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.AdminRole)]
+        public IActionResult AddLogo(IFormFile ImgFile)
+        {
+            if (ImgFile != null && ImgFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImgFile.FileName);
+                var logoDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/Logo");
+
+                // Ensure the directory exists
+                if (!Directory.Exists(logoDirectory))
+                {
+                    Directory.CreateDirectory(logoDirectory);
+                }
+
+                var filePath = Path.Combine(logoDirectory, fileName);
+
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    ImgFile.CopyTo(stream);
+                }
+
+                TempData["LogoPath"] = $"/images/Logo/{fileName}";
+            }
+
+            return RedirectToAction(nameof(AddLogo));
+        }
+
+        [Authorize(Roles = SD.AdminRole)]
+        public IActionResult IndexLogo()
+        {
+            var logoDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/Logo");
+            string logoPath = "/images/Logo/default-logo.png";
+
+            if (Directory.Exists(logoDirectory))
+            {
+                var files = Directory.GetFiles(logoDirectory);
+
+                if (files.Length > 0)
+                {
+                    
+                    var randomFile = files[new Random().Next(files.Length)];
+                    logoPath = $"/images/Logo/{Path.GetFileName(randomFile)}";
+                }
+            }
+
+            ViewBag.LogoPath = logoPath;
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.AdminRole)]
+        public IActionResult DeleteLogo()
+        {
+            try
+            {
+
+                var logoDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\Logo");
+                var files = Directory.GetFiles(logoDirectory);
+
+                if (files.Length > 0)
+                {
+                    foreach (var file in files)
+                    {
+                        System.IO.File.Delete(file);
+                    }
+                }
+
+                TempData["SuccessMessage"] = "Logo deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error occurred while deleting the logo: " + ex.Message;
+            }
+
+            return RedirectToAction("AddLogo");
+        }
+
+
+
     }
 }
+
