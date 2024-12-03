@@ -116,6 +116,11 @@ namespace Infrastructures.Data
            .HasForeignKey(r => r.HotelId)
            .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Comment>()
+           .HasMany(c => c.Replies)
+           .WithOne(r => r.Comment)
+           .HasForeignKey(r => r.CommentId)
+           .OnDelete(DeleteBehavior.NoAction); 
 
 
 
