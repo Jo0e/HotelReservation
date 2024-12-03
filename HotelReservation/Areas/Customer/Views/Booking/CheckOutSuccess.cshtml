@@ -1,3 +1,9 @@
-﻿<h2>Payment Successful</h2>
-<p>Thank you for your payment. Your reservations have been confirmed.</p>
-<a asp-action="Index" asp-controller="Home" class="btn btn-primary">Return to Home</a>
+﻿@{
+    ViewData["Title"] = "Booking Confirmed";
+}
+
+<div class="alert alert-success text-center" role="alert">
+    <h1>Payment Successful!</h1>
+    <p>Your booking has been confirmed. Thank you for choosing our service!</p>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Return to Home</a>
+</div>
