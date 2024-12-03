@@ -1,10 +1,161 @@
 ﻿@using Models.Models
 @model IEnumerable<Room>
-
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f7f9fc;
+        margin: 0;
+        padding: 0;
+    }
+
+    h1 {
+        color: #17a2b8;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    h3 {
+        color: #495057;
+        font-size: 1.2rem;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        color: #495057;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    td {
+        font-size: 0.95rem;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    td[colspan="5"] {
+        font-size: 1rem;
+        text-align: center;
+        color: blueviolet;
+        font-weight: bold;
+        padding: 15px;
+    }
+
+    a {
+        padding: 8px 16px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+
+        a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        a:visited {
+            color: #007bff;
+        }
+
+    .btn-book, .btn-unbook, .btn-delete {
+        margin: 0 5px;
+        border: 1px solid transparent;
+        display: inline-block;
+    }
+
+    .btn-book {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-unbook {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #ffc107;
+        color: white;
+    }
+
+    .btn-book:hover {
+        background-color: #218838;
+    }
+
+    .btn-unbook:hover {
+        background-color: #c82333;
+    }
+
+    .btn-delete:hover {
+        background-color: #e0a800;
+    }
+
+    .justify-content-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 1rem;
+    }
+
+        .justify-content-between a {
+            padding: 10px 15px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+        }
+
+            .justify-content-between a:hover {
+                background-color: #0056b3;
+            }
+    media (max-width: 768px) {
+        table
+
+    {
+        font-size: 0.9rem;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    .justify-content-between {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .justify-content-between a {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+    }
+</style>
 
 <h1>Rooms</h1>
 
@@ -12,9 +163,10 @@
     <div class="justify-content-between">
         <a asp-action="Create" asp-route-hotelId="@ViewBag.HotelId">Create New</a>
         <a asp-controller="RoomType" asp-action="Index" asp-route-hotelId="@ViewBag.HotelId">Create Type</a>
-        <h3>@ViewBag.roomsCount</h3>
+        
     </div>
 </p>
+
 <table class="table">
     <thead>
         <tr>
@@ -35,7 +187,7 @@
     </thead>
     <tbody>
         <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Single Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Single && a.IsAvailable == true).Count()</td>
+            <td colspan="5">Available Single Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Single && a.IsAvailable == true).Count()</td>
         </tr>
         @foreach (var item in Model.Where(e => e.RoomType.Type == Models.Models.Type.Single))
         {
@@ -55,19 +207,19 @@
                 <td>
                     @if (!item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-book">Book</a>
                     }
                     @if (item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-unbook">UnBook</a>
                     }
                     |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Delete</a>
                 </td>
             </tr>
         }
         <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Double Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Double && a.IsAvailable == true).Count()</td>
+            <td colspan="5">Available Double Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Double && a.IsAvailable == true).Count()</td>
         </tr>
         @foreach (var item in Model.Where(a => a.RoomType.Type == Models.Models.Type.Double))
         {
@@ -87,19 +239,19 @@
                 <td>
                     @if (!item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-book">Book</a>
                     }
                     @if (item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-unbook">UnBook</a>
                     }
                     |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Delete</a>
                 </td>
             </tr>
         }
         <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Triple Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Triple && a.IsAvailable == true).Count()</td>
+            <td colspan="5">Available Triple Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Triple && a.IsAvailable == true).Count()</td>
         </tr>
         @foreach (var item in Model.Where(a => a.RoomType.Type == Models.Models.Type.Triple))
         {
@@ -119,19 +271,19 @@
                 <td>
                     @if (!item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-book">Book</a>
                     }
                     @if (item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-unbook">UnBook</a>
                     }
                     |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Delete</a>
                 </td>
             </tr>
         }
         <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Quadruple Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Quadruple && a.IsAvailable == true).Count()</td>
+            <td colspan="5">Available Quadruple Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Quadruple && a.IsAvailable == true).Count()</td>
         </tr>
         @foreach (var item in Model.Where(a => a.RoomType.Type == Models.Models.Type.Quadruple))
         {
@@ -151,14 +303,14 @@
                 <td>
                     @if (!item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-book">Book</a>
                     }
                     @if (item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-unbook">UnBook</a>
                     }
                     |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Delete</a>
                 </td>
             </tr>
         }

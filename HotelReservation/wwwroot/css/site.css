@@ -93,3 +93,82 @@ label {
     box-shadow: 0 5px #666;
     transform: translateY(2px);
 }
+/* General container styling */
+.login-container {
+    background: linear-gradient(135deg, #ffffff, #f0f8ff);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 50px;
+    transition: transform 0.2s;
+}
+
+    .login-container:hover {
+        transform: scale(1.02);
+    }
+
+/* Heading and text styling */
+.login-heading {
+    font-size: 24px;
+    font-weight: bold;
+    color: #003580;
+}
+
+.login-subheading {
+    font-size: 16px;
+    color: #6c757d;
+}
+
+/* Button styling */
+.login-btn {
+    background-color: #003580;
+    color: #fff;
+    border: none;
+}
+
+    .login-btn:hover {
+        background-color: #0056b3;
+    }
+
+/* Input fields styling */
+.form-floating .form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+    .form-floating .form-control:focus {
+        border-color: #003580;
+        box-shadow: 0 0 5px rgba(0, 53, 128, 0.5);
+    }
+
+/* Validation error messages */
+.text-danger {
+    font-size: 14px;
+}
+
+/* Links styling */
+.link-secondary {
+    color: #003580;
+    text-decoration: none;
+}
+
+    .link-secondary:hover {
+        text-decoration: underline;
+        color: #0056b3;
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 20px;
+        margin-top: 30px;
+    }
+
+    .login-heading {
+        font-size: 20px;
+    }
+
+    .login-subheading {
+        font-size: 14px;
+    }
+}
