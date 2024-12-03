@@ -17,7 +17,7 @@ namespace Models.Models
         [ValidateNever]
         public Company company { get; set; }
 
-        public int? ReportId { get; set; } = null;
+        public int? ReportId { get; set; }
         [ValidateNever]
         public Report Report { get; set; }      
         [ValidateNever]
