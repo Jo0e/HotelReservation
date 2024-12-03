@@ -27,6 +27,8 @@ namespace Infrastructures.Data
         public DbSet<RoomType> RoomTypes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Reply> Replies { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -79,6 +81,10 @@ namespace Infrastructures.Data
             .WithOne(r => r.Hotel)
             .HasForeignKey<Report>(r => r.HotelId);
 
+            modelBuilder.Entity<Rating>()
+            .HasOne(r => r.Hotel)
+            .WithMany(h => h.Ratings)
+            .HasForeignKey(r => r.HotelId);
 
             modelBuilder.Entity<Hotel>()
             .HasMany(r => r.Rooms)

@@ -16,10 +16,13 @@ namespace Models.Models
         [ValidateNever]
         public Company company { get; set; }
 
-        public int ReportId { get; set; }
+        public int? ReportId { get; set; }
         [ValidateNever]
         public Report Report { get; set; }
 
+       
+        [ValidateNever]
+        public ICollection<Rating> Ratings { get; set; } = new List<Rating>(); 
         [ValidateNever]
         public List<ImageList> ImageLists { get; set; } = new List<ImageList>();
 

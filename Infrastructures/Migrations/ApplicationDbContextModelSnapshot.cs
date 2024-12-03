@@ -247,7 +247,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Amenities");
+                    b.ToTable("Amenities", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.Company", b =>
@@ -283,7 +283,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.Coupon", b =>
@@ -309,7 +309,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupons");
+                    b.ToTable("Coupons", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.Hotel", b =>
@@ -350,7 +350,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Hotels");
+                    b.ToTable("Hotels", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.HotelAmenities", b =>
@@ -365,7 +365,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("AmenityId");
 
-                    b.ToTable("HotelAmenities");
+                    b.ToTable("HotelAmenities", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.ImageList", b =>
@@ -387,7 +387,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("HotelId");
 
-                    b.ToTable("ImageLists");
+                    b.ToTable("ImageLists", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.Rating", b =>
@@ -406,7 +406,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Ratings");
+                    b.ToTable("Ratings", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.Report", b =>
@@ -435,7 +435,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("HotelId")
                         .IsUnique();
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.ReportDetails", b =>
@@ -464,7 +464,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ReportDetails");
+                    b.ToTable("ReportDetails", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.Reservation", b =>
@@ -503,7 +503,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.ReservationRoom", b =>
@@ -518,7 +518,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ReservationRooms");
+                    b.ToTable("ReservationRooms", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.Room", b =>
@@ -544,7 +544,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("RoomTypeId");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.RoomType", b =>
@@ -574,7 +574,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("HotelId");
 
-                    b.ToTable("RoomTypes");
+                    b.ToTable("RoomTypes", (string)null);
                 });
 
             modelBuilder.Entity("Models.Models.ApplicationUser", b =>
