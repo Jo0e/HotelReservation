@@ -1,3 +1,9 @@
-﻿<h2>Payment Canceled</h2>
-<p>Your payment was canceled. Please try again to complete your booking.</p>
-<a asp-action="Index" asp-controller="Home" class="btn btn-primary">Return to Home</a>
+﻿@{
+    ViewData["Title"] = "Payment Canceled";
+}
+
+<div class="alert alert-danger text-center" role="alert">
+    <h1>Payment Canceled</h1>
+    <p>It seems you canceled the payment. If you wish to complete your booking, please try again.</p>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Return to Home</a>
+</div>

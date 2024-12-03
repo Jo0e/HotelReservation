@@ -8,5 +8,7 @@
         public ApplicationUser User { get; set; }
         public Reservation Reservation { get; set; }
 
+        // add list of room id
+
     }
 }
