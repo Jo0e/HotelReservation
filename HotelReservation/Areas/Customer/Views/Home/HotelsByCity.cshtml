@@ -1,25 +1,56 @@
 ﻿@model ICollection<Hotel>
+<style>
+    /* Home Page Styles */
+    .container {
+        margin-top: 30px;
+    }
 
+    h1.text-center {
+        font-size: 2.5rem;
+        color: #343a40;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
 
-<div class="container">
-    <div class="row">
-        <div class="col text-start">
-            <div class="dropdown mt-2 me-2 ">
-                <a class="nav-link dropdown" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><h1> <i class="bi bi-list"></i></h1> </a>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" href="#">Something else here</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Separated link</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
 
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
 
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
 
+    .card-title {
+        font-size: 1.25rem;
+        color: #007bff;
+        font-weight: bold;
+    }
 
+    .card .btn-primary {
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+    }
+
+        .card .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .pagination {
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+</style>
 
     <div class="container mt-4">
         <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">

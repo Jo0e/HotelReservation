@@ -8,28 +8,39 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/HotelReservation.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link href="~/css/custom.css" rel="stylesheet" />
+
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HotelReservation</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-building"></i> HotelReservation
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Left links -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-fill"></i> Home
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="bi bi-shield-lock-fill"></i> Privacy
+                            </a>
                         </li>
+                    </ul>                  
+                    <ul class="navbar-nav">
+                        
                         <partial name="_LoginPartial.cshtml"></partial>
                     </ul>
-                    
-                    
                 </div>
             </div>
         </nav>
@@ -39,7 +50,51 @@
             @RenderBody()
         </main>
     </div>
+    <style>
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: #fff !important;
+        }
+
+            .navbar-brand i {
+                margin-right: 8px;
+            }
+
+        .navbar-nav .nav-link {
+            color: #ffffffd9;
+            font-weight: 500;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+
+            .navbar-nav .nav-link:hover,
+            .navbar-nav .nav-link.active {
+                color: #fff;
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 5px;
+            }
+
+        .navbar-toggler-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        /* Responsive Fixes */
+        media (max-width: 992px) {
+            .navbar-nav .nav-link
+
+        {
+            text-align: center;
+            margin: 5px 0;
+        }
+
+        }
+    </style>
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2024 - HotelReservation - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -48,6 +103,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/js/scripts.js"></script>
+
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

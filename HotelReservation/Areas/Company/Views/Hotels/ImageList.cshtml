@@ -38,3 +38,18 @@
         }
     </tbody>
 </table>
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img id="modalImage" src="" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openImageModal(imageUrl) {
+        document.getElementById('modalImage').src = '~/images/subImage/' + imageUrl;
+    }
+</script>
