@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -12,22 +13,20 @@ namespace HotelReservation.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IHotelRepository hotelRepository;
-        private readonly IHotelAmenitiesRepository hotelAmenitiesRepository;
-        private readonly IRoomRepository roomRepository;
-        public HomeController(ILogger<HomeController> logger, IHotelRepository hotelRepository,IHotelAmenitiesRepository hotelAmenitiesRepository,IRoomRepository roomRepository)
+        private readonly IUnitOfWork unitOfWork;
+
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            this.hotelRepository = hotelRepository;
-            this.hotelAmenitiesRepository = hotelAmenitiesRepository;
-            this.roomRepository = roomRepository;
+            this.unitOfWork = unitOfWork;
         }
+
 
 
         public IActionResult Index(string search = null)
         {
-            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
-            var hotelAmenities = hotelAmenitiesRepository.Get([o => o.Amenity]);
+            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
+            var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
             //var roomCondition = roomRepository.Get([n => n.IsAvailable]);
             var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
             if (!string.IsNullOrWhiteSpace(search))
@@ -56,10 +55,11 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             const int pageSize = 5;
 
-            var hotels = hotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
+            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
                                          .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
-            var hotelAmenities = hotelAmenitiesRepository.Get([o => o.Amenity]);
+            var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
             var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
+
 
 
 
@@ -79,7 +79,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                var amenities = hotelAmenitiesRepository.Get([ha => ha.Amenity])
+                var amenities = unitOfWork.HotelAmenitiesRepository.Get([ha => ha.Amenity])
                             .Where(ha => ha.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
                             .Select(ha => ha.Hotel)
                             .ToList();
@@ -105,7 +105,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         // Displays hotel details by ID
         public IActionResult Details(int id)
         {
-            var hotel = hotelRepository.GetOne(
+            var hotel = unitOfWork.HotelRepository.GetOne(
                 [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes] ,
                 where: h => h.Id == id
             );

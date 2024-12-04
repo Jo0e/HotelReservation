@@ -129,7 +129,7 @@
                                     {
                                         @foreach (var amenity in hotel.HotelAmenities)
                                         {
-                                            <span class="badge bg-info">@amenity.Amenity.Name</span>
+                                        <span class="badge bg-info"><img src="~/images/amenities/@amenity.Amenity.Img" style="height:20px;width:20px;" alt="Alternate Text" /> @amenity.Amenity.Name</span>
                                         }
                                     }
                                     else

@@ -1,5 +1,6 @@
 ﻿using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -9,16 +10,12 @@ namespace HotelReservation.Areas.Admin.Controllers
     [Area("Admin")]
     public class HotelAmenityController : Controller
     {
-        private readonly IHotelRepository hotelRepository;
-        private readonly IHotelAmenitiesRepository hotelAmenitiesRepository;
-        private readonly IRepository<Amenity> amenityRepository;
+        
+        private readonly IUnitOfWork unitOfWork;
 
-        public HotelAmenityController(IHotelRepository hotelRepository, IHotelAmenitiesRepository hotelAmenitiesRepository
-            , IRepository<Amenity> amenityRepository)
+        public HotelAmenityController(IUnitOfWork unitOfWork)
         {
-            this.hotelRepository = hotelRepository;
-            this.hotelAmenitiesRepository = hotelAmenitiesRepository;
-            this.amenityRepository = amenityRepository;
+            this.unitOfWork = unitOfWork;
         }
 
         // GET: AmenityController
@@ -28,13 +25,13 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (id != 0)
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
-                amenities = hotelRepository.HotelsWithAmenities(id);
+                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
                 return View(amenities);
             }
             else if (id == 0)
             {
                 var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
-                amenities = hotelRepository.HotelsWithAmenities(hotelId);
+                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(hotelId);
                 return View(amenities);
             }
             return NotFound();
@@ -44,8 +41,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         // GET: AmenityController/Create
         public ActionResult Create(int hotelId)
         {
-            var amenity = amenityRepository.Get();
-            var hotelAmenities = hotelAmenitiesRepository.Get(where: h => h.HotelId == hotelId).Select(a => a.AmenityId).ToList(); ;
+            var amenity = unitOfWork.AmenityRepository.Get();
+            var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get(where: h => h.HotelId == hotelId).Select(a => a.AmenityId).ToList(); ;
             ViewBag.Amenity = amenity;
             ViewBag.HotelAmenities = hotelAmenities;
             ViewBag.HotelId = hotelId;
@@ -60,8 +57,8 @@ namespace HotelReservation.Areas.Admin.Controllers
 
             if (HotelId != 0 && amenitiesId.Count != 0)
             {
-                var toDelete = hotelAmenitiesRepository.Get(where: h => h.HotelId == HotelId);
-                hotelAmenitiesRepository.DeleteRange(toDelete);
+                var toDelete = unitOfWork.HotelAmenitiesRepository.Get(where: h => h.HotelId == HotelId);
+                unitOfWork.HotelAmenitiesRepository.DeleteRange(toDelete);
                 foreach (var item in amenitiesId)
                 {
                     var amenity = new HotelAmenities()
@@ -69,18 +66,18 @@ namespace HotelReservation.Areas.Admin.Controllers
                         HotelId = HotelId,
                         AmenityId = item,
                     };
-                    hotelAmenitiesRepository.Create(amenity);
+                    unitOfWork.HotelAmenitiesRepository.Create(amenity);
                 }
-                hotelAmenitiesRepository.Commit();
+                unitOfWork.HotelAmenitiesRepository.Commit();
                 return RedirectToAction(nameof(Index));
             }
             if (amenitiesId.Count == 0)
             {
-                var toDelete = hotelAmenitiesRepository.Get(where: h => h.HotelId == HotelId);
+                var toDelete = unitOfWork.HotelAmenitiesRepository.Get(where: h => h.HotelId == HotelId);
                 if (toDelete.Any())
                 {
-                    hotelAmenitiesRepository.DeleteRange(toDelete);
-                    hotelAmenitiesRepository.Commit();
+                    unitOfWork.HotelAmenitiesRepository.DeleteRange(toDelete);
+                    unitOfWork.HotelAmenitiesRepository.Commit();
                 }
             }
             return RedirectToAction(nameof(Index));
@@ -92,8 +89,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult Delete(int amenityId, int hotelId)
         {
             var hotelAmenities = new HotelAmenities { AmenityId = amenityId, HotelId = hotelId };
-            hotelAmenitiesRepository.Delete(hotelAmenities);
-            hotelAmenitiesRepository.Commit();
+            unitOfWork.HotelAmenitiesRepository.Delete(hotelAmenities);
+            unitOfWork.HotelAmenitiesRepository.Commit();
             return RedirectToAction(nameof(Index));
         }
 

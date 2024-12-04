@@ -1,4 +1,5 @@
 ﻿using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Models;
@@ -9,13 +10,11 @@ namespace HotelReservation.Areas.Company.Controllers
     [Area("Company")]
     public class RoomTypeController : Controller
     {
-        private readonly IRoomTypeRepository typeRepository;
-        private readonly IHotelRepository hotelRepository;
+        private readonly IUnitOfWork unitOfWork;
 
-        public RoomTypeController(IRoomTypeRepository typeRepository, IHotelRepository hotelRepository)
+        public RoomTypeController(IUnitOfWork unitOfWork)
         {
-            this.typeRepository = typeRepository;
-            this.hotelRepository = hotelRepository;
+            this.unitOfWork = unitOfWork;
         }
 
         // GET: RoomType/Index
@@ -25,14 +24,14 @@ namespace HotelReservation.Areas.Company.Controllers
             if (hotelId != 0)
             {
                 Response.Cookies.Append("HotelId", hotelId.ToString());
-                types = typeRepository.Get(where: a => a.HotelId == hotelId);
+                types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
                 ViewBag.HotelId = hotelId;
                 return View(types);
             }
             else if (hotelId == 0)
             {
                 var Id = int.Parse(Request.Cookies["HotelId"]);
-                types = typeRepository.Get(where: a => a.HotelId == Id);
+                types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == Id);
                 ViewBag.HotelId = Id;
                 return View(types);
             }
@@ -52,15 +51,15 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(RoomType roomType)
         {
-            typeRepository.Create(roomType);
-            typeRepository.Commit();
+            unitOfWork.RoomTypeRepository.Create(roomType);
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
 
         // GET: RoomTypeController/Edit/5
         public ActionResult Edit(int id)
         {
-            var roomType = typeRepository.GetOne(where: e => e.Id == id);
+            var roomType = unitOfWork.RoomTypeRepository.GetOne(where: e => e.Id == id);
             ViewBag.HotelId = roomType?.HotelId;
             if (roomType == null)
             {
@@ -76,8 +75,8 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(RoomType roomType)
         {
-                typeRepository.Update(roomType);
-                typeRepository.Commit();
+                unitOfWork.RoomTypeRepository.Update(roomType);
+                unitOfWork.Complete();
                 return RedirectToAction(nameof(Index), new { hotelId = roomType.HotelId });
            
         }
@@ -89,14 +88,14 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var roomType = typeRepository.GetOne(where: e => e.Id == id);
+                var roomType = unitOfWork.RoomTypeRepository.GetOne(where: e => e.Id == id);
                 if (roomType == null)
                 {
                     return NotFound();
                 }
 
-                typeRepository.Delete(roomType);
-                typeRepository.Commit();
+                unitOfWork.RoomTypeRepository.Delete(roomType);
+                unitOfWork.Complete();
                 return RedirectToAction(nameof(Index), new { hotelId = roomType.HotelId });
             }
             catch

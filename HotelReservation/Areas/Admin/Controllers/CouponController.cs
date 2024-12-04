@@ -1,4 +1,5 @@
 ﻿using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using System.Linq.Expressions;
@@ -8,14 +9,15 @@ namespace HotelReservation.Areas.Admin.Controllers
     [Area("Admin")]
     public class CouponController : Controller
     {
-        private readonly ICouponRepository couponRepository;
-        public CouponController(ICouponRepository couponRepository)
+        private readonly IUnitOfWork unitOfWork;
+
+        public CouponController(IUnitOfWork unitOfWork)
         {
-            this.couponRepository = couponRepository;
+            this.unitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
-            var coupons = couponRepository.Get();
+            var coupons = unitOfWork.CouponRepository.Get();
 
             return View(model: coupons);
         }
@@ -30,8 +32,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                couponRepository.Create(coupon);
-                couponRepository.Commit();
+                unitOfWork.CouponRepository.Create(coupon);
+                unitOfWork.CouponRepository.Commit();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -39,7 +41,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
         public IActionResult Edit(int couponId)
         {
-            var coupon = couponRepository.GetOne(where: o => o.Id == couponId);
+            var coupon = unitOfWork.CouponRepository.GetOne(where: o => o.Id == couponId);
 
             if (coupon != null)
             {
@@ -55,23 +57,23 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                couponRepository.Update(coupon);
-                couponRepository.Commit();
+                unitOfWork.CouponRepository.Update(coupon);
+                unitOfWork.CouponRepository.Commit();
 
                 return RedirectToAction(nameof(Index));
             }
             return View(coupon);
         }
 
-        public IActionResult Delete(int couponid)
+        public IActionResult Delete(int couponId)
         {
-            var coupon = couponRepository.GetOne(where: e => e.Id == couponid);
+            var coupon = unitOfWork.CouponRepository.GetOne(where: e => e.Id == couponId);
 
             if (coupon == null)
                 RedirectToAction("NotFound", "Home");
-
-            couponRepository.Delete(coupon);
-            couponRepository.Commit();
+            else
+            unitOfWork.CouponRepository.Delete(coupon);
+            unitOfWork.CouponRepository.Commit();
 
             return RedirectToAction(nameof(Index));
         }

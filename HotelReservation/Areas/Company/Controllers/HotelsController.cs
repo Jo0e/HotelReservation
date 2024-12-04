@@ -1,5 +1,6 @@
 ﻿using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,18 +12,11 @@ namespace HotelReservation.Areas.Company.Controllers
     [Area("Company")]
     public class HotelsController : Controller
     {
-        private readonly IImageListRepository imageListRepository;
-        private readonly IReportRepository reportRepository;
-        private readonly IHotelRepository hotelRepository;
-        private readonly ICompanyRepository companyRepository;
+        private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
-
-        public HotelsController(IImageListRepository imageListRepository, IReportRepository reportRepository, IHotelRepository hotelRepository, ICompanyRepository companyRepository, UserManager<IdentityUser> userManager)
+        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
-            this.imageListRepository = imageListRepository;
-            this.reportRepository = reportRepository;
-            this.hotelRepository = hotelRepository;
-            this.companyRepository = companyRepository;
+            this.unitOfWork = unitOfWork;
             this.userManager = userManager;
         }
 
@@ -38,14 +32,14 @@ namespace HotelReservation.Areas.Company.Controllers
                     return RedirectToAction("Index", "Home", new { area = "Customer" });
                 }
 
-                var company = companyRepository.GetOne(where: e => e.UserName == userName);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == userName);
 
                 if (company == null)
                 {
                     return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 }
 
-                var hotels = hotelRepository.Get(where: e => e.CompanyId == company.Id);
+                var hotels = unitOfWork.HotelRepository.Get(where: e => e.CompanyId == company.Id);
                 return View(hotels.ToList());
             }
             catch (Exception)
@@ -59,7 +53,7 @@ namespace HotelReservation.Areas.Company.Controllers
             try
             {
                 var user = userManager.GetUserId(User);
-                var Hotels = hotelRepository.Get(
+                var Hotels = unitOfWork.HotelRepository.Get(
                  [e => e.HotelAmenities, e => e.Rooms, e => e.ImageLists],
                     where: e => e.CompanyId.ToString() == user && e.Id == id);
                 return View(Hotels);
@@ -75,7 +69,7 @@ namespace HotelReservation.Areas.Company.Controllers
             try
             {
                 var userName = userManager.GetUserName(User);
-                var company = companyRepository.GetOne(where: e => e.UserName == userName);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == userName);
                 if (company == null)
                 {
                     ModelState.AddModelError("", "No company found for this user.");
@@ -85,7 +79,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 var hotel = new Hotel
                 {
                     CompanyId = company.Id,
-                   
+
                 };
 
                 ViewData["CompanyId"] = company?.Id;
@@ -109,7 +103,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 if (ModelState.IsValid)
                 {
                     var userId = userManager.GetUserName(User);
-                    var company = companyRepository.GetOne(where: e => e.UserName == userId);
+                    var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == userId);
 
                     if (company == null)
                     {
@@ -118,8 +112,8 @@ namespace HotelReservation.Areas.Company.Controllers
                     }
 
                     hotel.CompanyId = company.Id;
-                   
-                    hotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
+
+                    unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -136,7 +130,7 @@ namespace HotelReservation.Areas.Company.Controllers
             try
             {
                 var user = userManager.GetUserName(User);
-                var company = companyRepository.GetOne(where: e => e.UserName == user);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user);
                 var hotel = new Hotel
                 {
                     CompanyId = company.Id,
@@ -145,7 +139,7 @@ namespace HotelReservation.Areas.Company.Controllers
 
                 ViewData["CompanyId"] = company?.Id;
 
-                var Hotel = hotelRepository.GetOne(where: e => e.Id == id);
+                var Hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == id);
                 return View(Hotel);
             }
             catch (Exception)
@@ -164,8 +158,8 @@ namespace HotelReservation.Areas.Company.Controllers
                 ModelState.Remove(nameof(ImgFile));
                 if (ModelState.IsValid)
                 {
-                    var oldHotel = hotelRepository.GetOne(where: e => e.Id == hotel.Id);
-                    hotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
+                    var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
+                    unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                     return RedirectToAction(nameof(Index));
                 }
                 return NotFound();
@@ -180,14 +174,14 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var oldHotel = hotelRepository.GetOne(where: e => e.Id == id);
+                var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == id);
                 if (oldHotel != null)
                 {
-                    imageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
+                    unitOfWork.ImageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
                 }
-                hotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
+                unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
 
-                hotelRepository.Commit();
+                unitOfWork.Complete();
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
@@ -209,8 +203,8 @@ namespace HotelReservation.Areas.Company.Controllers
                     hotelId = int.Parse(Request.Cookies["HotelId"]);
                 }
                 ViewBag.HotelId = hotelId;
-                ViewBag.HotelName = hotelRepository.GetOne(where: n => n.Id == hotelId)?.Name;
-                var imgs = imageListRepository.Get(where: p => p.HotelId == hotelId);
+                ViewBag.HotelName = unitOfWork.HotelRepository.GetOne(where: n => n.Id == hotelId)?.Name;
+                var imgs = unitOfWork.ImageListRepository.Get(where: p => p.HotelId == hotelId);
                 return View(imgs);
             }
             catch (Exception)
@@ -238,8 +232,8 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var hotel = hotelRepository.GetOne(where: e => e.Id == imageList.HotelId, tracked: false);
-                imageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
+                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId, tracked: false);
+                unitOfWork.ImageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
@@ -252,9 +246,9 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var img = imageListRepository.GetOne(where: e => e.Id == id, tracked: false);
-                var hotel = hotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
-                imageListRepository.DeleteImageList(id, hotel.Name);
+                var img = unitOfWork.ImageListRepository.GetOne(where: e => e.Id == id, tracked: false);
+                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
+                unitOfWork.ImageListRepository.DeleteImageList(id, hotel.Name);
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
@@ -267,8 +261,8 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var hotel = hotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == id, tracked: false);
-                imageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
+                var hotel = unitOfWork.HotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == id, tracked: false);
+                unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)

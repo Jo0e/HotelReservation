@@ -1,5 +1,6 @@
 ﻿using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,30 +16,21 @@ namespace HotelReservation.Areas.Customer.Controllers
 
     public class BookingController : Controller
     {
-        private readonly IReservationRepository reservationRepository;
         private readonly UserManager<IdentityUser> userManager;
-        private readonly IRepository<ReservationRoom> reservationRoomRepository;
-        private readonly IHotelRepository hotelRepository;
-        private readonly ICouponRepository couponRepository;
-        private readonly IRoomTypeRepository roomTypeRepository;
-        private readonly IRoomRepository roomRepository;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BookingController(IReservationRepository reservationRepository, UserManager<IdentityUser> userManager, IRepository<ReservationRoom> reservationRoomRepository, IHotelRepository hotelRepository, ICouponRepository couponRepository
-            , IRoomTypeRepository roomTypeRepository, IRoomRepository roomRepository)
+
+        public BookingController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager )
         {
-            this.reservationRepository = reservationRepository;
             this.userManager = userManager;
-            this.reservationRoomRepository = reservationRoomRepository;
-            this.hotelRepository = hotelRepository;
-            this.couponRepository = couponRepository;
-            this.roomTypeRepository = roomTypeRepository;
-            this.roomRepository = roomRepository;
+            this.unitOfWork = unitOfWork;
+
         }
 
         [HttpGet]
         public IActionResult Filter(int hotelId, Models.Models.Type RoomType)
         {
-            var rooms = roomRepository.Get(where: h => h.HotelId == hotelId
+            var rooms = unitOfWork.RoomRepository.Get(where: h => h.HotelId == hotelId
            && h.RoomType.Type ==RoomType
            , include: [e => e.RoomType]);
 
@@ -51,10 +43,10 @@ namespace HotelReservation.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult Book(TypeViewModel typeModel)
         {
-            var hotel = hotelRepository.GetOne(where: e => e.Id == typeModel.HotelId);
+            var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == typeModel.HotelId);
             if (hotel == null) return NotFound();
 
-            int availableRoomsCount = roomRepository
+            int availableRoomsCount = unitOfWork.RoomRepository
         .Get(where: r => r.HotelId == typeModel.HotelId
                          && r.IsAvailable
                          && r.RoomType != null
@@ -80,7 +72,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             var appUserId = userManager.GetUserId(User);
             if (appUserId == null) return RedirectToAction("Login", "Account");
 
-            var availableRooms = roomRepository.Get(
+            var availableRooms = unitOfWork.RoomRepository.Get(
                 where: r => r.HotelId == typeModel.HotelId
                          && r.IsAvailable
                          && r.RoomType != null
@@ -104,12 +96,12 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             if (!string.IsNullOrEmpty(viewModel.CouponCode))
             {
-                var coupon = couponRepository.GetOne(where:c => c.Code == viewModel.CouponCode);
+                var coupon = unitOfWork.CouponRepository.GetOne(where:c => c.Code == viewModel.CouponCode);
                 if (coupon != null && coupon.Limit > 0)
                 {
                     totalPrice -= (int)coupon.Discount;
                     coupon.Limit--;
-                    couponRepository.Update(coupon);
+                    unitOfWork.CouponRepository.Update(coupon);
                 }
                 else
                 {
@@ -130,8 +122,8 @@ namespace HotelReservation.Areas.Customer.Controllers
                 UserId = appUserId
             };
 
-            reservationRepository.Create(reservation);
-            reservationRepository.Commit();
+            unitOfWork.ReservationRepository.Create(reservation);
+            unitOfWork.ReservationRepository.Commit();
 
             for (int i = 0; i < viewModel.RoomCount; i++)
             {
@@ -142,12 +134,12 @@ namespace HotelReservation.Areas.Customer.Controllers
                     ReservationID = reservation.Id
                 };
                 room.IsAvailable = false;
-                reservationRoomRepository.Create(reservationRoom);
-                roomRepository.Update(room);
+                unitOfWork.ReservationRoomRepository.Create(reservationRoom);
+                unitOfWork.RoomRepository.Update(room);
             }
 
-            reservationRoomRepository.Commit();
-            roomRepository.Commit();
+            unitOfWork.ReservationRoomRepository.Commit();
+            unitOfWork.RoomRepository.Commit();
 
             TempData["SuccessMessage"] = "Booking successful!";
             return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
@@ -156,7 +148,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Pay(int reservationId)
         {
             var appUser = userManager.GetUserId(User);
-            var reservations = reservationRepository.Get(
+            var reservations = unitOfWork.ReservationRepository.Get(
              include: [r => r.ReservationRooms,r=>r.Hotel],
              where: r => r.UserId == appUser && r.Id==reservationId
              ).ToList();
@@ -196,7 +188,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         {
             var appUser = userManager.GetUserId(User);
 
-            var reservations = reservationRepository.Get(
+            var reservations = unitOfWork.ReservationRepository.Get(
                         where: r => r.UserId == appUser
                         ).ToList();
 

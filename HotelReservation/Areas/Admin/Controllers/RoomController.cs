@@ -1,4 +1,5 @@
 ﻿using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 
@@ -7,15 +8,11 @@ namespace HotelReservation.Areas.Admin.Controllers
     [Area("Admin")]
     public class RoomController : Controller
     {
-        private readonly IRoomRepository roomRepository;
-        private readonly IHotelRepository hotelRepository;
-        private readonly IRoomTypeRepository typeRepository;
+        private readonly IUnitOfWork unitOfWork;
 
-        public RoomController(IRoomRepository roomRepository, IHotelRepository hotelRepository, IRoomTypeRepository TypeRepository)
+        public RoomController(IUnitOfWork unitOfWork)
         {
-            this.roomRepository = roomRepository;
-            this.hotelRepository = hotelRepository;
-            this.typeRepository = TypeRepository;
+            this.unitOfWork = unitOfWork;
         }
 
         // GET: RoomController
@@ -26,14 +23,14 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (id != 0)
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
-                rooms = roomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
+                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
                 ViewBag.HotelId = id;
                 return View(rooms);
             }
             else if (id == 0)
             {
                 var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
-                rooms = roomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
+                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
                 ViewBag.HotelId = hotelId;
                 return View(rooms);
             }
@@ -47,7 +44,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             //var hotelId = int.Parse(Request.Cookies["HotelId"]);
             ViewBag.HotelId = hotelId;
-            ViewBag.Type = typeRepository.Get();
+            ViewBag.Type = unitOfWork.RoomTypeRepository.Get();
             return View();
         }
 
@@ -58,8 +55,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             //room.HotelId = hotelId;
 
-            roomRepository.Create(room);
-            roomRepository.Commit();
+            unitOfWork.RoomRepository.Create(room);
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
 
@@ -68,7 +65,7 @@ namespace HotelReservation.Areas.Admin.Controllers
 
         public ActionResult Book(int id)
         {
-            var room = roomRepository.GetOne(where: r => r.Id == id);
+            var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
             if (room.IsAvailable == true)
             {
                 room.IsAvailable = false;
@@ -77,15 +74,15 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 room.IsAvailable = true;
             }
-            roomRepository.Update(room);
-            roomRepository.Commit();
+            unitOfWork.RoomRepository.Update(room);
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
 
         // GET: RoomController/Delete/5
         public ActionResult Delete(int id)
         {
-            var room = roomRepository.GetOne(where: a => a.Id == id, include: [e => e.Hotel, w => w.RoomType]);
+            var room = unitOfWork.RoomRepository.GetOne(where: a => a.Id == id, include: [e => e.Hotel, w => w.RoomType]);
             return View(room);
         }
 
@@ -94,8 +91,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(Room room)
         {
-            roomRepository.Delete(room);
-            roomRepository.Commit();
+            unitOfWork.RoomRepository.Delete(room);
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
     }

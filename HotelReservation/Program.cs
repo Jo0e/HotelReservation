@@ -1,6 +1,7 @@
 using Infrastructures.Data;
 using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Models;
@@ -65,6 +66,9 @@ namespace HotelReservation
             builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+            builder.Services.AddScoped<IReservationRoomRepository, ReservationRoomRepository>();
+            builder.Services.AddScoped<IAmenityRepository, AmenityRepository >();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork >();
 
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];

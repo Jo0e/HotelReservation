@@ -19,7 +19,7 @@
              title="View your profile" />
 
         <div class="profile-details ms-3">
-            <h5 class="mb-0">Hello, @UserManager.GetUserName(User)!</h5>
+            <h5 class="mb-0">Hello, @UserManager.GetUserName(User).Substring(0, user.Email.IndexOf('@')) !</h5>
             <a id="manage" class="btn btn-outline-primary btn-sm" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
         </div>
         <form id="logoutForm" class="ms-3" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

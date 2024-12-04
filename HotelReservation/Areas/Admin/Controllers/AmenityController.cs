@@ -1,4 +1,5 @@
 ﻿using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -8,17 +9,17 @@ namespace HotelReservation.Areas.Admin.Controllers
     [Area("Admin")]
     public class AmenityController : Controller
     {
-        private readonly IRepository<Amenity> amenityRepository;
+        private readonly IUnitOfWork unitOfWork;
 
-        public AmenityController(IRepository<Amenity> amenityRepository)
+        public AmenityController(IUnitOfWork unitOfWork)
         {
-            this.amenityRepository = amenityRepository;
+            this.unitOfWork = unitOfWork;
         }
 
         // GET: AmenityController
         public ActionResult Index()
         {
-            var Amenities = amenityRepository.Get();
+            var Amenities = unitOfWork.AmenityRepository.Get();
             return View(Amenities);
         }
 
@@ -33,14 +34,14 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Amenity amenity, IFormFile Img)
         {
-            amenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
+            unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
             return RedirectToAction(nameof(Index));
         }
 
         // GET: AmenityController/Edit/5
         public ActionResult Edit(int id)
         {
-            var amenity = amenityRepository.GetOne(where: e => e.Id == id);
+            var amenity = unitOfWork.AmenityRepository.GetOne(where: e => e.Id == id);
             return View(amenity);
         }
 
@@ -49,15 +50,15 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Amenity amenity, IFormFile Img)
         {
-            var oldAmenity = amenityRepository.GetOne(where: a => a.Id == amenity.Id);
-            amenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
+            var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
+            unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
             return RedirectToAction(nameof(Index));
         }
 
         // GET: AmenityController/Delete/5
         public ActionResult Delete(int id)
         {
-            var amenity = amenityRepository.GetOne(where: a => a.Id == id);
+            var amenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == id);
 
             return View(amenity);
         }
@@ -67,8 +68,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(Amenity amenity)
         {
-            amenityRepository.DeleteWithImage(amenity, "amenities",amenity.Img);
-            amenityRepository.Commit();
+            unitOfWork.AmenityRepository.DeleteWithImage(amenity, "amenities",amenity.Img);
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
     }
