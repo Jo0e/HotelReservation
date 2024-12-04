@@ -19,9 +19,7 @@ namespace Models.Models
 
         public int? ReportId { get; set; }
         [ValidateNever]
-        public Report Report { get; set; }
-
-       
+        public Report Report { get; set; }      
         [ValidateNever]
         public ICollection<Rating> Ratings { get; set; } = new List<Rating>(); 
         [ValidateNever]
@@ -35,6 +33,6 @@ namespace Models.Models
         [ValidateNever]
         public ICollection<HotelAmenities> HotelAmenities { get; set; } = new List<HotelAmenities>();
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
-
+        
     }
 }
