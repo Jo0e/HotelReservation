@@ -123,7 +123,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             };
 
             unitOfWork.ReservationRepository.Create(reservation);
-            unitOfWork.ReservationRepository.Commit();
+            unitOfWork.Complete();
 
             for (int i = 0; i < viewModel.RoomCount; i++)
             {
@@ -138,8 +138,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 unitOfWork.RoomRepository.Update(room);
             }
 
-            unitOfWork.ReservationRoomRepository.Commit();
-            unitOfWork.RoomRepository.Commit();
+            unitOfWork.Complete();
 
             TempData["SuccessMessage"] = "Booking successful!";
             return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });

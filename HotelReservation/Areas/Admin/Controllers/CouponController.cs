@@ -33,7 +33,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.CouponRepository.Create(coupon);
-                unitOfWork.CouponRepository.Commit();
+                unitOfWork.Complete();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -58,7 +58,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.CouponRepository.Update(coupon);
-                unitOfWork.CouponRepository.Commit();
+                unitOfWork.Complete();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -73,7 +73,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 RedirectToAction("NotFound", "Home");
             else
             unitOfWork.CouponRepository.Delete(coupon);
-            unitOfWork.CouponRepository.Commit();
+            unitOfWork.Complete();
 
             return RedirectToAction(nameof(Index));
         }

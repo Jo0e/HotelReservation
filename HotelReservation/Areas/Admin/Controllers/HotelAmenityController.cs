@@ -68,7 +68,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                     };
                     unitOfWork.HotelAmenitiesRepository.Create(amenity);
                 }
-                unitOfWork.HotelAmenitiesRepository.Commit();
+                unitOfWork.Complete();
                 return RedirectToAction(nameof(Index));
             }
             if (amenitiesId.Count == 0)
@@ -77,7 +77,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 if (toDelete.Any())
                 {
                     unitOfWork.HotelAmenitiesRepository.DeleteRange(toDelete);
-                    unitOfWork.HotelAmenitiesRepository.Commit();
+                    unitOfWork.Complete();
                 }
             }
             return RedirectToAction(nameof(Index));
@@ -90,7 +90,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var hotelAmenities = new HotelAmenities { AmenityId = amenityId, HotelId = hotelId };
             unitOfWork.HotelAmenitiesRepository.Delete(hotelAmenities);
-            unitOfWork.HotelAmenitiesRepository.Commit();
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
 
