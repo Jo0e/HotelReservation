@@ -34,8 +34,13 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Amenity amenity, IFormFile Img)
         {
-            unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
-            return RedirectToAction(nameof(Index));
+            ModelState.Remove(nameof(Img));
+            if (ModelState.IsValid)
+            {
+                unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
+                return RedirectToAction(nameof(Index));
+            }
+            return View(amenity);
         }
 
         // GET: AmenityController/Edit/5
@@ -50,9 +55,31 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Amenity amenity, IFormFile Img)
         {
-            var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
-            unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                ModelState.Remove(nameof(Img));
+                if (ModelState.IsValid)
+                {
+                    var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
+                    if (oldAmenity == null)
+                    {
+                        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+
+                    }
+
+                    unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
+                    unitOfWork.Complete();
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(amenity);
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+
+            }
         }
 
         // GET: AmenityController/Delete/5

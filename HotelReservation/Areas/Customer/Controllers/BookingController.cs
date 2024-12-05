@@ -47,13 +47,12 @@ namespace HotelReservation.Areas.Customer.Controllers
             if (hotel == null) return NotFound();
 
             int availableRoomsCount = unitOfWork.RoomRepository
-        .Get(where: r => r.HotelId == typeModel.HotelId
+                        .Get(where: r => r.HotelId == typeModel.HotelId
                          && r.IsAvailable
                          && r.RoomType != null
                          && r.RoomType.Type == typeModel.RoomType
                          && r.RoomType.PricePN == typeModel.PricePN
-                          && (r.RoomType.MealPrice == typeModel.MealPrice || (r.RoomType.MealPrice == null && typeModel.MealPrice == null)))
-        .Count();
+                         && (r.RoomType.MealPrice == typeModel.MealPrice || (r.RoomType.MealPrice == null && typeModel.MealPrice == null))).Count();
 
 
             ViewBag.Type = typeModel;
@@ -65,6 +64,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Book(ReservationViewModel viewModel,TypeViewModel typeModel)
         {
             if (!ModelState.IsValid) return View(viewModel);
@@ -78,8 +78,8 @@ namespace HotelReservation.Areas.Customer.Controllers
                          && r.RoomType != null
                          && r.RoomType.Type == typeModel.RoomType
                          && r.RoomType.PricePN == typeModel.PricePN
-                          && (r.RoomType.MealPrice == typeModel.MealPrice || (r.RoomType.MealPrice == null && typeModel.MealPrice == null)),
-                           include: [r=>r.RoomType]).ToList();
+                         && (r.RoomType.MealPrice == typeModel.MealPrice || (r.RoomType.MealPrice == null && typeModel.MealPrice == null)),
+                         include: [r=>r.RoomType]).ToList();
 
             if (availableRooms == null || availableRooms.Count < viewModel.RoomCount)
             {

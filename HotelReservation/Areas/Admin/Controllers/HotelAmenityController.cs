@@ -21,20 +21,34 @@ namespace HotelReservation.Areas.Admin.Controllers
         // GET: AmenityController
         public ActionResult Index(int id)
         {
-            Hotel amenities;
-            if (id != 0)
+            try
             {
-                Response.Cookies.Append("HotelIdCookie", id.ToString());
-                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
+                if (id == 0)
+                {
+                    var hotelIdCookie = Request.Cookies["HotelIdCookie"];
+                    if (hotelIdCookie == null || !int.TryParse(hotelIdCookie, out id))
+                    {
+                        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                    }
+                }
+                else
+                {
+                    Response.Cookies.Append("HotelIdCookie", id.ToString());
+                }
+
+                var amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
+                if (amenities == null)
+                {
+                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                }
+
                 return View(amenities);
             }
-            else if (id == 0)
+            catch (Exception)
             {
-                var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
-                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(hotelId);
-                return View(amenities);
+
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            return NotFound();
         }
 
 
@@ -93,20 +107,5 @@ namespace HotelReservation.Areas.Admin.Controllers
             unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
-
-        // POST: AmenityController/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
     }
 }

@@ -48,7 +48,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return View(model: coupon);
             }
 
-            return RedirectToAction("NotFound", "Home");
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
         }
 
@@ -70,7 +70,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             var coupon = unitOfWork.CouponRepository.GetOne(where: e => e.Id == couponId);
 
             if (coupon == null)
-                RedirectToAction("NotFound", "Home");
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             else
             unitOfWork.CouponRepository.Delete(coupon);
             unitOfWork.Complete();
