@@ -51,7 +51,49 @@
     }
 
 </style>
+<style>
+    .search-header {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 15px;
+        color: #555;
+    }
 
+    .rotator-text {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        animation: fadeInOut 4s linear infinite;
+    }
+
+    keyframes fadeInOut {
+        0%, 100%
+
+    {
+        opacity: 0;
+    }
+
+    10%, 90% {
+        opacity: 1;
+    }
+
+    }
+</style>
+
+
+<style>
+    .badge {
+        font-size: 0.9rem;
+        margin: 2px;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="search-header">
+        <div id="search-rotator" class="rotator-text"></div>
+    </div>
     <div class="container mt-4">
         <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
             <input class="form-control me-sm-2"
@@ -174,3 +216,45 @@
         </ul>
     </nav>
 </div>
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const texts = [
+            "Search by Name",
+            "Search by Description",
+            "Search by Amenities",
+            "Search by Location"
+        ];
+        const rotatorElement = document.getElementById('search-rotator');
+        let index = 0;
+
+        function rotateText() {
+            rotatorElement.textContent = texts[index];
+            index = (index + 1) % texts.length;
+        }
+
+        rotateText();
+        setInterval(rotateText, 4000);
+    });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const keywords = ["Name", "Description", "City", "Amenities"];
+        const keywordElement = document.getElementById("search-keywords");
+        let index = 0;
+
+        function rotateKeywords() {
+            keywordElement.textContent = keywords[index];
+            index = (index + 1) % keywords.length;
+        }
+
+        setInterval(rotateKeywords, 2000);
+        rotateKeywords();
+    });
+</script>
