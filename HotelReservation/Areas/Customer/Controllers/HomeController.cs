@@ -23,7 +23,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
 
 
-        public IActionResult Index(string? search = null)
+        public IActionResult Index(string search = null)
         {
             var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
             var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
@@ -50,7 +50,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return View(hotelsByCity);
         }
 
-        public IActionResult HotelsByCity(string city, string? search = null, int pageNumber = 1)
+        public IActionResult HotelsByCity(string city, string search = null, int pageNumber = 1)
         {
 
             const int pageSize = 5;
@@ -125,7 +125,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
 
         // Custom not found page
-        public  IActionResult NotFound()
+        public IActionResult NotFound()
         {
             return View();
         }

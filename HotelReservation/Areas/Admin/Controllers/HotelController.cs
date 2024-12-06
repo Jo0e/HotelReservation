@@ -44,7 +44,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
             }
-            return View(hotel);
+            return NotFound();
 
         }
 
@@ -68,7 +68,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
             }
-            return View(hotel);
+            return NotFound();
 
         }
 
@@ -93,39 +93,18 @@ namespace HotelReservation.Areas.Admin.Controllers
 
         public ActionResult ImageList(int hotelId)
         {
-            try
+            if (hotelId != 0)
             {
-                if (hotelId == 0)
-                {
-                    var hotelIdCookie = Request.Cookies["HotelId"];
-                    if (hotelIdCookie == null || !int.TryParse(hotelIdCookie, out hotelId))
-                    {
-                        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                    }
-                }
-                else
-                {
-                    Response.Cookies.Append("HotelId", hotelId.ToString());
-                }
-
-                var hotel = unitOfWork.HotelRepository.GetOne(where: n => n.Id == hotelId);
-                if (hotel == null)
-                {
-                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                }
-
-                ViewBag.HotelId = hotelId;
-                ViewBag.HotelName = hotel.Name;
-
-                var images = unitOfWork.ImageListRepository.Get(where: p => p.HotelId == hotelId);
-
-                return View(images);
+                Response.Cookies.Append("HotelId", hotelId.ToString());
             }
-            catch (Exception)
+            if (hotelId == 0)
             {
-
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                hotelId = int.Parse(Request.Cookies["HotelId"]);
             }
+            ViewBag.HotelId = hotelId;
+            ViewBag.HotelName = unitOfWork.HotelRepository.GetOne(where: n => n.Id == hotelId).Name;
+            var imgs = unitOfWork.ImageListRepository.Get(where: p => p.HotelId == hotelId);
+            return View(imgs);
         }
         public ActionResult CreateImgList(int hotelId)
         {

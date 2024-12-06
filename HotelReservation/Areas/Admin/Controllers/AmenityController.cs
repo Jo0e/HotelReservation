@@ -34,13 +34,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Amenity amenity, IFormFile Img)
         {
-            ModelState.Remove(nameof(Img));
-            if (ModelState.IsValid)
-            {
-                unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
-                return RedirectToAction(nameof(Index));
-            }
-            return View(amenity);
+            unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: AmenityController/Edit/5
@@ -55,31 +50,9 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Amenity amenity, IFormFile Img)
         {
-            try
-            {
-                ModelState.Remove(nameof(Img));
-                if (ModelState.IsValid)
-                {
-                    var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
-                    if (oldAmenity == null)
-                    {
-                        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-
-                    }
-
-                    unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
-                    unitOfWork.Complete();
-
-                    return RedirectToAction(nameof(Index));
-                }
-
-                return View(amenity);
-            }
-            catch (Exception)
-            {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-
-            }
+            var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
+            unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: AmenityController/Delete/5

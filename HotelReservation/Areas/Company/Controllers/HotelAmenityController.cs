@@ -20,32 +20,26 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                if (id == 0)
-                {
-                    var hotelIdCookie = Request.Cookies["HotelIdCookie"];
-                    if (hotelIdCookie == null || !int.TryParse(hotelIdCookie, out id))
-                    {
-                        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                    }
-                }
-                else
+                Hotel amenities;
+                if (id != 0)
                 {
                     Response.Cookies.Append("HotelIdCookie", id.ToString());
+                    amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
+                    return View(amenities);
                 }
-
-                var amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
-                if (amenities == null)
+                else if (id == 0)
                 {
-                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                    var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
+                    amenities = unitOfWork.HotelRepository.HotelsWithAmenities(hotelId);
+                    return View(amenities);
                 }
-
-                return View(amenities);
             }
-            catch (Exception )
+            catch
             {
-
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
+
+            return NotFound();
         }
 
         // GET: AmenityController/Create
