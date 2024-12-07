@@ -90,26 +90,26 @@
     }
 </style>
 <style>
-.btn-primary {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    transition: 0.3s;
-}
+    .btn-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        transition: 0.3s;
+    }
 
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
 </style>
 
 <style>
-body {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-}
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    }
 </style>
 <style>
-h1.text-center {
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-}
+    h1.text-center {
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
 </style>
 
 
@@ -119,12 +119,13 @@ h1.text-center {
         <div id="search-rotator" class="rotator-text"></div>
     </div>
     <div class="container mt-4">
-        <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
+        <form class="d-flex" method="get" action="@Url.Action("HotelsByCity", "Home")">
             <input class="form-control me-sm-2"
                    type="search"
                    placeholder="Search by Name or Description or City or Address or Amenities"
                    value="@ViewBag.search"
                    name="search" />
+            <input type="hidden" value="@ViewBag.City" name="city" />
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
         </form>
 
@@ -136,22 +137,22 @@ h1.text-center {
         }
         <br />
         <div class="text-center">
-        <h1 class="animated-text"></h1>
+            <h1 class="animated-text"></h1>
 
-        <script>
+            <script>
 
-            const text = "Explore Amazing Hotels!";
-            let index = 0;
-            const target = document.querySelector(".animated-text");
-            function typeWriter() {
+                const text = "Explore Amazing Hotels!";
+                let index = 0;
+                const target = document.querySelector(".animated-text");
+                function typeWriter() {
                 if (index < text.length) {
-                    target.textContent += text[index];
-                    index++;
-                    setTimeout(typeWriter, 100);
+                target.textContent += text[index];
+                index++;
+                setTimeout(typeWriter, 100);
                 }
-            }
-            typeWriter();
-        </script>
+                }
+                typeWriter();
+            </script>
         </div>
         <br />
 
@@ -181,11 +182,21 @@ h1.text-center {
 
                         <div class="form-group mb-4">
                             <label class="fw-bold">Filtring On Amenities:</label>
-                            <div class="form-check">
+
+                            @foreach (var item in ViewBag.AllAmenities)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="@item.Name" name="amenitiess" value="@item.Name" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains(@item.Name) ? "checked" : "")>
+                                    <label class="form-check-label" for="@item.Name">@item.Name</label>
+                                </div>
+                            }
+
+                            @*
+                           <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="wifi" name="amenitiess" value="WiFi" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
                                 <label class="form-check-label" for="wifi">Wifi</label>
-                            </div>
-                            <div class="form-check">
+                            </div>    
+                           <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="parking" name="amenitiess" value="Parking" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Parking") ? "checked" : "")>
                                 <label class="form-check-label" for="parking">Parking</label>
                             </div>
@@ -196,7 +207,7 @@ h1.text-center {
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="SPA" name="amenitiess" value="SPA" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("SPA") ? "checked" : "")>
                                 <label class="form-check-label" for="SPA">SPA</label>
-                            </div>
+                            </div> *@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
@@ -205,98 +216,82 @@ h1.text-center {
 
 
 
-         <div class="col-md-9">
-         <div class="row">
-            @if (Model.Any())
-            {
-                @foreach (var hotel in Model)
-                {
-                    <div class="col-md-4 mb-4">
-                        <div data-aos="fade-up" class="card">
-                            <img src="~/images/homeImage/@hotel.CoverImg" loading="lazy" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
-                            <div class="card-body">
-                                <h5 class="card-title"><strong>@hotel.Name</strong> </h5>
-                                <br />
-                                <p>
-                                    @for (int i = 0; i < hotel.Stars; i++)
-                                    {
-                                        <i class="bi bi-star-fill" style="color: gold;"></i>
-                                    }
-                                </p>
-                                <p class="card-text">
-                                    <a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(hotel.Address)"
-                                       target="https://ar.trivago.com/ar-145?themeId=280&sem_keyword=trivago&sem_creativeid=719176583703&sem_matchtype=e&sem_network=g&sem_device=c&sem_placement=&sem_target=&sem_adposition=&sem_param1=&sem_param2=&sem_campaignid=283863652&sem_adgroupid=25643578372&sem_targetid=aud-1811962056193:kwd-5593367084&sem_location=9195686&cipc=br&cip=9661900005&gad_source=1&gclid=Cj0KCQiAr7C6BhDRARIsAOUKifivzz4QERxqbjmiyQ68dGNJvjyV1TE9OmiGOMDCz75KYnit1EWd6jEaArJPEALw_wcB"
-                                       class=""
-                                       title="Open location of @hotel.Name in Google Maps">
-                                        <i class="bi bi-geo-alt"></i>@hotel.City
-                                    </a>
-                                </p>
-                                <p class="card-text">
-                                    @if (hotel.Rooms.Any())
-                                    {
-                                        @foreach (var con in hotel.Rooms)
-                                        {
-                                            if (con.IsAvailable == true)
-                                            {
-                                                <span class="badge bg-success">Rooms Available </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">No Available Rooms</span>
-                                            }
+                <div class="col-md-9">
+                    <div class="row">
+                        @if (Model.Any())
+                        {
+                            @foreach (var hotel in Model)
+                            {
+                                <div class="col-md-4 mb-4">
+                                    <div data-aos="fade-up" class="card">
+                                        <img src="~/images/homeImage/@hotel.CoverImg" loading="lazy" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><strong>@hotel.Name</strong> </h5>
+                                            <br />
+                                            <p>
+                                                @for (int i = 0; i < hotel.Stars; i++)
+                                                {
+                                                    <i class="bi bi-star-fill" style="color: gold;"></i>
+                                                }
+                                            </p>
+                                            <p class="card-text">
+                                                <a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(hotel.Address)"
+                                                   target="https://ar.trivago.com/ar-145?themeId=280&sem_keyword=trivago&sem_creativeid=719176583703&sem_matchtype=e&sem_network=g&sem_device=c&sem_placement=&sem_target=&sem_adposition=&sem_param1=&sem_param2=&sem_campaignid=283863652&sem_adgroupid=25643578372&sem_targetid=aud-1811962056193:kwd-5593367084&sem_location=9195686&cipc=br&cip=9661900005&gad_source=1&gclid=Cj0KCQiAr7C6BhDRARIsAOUKifivzz4QERxqbjmiyQ68dGNJvjyV1TE9OmiGOMDCz75KYnit1EWd6jEaArJPEALw_wcB"
+                                                   class=""
+                                                   title="Open location of @hotel.Name in Google Maps">
+                                                    <i class="bi bi-geo-alt"></i>@hotel.City
+                                                </a>
+                                            </p>
+                                            <p class="card-text">
+                                                @if (hotel.Rooms.Any(p => p.IsAvailable == true))
+                                                {
+                                                    <span class="badge bg-success">Rooms Available </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">No Available Rooms</span>
+                                                }
 
-                                        }
+                                            </p>
 
+                                            <p class="card-text">
+                                                @if (hotel.HotelAmenities.Any())
+                                                {
+                                                    @foreach (var amenity in hotel.HotelAmenities)
+                                                    {
+                                                        <span class="badge bg-info"><img src="~/images/amenities/@amenity.Amenity.Img" style="height:20px;" alt="Alternate Text" /> @amenity.Amenity.Name</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span>No amenities available</span>
+                                                }
+                                            </p>
 
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">No Available Rooms</span>
-                                    }
-
-
-
-
-                                </p>
-
-                                <p class="card-text">
-                                    @if (hotel.HotelAmenities.Any())
-                                    {
-                                        @foreach (var amenity in hotel.HotelAmenities)
-                                        {
-                                        <span class="badge bg-info"> @amenity.Amenity.Name</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span>No amenities available</span>
-                                    }
-                                </p>
-
-                                <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary">View Details</a>
-                            </div>
-                        </div>
+                                            <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-center">No hotels found.</p>
+                        }
                     </div>
-                }
-            }
-            else
-            {
-                <p class="text-center">No hotels found.</p>
-            }
-        </div>
-        </div>
-@*         <div class="container">
+                </div>
+                @*         <div class="container">
         <div class="row">
         <form method="get" action="/Customer/Home/HotelsByCity" class="filter-sidebar p-3 shadow-sm">
             <input type="hidden" name="city" value="@ViewBag.City" />
               <div class="form-group mb-4">
                 <label class="fw-bold" >تصفية حسب عدد النجوم:</label><br>
-                
+
                 <div class="form-check">
                 <input type="checkbox" id="stars3" name="stars" value="3" @(ViewBag.Stars == 3 ? "checked" : "")>
                 <label for="stars3">3 نجوم</label>
                 </div>
-                
+
                 <div class="form-check">
                 <input type="checkbox" id="stars4" name="stars" value="4" @(ViewBag.Stars == 4 ? "checked" : "")>
                 <label for="stars4">4 نجوم</label>
@@ -334,105 +329,105 @@ h1.text-center {
         </form>
         </div>
  *@        </div>
-    </div>
+        </div>
 
 
-    <!-- Pagination -->
-    <nav aria-label="Page navigation example" class="mt-4">
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(ViewBag.pageNumber <= 1 ? "disabled" : "")">
-                <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber - 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            @for (int i = 1; i <= ViewBag.totalPages; i++)
-            {
-                <li class="page-item @(i == ViewBag.pageNumber ? "active" : "")">
-                    <a class="page-link" href="?pageNumber=@i&city=@ViewBag.city&search=@ViewBag.search">@i</a>
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.pageNumber <= 1 ? "disabled" : "")">
+                    <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber - 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
                 </li>
+                @for (int i = 1; i <= ViewBag.totalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.pageNumber ? "active" : "")">
+                        <a class="page-link" href="?pageNumber=@i&city=@ViewBag.city&search=@ViewBag.search">@i</a>
+                    </li>
+                }
+                <li class="page-item @(ViewBag.pageNumber >= ViewBag.totalPages ? "disabled" : "")">
+                    <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber + 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+   
+    <style>
+        .filter-sidebar {
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .filter-title {
+            font-size: 1.5rem;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .form-group label {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        input[type="checkbox"] + label {
+            margin-left: 10px;
+        }
+
+        #apply-filters {
+            margin-top: 15px;
+            background-color: #007bff;
+            border: none;
+            transition: 0.3s;
+        }
+
+            #apply-filters:hover {
+                background-color: #0056b3;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             }
-            <li class="page-item @(ViewBag.pageNumber >= ViewBag.totalPages ? "disabled" : "")">
-                <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber + 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</div>
-
-<style>
-.filter-sidebar {
-    background-color: #ffffff;
-    border-radius: 10px;
-}
-
-.filter-title {
-    font-size: 1.5rem;
-    color: #007bff;
-    font-weight: bold;
-}
-
-.form-group label {
-    font-size: 1rem;
-    color: #555;
-}
-
-input[type="checkbox"] + label {
-    margin-left: 10px;
-}
-
-#apply-filters {
-    margin-top: 15px;
-    background-color: #007bff;
-    border: none;
-    transition: 0.3s;
-}
-
-#apply-filters:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-</style>
+    </style>
 
 
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const texts = [
-            "Search by Name",
-            "Search by Description",
-            "Search by Amenities",
-            "Search by Location"
-        ];
-        const rotatorElement = document.getElementById('search-rotator');
-        let index = 0;
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const texts = [
+                "Search by Name",
+                "Search by Description",
+                "Search by Amenities",
+                "Search by Location"
+            ];
+            const rotatorElement = document.getElementById('search-rotator');
+            let index = 0;
 
-        function rotateText() {
-            rotatorElement.textContent = texts[index];
-            index = (index + 1) % texts.length;
-        }
+            function rotateText() {
+                rotatorElement.textContent = texts[index];
+                index = (index + 1) % texts.length;
+            }
 
-        rotateText();
-        setInterval(rotateText, 4000);
-    });
-</script>
+            rotateText();
+            setInterval(rotateText, 4000);
+        });
+    </script>
 
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const keywords = ["Name", "Description", "City", "Amenities"];
-        const keywordElement = document.getElementById("search-keywords");
-        let index = 0;
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const keywords = ["Name", "Description", "City", "Amenities"];
+            const keywordElement = document.getElementById("search-keywords");
+            let index = 0;
 
-        function rotateKeywords() {
-            keywordElement.textContent = keywords[index];
-            index = (index + 1) % keywords.length;
-        }
+            function rotateKeywords() {
+                keywordElement.textContent = keywords[index];
+                index = (index + 1) % keywords.length;
+            }
 
-        setInterval(rotateKeywords, 2000);
-        rotateKeywords();
-    });
-</script>
+            setInterval(rotateKeywords, 2000);
+            rotateKeywords();
+        });
+    </script>
 

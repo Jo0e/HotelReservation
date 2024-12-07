@@ -4,6 +4,7 @@ using Infrastructures.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241207172047_adjustComments")]
+    partial class adjustComments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,10 +279,6 @@ namespace Infrastructures.Migrations
 
                     b.Property<int>("Likes")
                         .HasColumnType("int");
-
-                    b.PrimitiveCollection<string>("ReactionUsersId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -751,7 +750,7 @@ namespace Infrastructures.Migrations
             modelBuilder.Entity("Models.Models.Comment", b =>
                 {
                     b.HasOne("Models.Models.Hotel", "Hotel")
-                        .WithMany("Comments")
+                        .WithMany()
                         .HasForeignKey("HotelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -976,8 +975,6 @@ namespace Infrastructures.Migrations
 
             modelBuilder.Entity("Models.Models.Hotel", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("HotelAmenities");
 
                     b.Navigation("ImageLists");

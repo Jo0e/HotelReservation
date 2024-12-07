@@ -129,7 +129,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return NotFound();
 
             var user = await userManager.FindByEmailAsync(company.Email);
-            userManager.DeleteAsync(user);
+            await userManager.DeleteAsync(user);
             Thread.Sleep(500);
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
             unitOfWork.CompanyRepository.Delete(company);

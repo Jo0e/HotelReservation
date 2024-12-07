@@ -67,7 +67,7 @@ namespace HotelReservation.Areas.Company.Controllers
         {
            
             ViewBag.HotelId = hotelId;
-            ViewBag.Type = unitOfWork.RoomTypeRepository.Get();
+            ViewBag.Type = unitOfWork.RoomTypeRepository.Get(where: t => t.HotelId == hotelId);
             return View();
         }
 

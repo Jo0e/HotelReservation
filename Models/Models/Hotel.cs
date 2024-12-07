@@ -19,7 +19,10 @@ namespace Models.Models
 
         public int? ReportId { get; set; }
         [ValidateNever]
-        public Report Report { get; set; }      
+        public Report Report { get; set; }
+
+        [ValidateNever]
+        public ICollection<Comment> Comments { get; set; }
         [ValidateNever]
         public ICollection<Rating> Ratings { get; set; } = new List<Rating>(); 
         [ValidateNever]

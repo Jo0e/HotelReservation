@@ -8,7 +8,7 @@ namespace Utilities.Utility
     {
         private static readonly string LogDirectory = "Utility/Logs";
         private static readonly string LogFilePath = Path.Combine(LogDirectory, "AdminActions.json");
-        public static void LogAdminAction(ILogger logger, string adminName, string action, string entityName)
+        public static void LogAdminAction(ILogger logger,string adminId, string adminName, string action, string entityName)
         {
             if (!Directory.Exists(LogDirectory))
             {
@@ -16,6 +16,7 @@ namespace Utilities.Utility
             }
             var logEntry = new LogEntry
             {
+                AdminId = adminId,
                 AdminName = adminName,
                 Action = action,
                 EntityName = entityName,
@@ -47,6 +48,7 @@ namespace Utilities.Utility
     }
     public class LogEntry
     {
+        public string AdminId { get; set; }
         public string AdminName { get; set; }
         public string Action { get; set; }
         public string EntityName { get; set; }

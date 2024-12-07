@@ -1,0 +1,70 @@
+﻿@model Comment
+
+<div class="comment">
+    <div class="comment-header">
+        <img src="~/images/profile/@Model.User.Email/@Model.User.ProfileImage"
+             class="profile-image rounded-circle" />
+        <strong>@Model.User.UserName</strong> - <em>@Model.DateTime.ToString("g")</em>
+        @if (Model.IsEdited)
+        {
+            <span class="badge bg-warning">Edited</span>
+        }
+        @if (User.Identity.Name == Model.User.UserName)
+        {
+            <button class="btn btn-link float-end" data-bs-toggle="modal" data-bs-target="#editCommentModal"
+                    data-comment-id="@Model.Id" data-comment-string="@Model.CommentString">
+                Edit Comment
+            </button>
+        }
+    </div>
+    <div class="comment-body">
+        <p>@Model.CommentString</p>
+    </div>
+    <div class="comment-footer">
+        <span>@Model.Likes <a href="/Customer/Home/LikeComment?commentId=@Model.Id"><i class="bi bi-hand-thumbs-up-fill"></i></a></span>
+        <span>@Model.Dislikes <a href="#"><i class="bi bi-hand-thumbs-down-fill"></i></a></span>
+    </div>
+</div>
+
+<!-- Edit Comment Modal -->
+<div class="modal fade" id="editCommentModal" tabindex="-1" aria-labelledby="editCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCommentModalLabel">Edit Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCommentForm" method="post" action="@Url.Action("EditComment")">
+                    <input type="hidden" id="commentId" name="Id" />
+                    <div class="mb-3">
+                        <label for="commentString" class="form-label">Comment</label>
+                        <textarea class="form-control" id="commentString" name="CommentString" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var editCommentModal = document.getElementById('editCommentModal');
+    editCommentModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Button that triggered the modal
+        var commentId = button.getAttribute('data-comment-id');
+        var commentString = button.getAttribute('data-comment-string');
+
+        var modal = this;
+        modal.querySelector('.modal-body #commentId').value = commentId;
+        modal.querySelector('.modal-body #commentString').value = commentString;
+    });
+</script>
+
+<style>
+    .profile-image {
+        width: 55px;
+        height: 55px;
+        object-fit: cover;
+        border: 2px solid #007bff;
+    }
+</style>
