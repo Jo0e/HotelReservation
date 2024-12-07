@@ -67,8 +67,8 @@ namespace HotelReservation.Areas.Customer.Controllers
 
 
 
-            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms ], where: c => c.City.Contains(city));
-                                         //.Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms], where: c => c.City.Contains(city));
+            //.Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
 
             //var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
             //                             .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
@@ -132,14 +132,14 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Details(int id)
         {
             var hotel = unitOfWork.HotelRepository.GetOne(
-                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes ,h=>h.Comments ],
+                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes, h => h.Comments],
                 where: h => h.Id == id
             );
 
             if (hotel != null)
             {
                 ViewBag.Comment = unitOfWork.CommentRepository.Get
-                    (where: h => h.HotelId == id, include: [u=>u.User]);
+                    (where: h => h.HotelId == id, include: [u => u.User]);
                 return View(hotel);
             }
 
@@ -148,15 +148,15 @@ namespace HotelReservation.Areas.Customer.Controllers
 
 
 
-        public async Task<IActionResult> AddComment(int hotelId , string comment)
+        public async Task<IActionResult> AddComment(int hotelId, string comment)
         {
             var user = await userManager.GetUserAsync(User);
-            if (user == null) 
+            if (user == null)
             {
                 return RedirectToAction("NotFound");
             }
             var appUser = user as ApplicationUser;
-            
+
             Comment NewComment = new Comment()
             {
                 CommentString = comment,
@@ -171,7 +171,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         [HttpPost]
         public async Task<IActionResult> EditComment(int id, string commentString)
         {
-            var comment = unitOfWork.CommentRepository.GetOne(where: p=>p.Id ==id);
+            var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
             if (comment == null)
             {
                 return NotFound();
@@ -181,6 +181,32 @@ namespace HotelReservation.Areas.Customer.Controllers
             comment.IsEdited = true;
             unitOfWork.Complete();
 
+            return RedirectToAction("Details", new { id = comment.HotelId });
+        }
+
+        public async Task<IActionResult> LikeComment(int commentId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound");
+            }
+            var comment = unitOfWork.CommentRepository.GetOne(where: c => c.Id == commentId);
+
+            if (comment == null) {
+                return RedirectToAction("NotFound");
+            }
+            var isExist = comment.ReactionUsersId.Any(e => e.Equals(user.Id));
+            if (isExist)
+            {
+                //comment.ReactionUsersId.Remove(user.Id);
+
+                return RedirectToAction("Details", new { id = comment.HotelId });
+
+            }
+            comment.Likes++;
+            comment.ReactionUsersId.Add(user.Id);
+            unitOfWork.Complete();
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
 
