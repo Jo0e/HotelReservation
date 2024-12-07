@@ -134,7 +134,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
 
         // Custom not found page
-        public  IActionResult NotFound()
+        public IActionResult NotFound()
         {
             return View();
         }
