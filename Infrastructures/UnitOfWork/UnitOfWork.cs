@@ -24,6 +24,9 @@ namespace Infrastructures.UnitOfWork
             UserRepository = new UserRepository(_context);
             ReservationRoomRepository = new ReservationRoomRepository(_context);
             AmenityRepository = new AmenityRepository(_context);
+            RatingRepository = new RatingRepository(_context);
+            CommentRepository = new CommentRepository(_context);
+            ReplayRepository = new ReplayRepository(_context);
 
         }
 
@@ -39,6 +42,9 @@ namespace Infrastructures.UnitOfWork
         public IUserRepository UserRepository { get; private set; }
         public IReservationRoomRepository ReservationRoomRepository { get; private set; }
         public IAmenityRepository AmenityRepository { get; private set; }
+        public IReplayRepository ReplayRepository { get; private set; }
+        public ICommentRepository CommentRepository { get; private set; }
+        public IRatingRepository RatingRepository { get; private set; }
 
         public int Complete()
         {

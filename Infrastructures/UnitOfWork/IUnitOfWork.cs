@@ -17,6 +17,9 @@ namespace Infrastructures.UnitOfWork
         IUserRepository UserRepository { get; }
         IAmenityRepository AmenityRepository { get; }
         IReservationRoomRepository ReservationRoomRepository { get; }
+        IRatingRepository RatingRepository { get; }
+        ICommentRepository CommentRepository { get; }
+        IReplayRepository ReplayRepository { get; }
         int Complete();
     }
 }

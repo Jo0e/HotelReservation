@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var roles = ViewBag.Role;
 }
 
 <h1>Edit</h1>
@@ -37,7 +38,14 @@
                 <input asp-for="ProfileImage" class="form-control" type="hidden" name="ProfileImage" />
                 <span asp-validation-for="ProfileImage" class="text-danger"></span>
             </div>
-
+            <label class="control-label"></label>
+            <select class="form-select" name="role">
+                <option selected disabled hidden>Open select menu</option>
+                @foreach (var item in roles)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
