@@ -15,5 +15,8 @@ namespace Models.Models
         public DateTime DateTime { get; set; }
         public int CommentId { get; set; }
         public Comment Comment { get; set; }
+        public bool IsEdited { get; set; } = false;
+        public int Likes { get; set; } = 0;
+        public int Dislikes { get; set; } = 0;
     }
 }

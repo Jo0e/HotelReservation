@@ -1,4 +1,7 @@
 ﻿@model Hotel
+@{
+    ICollection<Comment> comments = ViewBag.Comment;
+}
 <style>
     /* Details Page Styles */
     .hotel-details {
@@ -81,9 +84,29 @@
                 <option value="Quadruple">Quadruple</option>
             </select>
         </div>
-        
+
         <button type="submit" class="btn btn-primary">Search for Room suits you</button>
     </form>
+
+    <h3 class="mt-4">Comments</h3>
+    <hr />
+    <form asp-action="AddComment" method="get">
+        <input type="hidden" name="hotelId" value="@Model.Id" />
+        <div class="form-floating">
+            <textarea name="comment" class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+            <label for="floatingTextarea">Leave a comment here</label>
+        </div>
+        <button type="submit" class="btn btn-outline-dark">Submit Comment</button>
+    </form>
+    <hr style="color:#fff;" />
+    <div class="comments-section">
+        @foreach (var comment in comments)
+        {
+            <partial>
+                @Html.Partial("_CommentPartial", comment)
+            </partial>
+        }
+    </div>
 
 
 </div>

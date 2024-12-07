@@ -16,9 +16,9 @@ namespace Models.Models
         public int HotelId { get; set; }
         public Hotel Hotel { get; set; }
 
-        public bool IsEdited { get; set; }
-        public int Likes { get; set; }
-        public int Dislikes { get; set; }
+        public bool IsEdited { get; set; } = false;
+        public int Likes { get; set; }  = 0;
+        public int Dislikes { get; set; } = 0;
 
         public ICollection<Reply> Replies { get; set; } = new List<Reply>();
     }
