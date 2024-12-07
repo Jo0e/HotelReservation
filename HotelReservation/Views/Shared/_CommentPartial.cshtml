@@ -21,7 +21,7 @@
         <p>@Model.CommentString</p>
     </div>
     <div class="comment-footer">
-        <span>@Model.Likes <a href="#"><i class="bi bi-hand-thumbs-up-fill"></i></a></span>
+        <span>@Model.Likes <a href="/Customer/Home/LikeComment?commentId=@Model.Id"><i class="bi bi-hand-thumbs-up-fill"></i></a></span>
         <span>@Model.Dislikes <a href="#"><i class="bi bi-hand-thumbs-down-fill"></i></a></span>
     </div>
 </div>
