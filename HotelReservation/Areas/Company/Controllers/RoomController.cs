@@ -2,7 +2,6 @@
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
-using System.Linq.Expressions;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
@@ -20,29 +19,23 @@ namespace HotelReservation.Areas.Company.Controllers
         public ActionResult Index(int id)
         {
 
-            int resolvedHotelId = id;
-
-            if (id == 0)
-            {
-                var hotelIdCookie = Request.Cookies["HotelIdCookie"];
-                if (hotelIdCookie == null || !int.TryParse(hotelIdCookie, out resolvedHotelId))
-                {
-                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                }
-            }
-            else
+            IEnumerable<Room> rooms;
+            if (id != 0)
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
+                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
+                ViewBag.roomsCount = rooms.Select(e => e.RoomType.AvailableRooms.Value);
+                ViewBag.HotelId = id;
+                return View(rooms);
             }
-
-            var rooms = unitOfWork.RoomRepository.Get(
-                where: e => e.HotelId == resolvedHotelId,
-                include:[e => e.Hotel,w => w.RoomType]);
-
-            ViewBag.RoomsCount = rooms.Select(e => e.RoomType.AvailableRooms ?? 0).ToList();
-            ViewBag.HotelId = resolvedHotelId;
-
-            return View(rooms);
+            else if (id == 0)
+            {
+                var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
+                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
+                ViewBag.HotelId = hotelId;
+                return View(rooms);
+            }
+            return NotFound();
 
         }
 
@@ -56,8 +49,7 @@ namespace HotelReservation.Areas.Company.Controllers
 
             if (room == null)
             {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-
+                return NotFound("Room not found.");
             }
 
             return View(room);
@@ -76,13 +68,9 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Room room)
         {
-            if (!ModelState.IsValid)
-            {
-                unitOfWork.RoomRepository.Create(room);
-                unitOfWork.Complete();
-                return RedirectToAction(nameof(Index), new { id = room.HotelId });
-            }
-            return View(room);
+            unitOfWork.RoomRepository.Create(room);
+            unitOfWork.Complete();
+            return RedirectToAction(nameof(Index), new {id=room.HotelId});
         }
         // POST: RoomsController/Book/5
         public ActionResult Book(int id)
@@ -90,8 +78,7 @@ namespace HotelReservation.Areas.Company.Controllers
             var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
             if (room == null)
             {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-
+                return NotFound("Room not found.");
             }
 
             room.IsAvailable = !room.IsAvailable;
@@ -111,8 +98,7 @@ namespace HotelReservation.Areas.Company.Controllers
 
             if (room == null)
             {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-
+                return NotFound("Room not found.");
             }
 
             return View(room);
