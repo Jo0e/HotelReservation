@@ -79,6 +79,7 @@ namespace Infrastructures.Repository
                 entity.ProfileImage = newFileName;
 
             }
+
         }
 
     }

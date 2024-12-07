@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Utilities.Utility;
 
+
 namespace HotelReservation.Areas.Customer.Controllers
 {
     [Area("Customer")]
@@ -50,7 +51,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return View(hotelsByCity);
         }
 
-        public IActionResult HotelsByCity(string city, string? search = null, int pageNumber = 1)
+        public IActionResult HotelsByCity(string city,  int? stars, List<string> amenitiess ,string search = null, int pageNumber = 1 )
         {
 
             const int pageSize = 5;
@@ -60,13 +61,15 @@ namespace HotelReservation.Areas.Customer.Controllers
             var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
             var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
 
-
-
-
-            if (string.IsNullOrWhiteSpace(city))
+            if (stars.HasValue)
             {
-                return RedirectToAction("Index");
+                hotels = hotels.Where(h => h.Stars == stars.Value);
             }
+            else
+            {
+                RedirectToAction("NotFound");
+            }
+
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -88,10 +91,16 @@ namespace HotelReservation.Areas.Customer.Controllers
             }
             hotels = hotels.Union(hotelAmenitiesResults).ToList();
 
+            if (amenitiess != null && amenitiess.Count > 0)
+            {
+                hotels = hotels.Where(h => h.HotelAmenities.Any(ha => amenitiess.Contains(ha.Amenity.Name, StringComparer.OrdinalIgnoreCase)));
+            }
 
             int TotalResult = hotels.Count();
             var paginatedHotels = hotels.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-            ViewBag.city = city;
+            ViewBag.City = city;
+            ViewBag.Stars = stars;
+            ViewBag.Amenities = amenitiess;
             ViewBag.pageNumber = pageNumber;
             ViewBag.totalPages = (int)Math.Ceiling((double)TotalResult / pageSize);
 
@@ -100,7 +109,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             return View(paginatedHotels);
         }
-
+        [HttpPost]
 
         // Displays hotel details by ID
         public IActionResult Details(int id)

@@ -30,7 +30,7 @@ namespace Utilities.Utility
                                 message
                                 )
                 {
-                    IsBodyHtml = false
+                    IsBodyHtml = true
                 }
                 );
             
