@@ -61,6 +61,15 @@ namespace HotelReservation.Areas.Customer.Controllers
             var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
             var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
 
+            if (stars.HasValue)
+            {
+                hotels = hotels.Where(h => h.Stars == stars.Value);
+            }
+            else
+            {
+                RedirectToAction("NotFound");
+            }
+
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -82,6 +91,10 @@ namespace HotelReservation.Areas.Customer.Controllers
             }
             hotels = hotels.Union(hotelAmenitiesResults).ToList();
 
+            if (amenitiess != null && amenitiess.Count > 0)
+            {
+                hotels = hotels.Where(h => h.HotelAmenities.Any(ha => amenitiess.Contains(ha.Amenity.Name, StringComparer.OrdinalIgnoreCase)));
+            }
 
             int TotalResult = hotels.Count();
             var paginatedHotels = hotels.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
