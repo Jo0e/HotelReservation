@@ -11,7 +11,7 @@
     var appUser = user as ApplicationUser;
     var profileImagePath = appUser?.ProfileImage ?? "default-profile.png";
 
-    <div class="profile-container d-flex align-items-center">
+    <div class="profile-container d-flex align-items-center" style="height:4rem;">
         <img src="~/images/profile/@user.Email/@profileImagePath"
              class="profile-image rounded-circle"
              alt="@UserManager.GetUserName(User)"
@@ -20,10 +20,10 @@
 
         <div class="profile-details ms-3">
             <h5 class="mb-0">Hello, @UserManager.GetUserName(User).Substring(0, user.Email.IndexOf('@')) !</h5>
-            <a id="manage" class="btn btn-outline-primary btn-sm" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
+            <a id="manage" class="btn btn-outline-primary btn-sm text-light custom-btn" style="box-shadow:none;padding:10px" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
         </div>
         <form id="logoutForm" class="ms-3" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+            <button id="logout" type="submit" style="box-shadow:none;padding:10px;" class="btn btn-outline-danger btn-sm text-light custom-btn">Logout</button>
         </form>
     </div>
 }
@@ -47,8 +47,8 @@ else
 
     /* Profile image styling */
     .profile-image {
-        width: 60px;
-        height: 60px;
+        width: 55px;
+        height: 55px;
         object-fit: cover;
         border: 2px solid #007bff;
     }

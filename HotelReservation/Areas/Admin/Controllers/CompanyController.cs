@@ -25,7 +25,6 @@ namespace HotelReservation.Areas.Admin.Controllers
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
             this.userManager = userManager;
-
             this.roleManager = roleManager;
         }
         public IActionResult Index()
@@ -39,15 +38,14 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(CompanyViewModel companyVM,IFormFile ProfileImage)
+        public async Task<IActionResult> Create(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
             ModelState.Remove(nameof(ProfileImage));
             if (ModelState.IsValid)
             {
-
-                var newUser = mapper.Map<ApplicationUser>(companyVM);
-                var email = companyVM.Email;
-                newUser.UserName = email;
+                var newUser = Activator.CreateInstance<ApplicationUser>();
+                newUser = mapper.Map<ApplicationUser>(companyVM);
+                newUser.UserName = companyVM.Email;
                 var result = await userManager.CreateAsync(newUser, companyVM.Passwords);
 
                 if (result.Succeeded)
@@ -88,23 +86,23 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View(company);
         }
         [HttpPost]
-        public async Task<IActionResult> Edit(CompanyViewModel companyVM , IFormFile ProfileImage)
+        public async Task<IActionResult> Edit(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
             ModelState.Remove(nameof(ProfileImage));
             ModelState.Remove(nameof(companyVM.Passwords));
             ModelState.Remove(nameof(companyVM.ConfirmPassword));
-            
+
             if (ModelState.IsValid)
             {
-                var company = unitOfWork.CompanyRepository.GetOne(where:e => e.Id == companyVM.Id ,tracked:false);
-                var user= await userManager.FindByEmailAsync(company.Email);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == companyVM.Id, tracked: false);
+                var user = await userManager.FindByEmailAsync(company.Email);
                 var appUser = user as ApplicationUser;
 
-                appUser.Email=company.Email;
-                appUser.PhoneNumber=company.PhoneNumber;
-                appUser.City=company.Addres;
-                unitOfWork.CompanyRepository.UpdateProfileImage(appUser,ProfileImage);
-                
+                appUser.Email = company.Email;
+                appUser.PhoneNumber = company.PhoneNumber;
+                appUser.City = company.Addres;
+                unitOfWork.CompanyRepository.UpdateProfileImage(appUser, ProfileImage);
+
                 var result = await userManager.UpdateAsync(appUser);
                 if (!result.Succeeded)
                 {
@@ -114,7 +112,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                     }
                     return View(companyVM);
                 }
-                mapper.Map(companyVM,company);
+                mapper.Map(companyVM, company);
                 company.ProfileImage = appUser.ProfileImage;
                 unitOfWork.CompanyRepository.Update(company);
                 unitOfWork.Complete();

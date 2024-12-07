@@ -1,0 +1,53 @@
+﻿@using Models.ViewModels
+@model IEnumerable<UserViewModel>
+
+<h2>Users</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Roles</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var userViewModel in Model)
+        {
+            <tr>
+                <td>@userViewModel.User.Id</td>
+                <td>@userViewModel.User.Email</td>
+                <td>@userViewModel.User.PhoneNumber</td>
+
+                <td>
+                    @foreach (var role in userViewModel.Roles)
+                    {
+                        <span>@role</span>
+
+                        <br />
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@userViewModel.User.Id" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    @if (userViewModel.User.LockoutEnd > DateTime.Now)
+                    {
+                        <a asp-action="Lockout" asp-route-id="@userViewModel.User.Id" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> UnLockout
+                        </a>
+                    }
+                    @if (userViewModel.User.LockoutEnd <= DateTime.Now || userViewModel.User.LockoutEnd == null)
+                    {
+                    <a asp-action="Lockout" asp-route-id="@userViewModel.User.Id" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Lockout
+                    </a>
+                    }
+                    <a asp-action="Delete" asp-route-id="@userViewModel.User.Id" class="btn btn-danger btn-sm">
+                        <i class="fas fa-edit"></i> Delete User
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
