@@ -5,6 +5,7 @@ using Models.Models;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
+    [Area("Company")]
     public class CouponController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

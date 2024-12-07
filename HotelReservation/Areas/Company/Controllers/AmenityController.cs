@@ -2,6 +2,7 @@
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using System;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
@@ -18,14 +19,30 @@ namespace HotelReservation.Areas.Company.Controllers
         // GET: AmenityController
         public ActionResult Index()
         {
-            var Amenities = unitOfWork.AmenityRepository.Get();
-            return View(Amenities);
+            try
+            {
+                var Amenities = unitOfWork.AmenityRepository.Get();
+                return View(Amenities);
+            }
+            catch (Exception ex)
+            {
+                // Log exception (optional)
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
         }
 
         // GET: AmenityController/Create
         public ActionResult Create()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                // Log exception (optional)
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
         }
 
         // POST: AmenityController/Create
@@ -33,15 +50,31 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Amenity amenity, IFormFile Img)
         {
-            unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                // Log exception (optional)
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
         }
 
         // GET: AmenityController/Edit/5
         public ActionResult Edit(int id)
         {
-            var amenity = unitOfWork.AmenityRepository.GetOne(where: e => e.Id == id);
-            return View(amenity);
+            try
+            {
+                var amenity = unitOfWork.AmenityRepository.GetOne(where: e => e.Id == id);
+                return View(amenity);
+            }
+            catch (Exception ex)
+            {
+                // Log exception (optional)
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
         }
 
         // POST: AmenityController/Edit/5
@@ -49,17 +82,34 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Amenity amenity, IFormFile Img)
         {
-            var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
-            unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
+                unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                // Log exception (optional)
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
         }
 
+        // POST: AmenityController/Delete/5
         public ActionResult Delete(int id)
         {
-            var amenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == id);
-            unitOfWork.AmenityRepository.DeleteWithImage(amenity, "amenities", amenity?.Img);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                var amenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == id);
+                unitOfWork.AmenityRepository.DeleteWithImage(amenity, "amenities", amenity?.Img);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                // Log exception (optional)
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
         }
     }
 }
