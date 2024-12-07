@@ -89,6 +89,30 @@
         border-radius: 20px;
     }
 </style>
+<style>
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+</style>
+
+<style>
+body {
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+}
+</style>
+<style>
+h1.text-center {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+</style>
+
+
 
 <div class="container mt-4">
     <div class="search-header">
@@ -111,7 +135,7 @@
             </h6>
         }
         <br />
-        <h1 class="text-center">Explore Hotels by City</h1>
+        <h1>Explore Hotels</h1>
         <br />
         <div class="row">
             @if (Model.Any())
@@ -119,8 +143,8 @@
                 @foreach (var hotel in Model)
                 {
                     <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
+                        <div data-aos="fade-up" class="card">
+                            <img src="~/images/homeImage/@hotel.CoverImg" loading="lazy" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title"><strong>@hotel.Name</strong> </h5>
                                 <br />
@@ -171,7 +195,7 @@
                                     {
                                         @foreach (var amenity in hotel.HotelAmenities)
                                         {
-                                        <span class="badge bg-info"><img src="~/images/amenities/@amenity.Amenity.Img" style="height:20px;width:20px;" alt="Alternate Text" /> @amenity.Amenity.Name</span>
+                                        <span class="badge bg-info"> @amenity.Amenity.Name</span>
                                         }
                                     }
                                     else
@@ -217,6 +241,40 @@
     </nav>
 </div>
 
+<style>
+.filter-sidebar {
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+.filter-title {
+    font-size: 1.5rem;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.form-group label {
+    font-size: 1rem;
+    color: #555;
+}
+
+input[type="checkbox"] + label {
+    margin-left: 10px;
+}
+
+#apply-filters {
+    margin-top: 15px;
+    background-color: #007bff;
+    border: none;
+    transition: 0.3s;
+}
+
+#apply-filters:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+</style>
 
 
 
@@ -258,3 +316,4 @@
         rotateKeywords();
     });
 </script>
+
