@@ -113,8 +113,20 @@
     </h6>
     }
     <br />
-    <h1> Explore Hotels By City  </h1>
-    <br />
+    <h1 class="animated-text"></h1>
+    <script>
+        const text = "Explore Hotels By City";
+        let index = 0;
+        const target = document.querySelector(".animated-text");
+        function typeWriter() {
+            if (index < text.length) {
+                target.textContent += text[index];
+                index++;
+                setTimeout(typeWriter, 100);
+            }
+        }
+        typeWriter();
+    </script>    <br />
 
     <div class="row">
 

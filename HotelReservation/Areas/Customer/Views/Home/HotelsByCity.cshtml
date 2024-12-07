@@ -135,7 +135,24 @@ h1.text-center {
             </h6>
         }
         <br />
-        <h1>Explore Hotels</h1>
+
+        <h1 class="animated-text"></h1>
+
+        <script>
+
+            const text = "Explore Amazing Hotels!";
+            let index = 0;
+            const target = document.querySelector(".animated-text");
+            function typeWriter() {
+                if (index < text.length) {
+                    target.textContent += text[index];
+                    index++;
+                    setTimeout(typeWriter, 100);
+                }
+            }
+            typeWriter();
+        </script>
+
         <br />
         <div class="row">
             @if (Model.Any())
