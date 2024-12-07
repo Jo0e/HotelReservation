@@ -26,7 +26,6 @@ namespace HotelReservation.Areas.Company.Controllers
             return View();
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(Coupon coupon)
         {
             if (ModelState.IsValid)
@@ -47,12 +46,11 @@ namespace HotelReservation.Areas.Company.Controllers
                 return View(model: coupon);
             }
 
-            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            return RedirectToAction("NotFound", "Home");
 
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Edit(Coupon coupon)
         {
             if (ModelState.IsValid)
@@ -65,17 +63,12 @@ namespace HotelReservation.Areas.Company.Controllers
             return View(coupon);
         }
 
-        public IActionResult Delete(int couponId)
+        public IActionResult Delete(int couponid)
         {
-            var coupon = unitOfWork.CouponRepository.GetOne(where: e => e.Id == couponId);
+            var coupon = unitOfWork.CouponRepository.GetOne(where: e => e.Id == couponid);
 
             if (coupon == null)
-            {
-                {
-                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                }
-
-            }
+                RedirectToAction("NotFound", "Home");
 
             unitOfWork.CouponRepository.Delete(coupon);
             unitOfWork.Complete();
