@@ -135,7 +135,7 @@ h1.text-center {
             </h6>
         }
         <br />
-
+        <div class="text-center">
         <h1 class="animated-text"></h1>
 
         <script>
@@ -152,9 +152,61 @@ h1.text-center {
             }
             typeWriter();
         </script>
-
+        </div>
         <br />
-        <div class="row">
+
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <form method="get" action="/Customer/Home/HotelsByCity" class="bg-light p-4 shadow rounded">
+                        <h4 class="text-primary mb-4">Hotels Filter</h4>
+                        <input type="hidden" name="city" value="@ViewBag.City" />
+
+                        <div class="form-group mb-4">
+                            <label class="fw-bold">Filtring On Stars :</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="stars3" name="stars" value="3" @(ViewBag.Stars == 3 ? "checked" : "")>
+                                <label class="form-check-label" for="stars3">3 Stras</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="stars4" name="stars" value="4" @(ViewBag.Stars == 4 ? "checked" : "")>
+                                <label class="form-check-label" for="stars4">4 Stars </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="stars5" name="stars" value="5" @(ViewBag.Stars == 5 ? "checked" : "")>
+                                <label class="form-check-label" for="stars5">5 Stars</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="fw-bold">Filtring On Amenities:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="wifi" name="amenitiess" value="WiFi" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
+                                <label class="form-check-label" for="wifi">Wifi</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="parking" name="amenitiess" value="Parking" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Parking") ? "checked" : "")>
+                                <label class="form-check-label" for="parking">Parking</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="pool" name="amenitiess" value="Pool" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Pool") ? "checked" : "")>
+                                <label class="form-check-label" for="pool">Pool</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="SPA" name="amenitiess" value="SPA" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("SPA") ? "checked" : "")>
+                                <label class="form-check-label" for="SPA">SPA</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    </form>
+                </div>
+
+
+
+         <div class="col-md-9">
+         <div class="row">
             @if (Model.Any())
             {
                 @foreach (var hotel in Model)
@@ -232,6 +284,56 @@ h1.text-center {
                 <p class="text-center">No hotels found.</p>
             }
         </div>
+        </div>
+@*         <div class="container">
+        <div class="row">
+        <form method="get" action="/Customer/Home/HotelsByCity" class="filter-sidebar p-3 shadow-sm">
+            <input type="hidden" name="city" value="@ViewBag.City" />
+              <div class="form-group mb-4">
+                <label class="fw-bold" >تصفية حسب عدد النجوم:</label><br>
+                
+                <div class="form-check">
+                <input type="checkbox" id="stars3" name="stars" value="3" @(ViewBag.Stars == 3 ? "checked" : "")>
+                <label for="stars3">3 نجوم</label>
+                </div>
+                
+                <div class="form-check">
+                <input type="checkbox" id="stars4" name="stars" value="4" @(ViewBag.Stars == 4 ? "checked" : "")>
+                <label for="stars4">4 نجوم</label>
+                </div>
+
+                <div class="form-check">
+                <input type="checkbox" id="stars5" name="stars" value="5" @(ViewBag.Stars == 5 ? "checked" : "")>
+                <label for="stars5">5 نجوم</label>
+                </div>
+
+            </div>
+
+                <div class="form-group mb-4">
+                <label class="fw-bold">تصفية حسب الخدمات:</label><br>
+                <div class="form-check">
+                <input type="checkbox" id="wifi" name="amenitiess" value="WiFi" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
+                <label for="wifi">Wifi</label><br>
+                </div>
+                <div class="form-check">
+                <input type="checkbox" id="parking" name="amenitiess" value="Parking" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Parking") ? "checked" : "")>
+                <label for="parking">Parking</label><br>
+                </div>
+
+                <div class="form-check">
+                <input type="checkbox" id="pool" name="amenitiess" value="Pool" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Pool") ? "checked" : "")>
+                <label for="pool">Pool</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="SPA" name="amenitiess" value="SPA" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
+                    <label for="SPA">SPA</label><br>
+                    </div>
+        </div>
+
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+        </div>
+ *@        </div>
     </div>
 
 

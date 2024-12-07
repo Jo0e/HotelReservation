@@ -51,7 +51,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return View(hotelsByCity);
         }
 
-        public IActionResult HotelsByCity(string city,  string stars, string amenitiess ,string search = null, int pageNumber = 1 )
+        public IActionResult HotelsByCity(string city,  int? stars, List<string> amenitiess ,string search = null, int pageNumber = 1 )
         {
 
             const int pageSize = 5;
@@ -60,6 +60,8 @@ namespace HotelReservation.Areas.Customer.Controllers
                                          .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
             var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
             var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
+
+
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
@@ -79,11 +81,13 @@ namespace HotelReservation.Areas.Customer.Controllers
                 hotelAmenitiesResults = amenities;
             }
             hotels = hotels.Union(hotelAmenitiesResults).ToList();
-           
+
 
             int TotalResult = hotels.Count();
             var paginatedHotels = hotels.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-            ViewBag.city = city;
+            ViewBag.City = city;
+            ViewBag.Stars = stars;
+            ViewBag.Amenities = amenitiess;
             ViewBag.pageNumber = pageNumber;
             ViewBag.totalPages = (int)Math.Ceiling((double)TotalResult / pageSize);
 
