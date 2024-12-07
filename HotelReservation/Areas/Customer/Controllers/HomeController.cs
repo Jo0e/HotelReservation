@@ -33,31 +33,38 @@ namespace HotelReservation.Areas.Customer.Controllers
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                hotels = hotels.Where(h=>
-                h.City.Contains(search, StringComparison.OrdinalIgnoreCase)); 
+                hotels = hotels.Where(h =>
+                h.City.Contains(search, StringComparison.OrdinalIgnoreCase));
             }
 
 
-           // ViewBag.HotelAmenities = hotelAmenities;
+            // ViewBag.HotelAmenities = hotelAmenities;
 
             var hotelsByCity = hotels.GroupBy(h => h.City)
-                               .Select(g => g.First() )
+                               .Select(g => g.First())
                                .ToList();
             int TotalResult = hotels.Count();
 
             ViewBag.totalResult = TotalResult;
             ViewBag.search = search;
-            
+
             return View(hotelsByCity);
         }
 
-        public IActionResult HotelsByCity(string city,  int? stars, List<string> amenitiess ,string search = null, int pageNumber = 1 )
+
+
+        public IActionResult HotelsByCity(string city, int? stars, List<string> amenitiess, string? search = null, int pageNumber = 1)
         {
 
             const int pageSize = 5;
 
-            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
-                                         .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+
+
+            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms], where: c => c.City.Contains(city));
+                                         //.Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+
+            //var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
+            //                             .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
             var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
             var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
 
@@ -73,11 +80,15 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             if (!string.IsNullOrWhiteSpace(search))
             {
+
                 search = search.Trim();
                 hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
                 || h.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
-                || h.Address.Contains(search, StringComparison.OrdinalIgnoreCase) || h.City.Contains(search, StringComparison.OrdinalIgnoreCase)); //|| h.HotelAmenities.Any(a => a.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();   /*Contains(search, StringComparison.OrdinalIgnoreCase) || h.Rooms.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));*/
+                || h.Address.Contains(search, StringComparison.OrdinalIgnoreCase) || h.City.Contains(search, StringComparison.OrdinalIgnoreCase));
+
+                //|| h.HotelAmenities.Any(a => a.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();   /*Contains(search, StringComparison.OrdinalIgnoreCase) || h.Rooms.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));*/
             }
+
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -103,19 +114,18 @@ namespace HotelReservation.Areas.Customer.Controllers
             ViewBag.Amenities = amenitiess;
             ViewBag.pageNumber = pageNumber;
             ViewBag.totalPages = (int)Math.Ceiling((double)TotalResult / pageSize);
-
+            ViewBag.AllAmenities = unitOfWork.AmenityRepository.Get();
             ViewBag.totalResult = TotalResult;
             ViewBag.search = search;
 
             return View(paginatedHotels);
         }
-        [HttpPost]
 
         // Displays hotel details by ID
         public IActionResult Details(int id)
         {
             var hotel = unitOfWork.HotelRepository.GetOne(
-                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes] ,
+                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes],
                 where: h => h.Id == id
             );
 
@@ -194,7 +204,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
                 if (files.Length > 0)
                 {
-                    
+
                     var randomFile = files[new Random().Next(files.Length)];
                     logoPath = $"/images/Logo/{Path.GetFileName(randomFile)}";
                 }
