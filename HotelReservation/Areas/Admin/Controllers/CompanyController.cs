@@ -38,6 +38,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
             ModelState.Remove(nameof(ProfileImage));
@@ -86,6 +88,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View(company);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
             ModelState.Remove(nameof(ProfileImage));
@@ -95,6 +98,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == companyVM.Id, tracked: false);
+                if (company == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 var user = await userManager.FindByEmailAsync(company.Email);
                 var appUser = user as ApplicationUser;
 
@@ -126,7 +130,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == id);
             if (company == null)
-                return NotFound();
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
             var user = await userManager.FindByEmailAsync(company.Email);
             await userManager.DeleteAsync(user);

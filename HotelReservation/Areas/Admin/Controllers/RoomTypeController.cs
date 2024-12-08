@@ -53,9 +53,13 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(RoomType roomType)
         {
-            unitOfWork.RoomTypeRepository.Create(roomType);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                unitOfWork.RoomTypeRepository.Create(roomType);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(roomType);
         }
 
         // GET: RoomTypeController/Edit/5
@@ -71,33 +75,23 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(RoomType roomType)
         {
-            unitOfWork.RoomTypeRepository.Update(roomType);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                unitOfWork.RoomTypeRepository.Update(roomType);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(roomType);
         }
 
         // GET: RoomTypeController/Delete/5
         public ActionResult Delete(int id)
         {
             var type = unitOfWork.RoomTypeRepository.GetOne(where: e => e.Id == id);
+            if (type == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.RoomTypeRepository.Delete(type);
             unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
-
-        //// POST: RoomTypeController/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
     }
 }

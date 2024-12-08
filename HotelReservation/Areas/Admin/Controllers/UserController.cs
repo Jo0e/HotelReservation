@@ -132,26 +132,19 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
-        // GET: UserController/Delete/5
-        public ActionResult Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
-            return View();
-        }
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null) {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            var result=await userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = "Error";
+            }
+             return RedirectToAction(nameof(Index));
 
-        // POST: UserController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
         }
     }
 }
