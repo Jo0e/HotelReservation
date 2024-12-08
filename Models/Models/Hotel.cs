@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models.Models
 {
     public class Hotel
     {
         public int Id { get; set; }
+        [Required(ErrorMessage = "Please enter name")]
         public string Name { get; set; }
         public string Description { get; set; }
         public string Address { get; set; }
@@ -35,6 +37,7 @@ namespace Models.Models
 
         [ValidateNever]
         public ICollection<HotelAmenities> HotelAmenities { get; set; } = new List<HotelAmenities>();
+        [ValidateNever]
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
         
     }

@@ -169,12 +169,13 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Details", new { id = hotelId });
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditComment(int id, string commentString)
         {
             var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
             if (comment == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound");
             }
 
             comment.CommentString = commentString;

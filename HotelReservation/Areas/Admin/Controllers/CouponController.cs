@@ -28,6 +28,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Coupon coupon)
         {
             if (ModelState.IsValid)
@@ -48,11 +49,13 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return View(model: coupon);
             }
 
-            return RedirectToAction("NotFound", "Home");
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+
         public IActionResult Edit(Coupon coupon)
         {
             if (ModelState.IsValid)
@@ -70,7 +73,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             var coupon = unitOfWork.CouponRepository.GetOne(where: e => e.Id == couponId);
 
             if (coupon == null)
-                RedirectToAction("NotFound", "Home");
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             else
             unitOfWork.CouponRepository.Delete(coupon);
             unitOfWork.Complete();

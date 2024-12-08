@@ -65,6 +65,8 @@ namespace HotelReservation.Areas.Customer.Controllers
         
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+
         public IActionResult Book(ReservationViewModel viewModel,TypeViewModel typeModel)
         {
             if (!ModelState.IsValid) return View(viewModel);
