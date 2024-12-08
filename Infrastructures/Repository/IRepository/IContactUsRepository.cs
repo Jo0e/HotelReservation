@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructures.Repository.IRepository
 {
-    public interface IReplayRepository : IRepository<Reply>
+    public interface IContactUsRepository : IRepository<ContactUs>
     {
     }
 }

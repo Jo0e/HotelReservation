@@ -7,7 +7,6 @@ namespace Models.Models
     {
         public int Id { get; set; }
         public string Code { get; set; }
-        [MaxLength(10)]
         public int Limit { get; set; }
         [Range(0,100)]
         public double Discount { get; set; }

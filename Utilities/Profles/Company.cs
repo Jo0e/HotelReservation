@@ -34,6 +34,18 @@ namespace Utilities.Profles
             .ForMember(dest => dest.ProfileImage, opt => opt.MapFrom(src => src.ProfileImage))
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
+
+
+
+            CreateMap<Room, Room>()
+           .ForMember(dest => dest.RoomTypeId, opt => opt.MapFrom(src => src.RoomTypeId))
+           .ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(src => src.IsAvailable))
+           .ForMember(dest => dest.HotelId, opt => opt.MapFrom(src => src.HotelId))
+           .ForMember(dest => dest.Id, opt => opt.Ignore())
+           .ForMember(dest => dest.ReservationRooms, opt => opt.Ignore())
+           .ForMember(dest => dest.RoomType, opt => opt.Ignore())
+           .ForMember(dest => dest.Hotel, opt => opt.Ignore());
+
         }
 
     }

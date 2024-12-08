@@ -72,8 +72,8 @@ namespace HotelReservation
             builder.Services.AddScoped<IReservationRoomRepository, ReservationRoomRepository>();
             builder.Services.AddScoped<IAmenityRepository, AmenityRepository >();
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-            builder.Services.AddScoped<IReplayRepository, ReplayRepository >();
             builder.Services.AddScoped<IRatingRepository, RatingRepository >();
+            builder.Services.AddScoped<IContactUsRepository, ContactUsRepository >();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork >();
 
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));

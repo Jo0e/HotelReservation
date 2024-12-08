@@ -102,6 +102,10 @@ namespace HotelReservation.Areas.Admin.Controllers
                 var user = await userManager.FindByEmailAsync(company.Email);
                 var appUser = user as ApplicationUser;
 
+                if (appUser == null) 
+                {
+                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                }
                 appUser.Email = company.Email;
                 appUser.PhoneNumber = company.PhoneNumber;
                 appUser.City = company.Addres;
@@ -133,6 +137,10 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
             var user = await userManager.FindByEmailAsync(company.Email);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             await userManager.DeleteAsync(user);
             Thread.Sleep(500);
             unitOfWork.CompanyRepository.DeleteProfileImage(company);

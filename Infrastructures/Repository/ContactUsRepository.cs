@@ -1,4 +1,5 @@
 ﻿using Infrastructures.Data;
+using Infrastructures.Migrations;
 using Infrastructures.Repository.IRepository;
 using Models.Models;
 using System;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Infrastructures.Repository
 {
-    public class ReplayRepository : Repository<Reply>, IReplayRepository
+    public class ContactUsRepository : Repository<ContactUs>, IContactUsRepository
     {
-        public ReplayRepository(ApplicationDbContext context) : base(context)
+        public ContactUsRepository(ApplicationDbContext context) : base(context)
         {
         }
     }

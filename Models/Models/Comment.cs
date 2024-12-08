@@ -23,8 +23,7 @@ namespace Models.Models
 
         public bool IsEdited { get; set; } = false;
         public int Likes { get; set; }  = 0;
-        public int Dislikes { get; set; } = 0;
         public ICollection<string> ReactionUsersId { get; set; }
-        public ICollection<Reply> Replies { get; set; } = new List<Reply>();
+        
     }
 }

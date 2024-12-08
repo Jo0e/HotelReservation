@@ -169,7 +169,6 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Details", new { id = hotelId });
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditComment(int id, string commentString)
         {
             var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
@@ -210,7 +209,21 @@ namespace HotelReservation.Areas.Customer.Controllers
             unitOfWork.Complete();
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ReportComment(int CommentId, string UserRequestString)
+        {
+            var contactUs = new ContactUs
+            {
+                Name = User.Identity.Name,
+                Request = ContactUs.RequestType.Complaint,
+                UserRequestString = $"Reported CommentID:{CommentId} \r\n {UserRequestString}",
+            };
+            unitOfWork.ContactUsRepository.Create(contactUs);
+            unitOfWork.Complete();
+            return RedirectToAction("Index");
 
+        }
 
         // Privacy page (static content)
         public IActionResult Privacy()

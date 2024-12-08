@@ -1,34 +1,81 @@
 ﻿@model Comment
 
-<div class="comment">
-    <div class="comment-header">
-        <img src="~/images/profile/@Model.User.Email/@Model.User.ProfileImage"
-             class="profile-image rounded-circle" />
-        <strong>@Model.User.UserName</strong> - <em>@Model.DateTime.ToString("g")</em>
-        @if (Model.IsEdited)
-        {
-            <span class="badge bg-warning">Edited</span>
-        }
-        @if (User.Identity.Name == Model.User.UserName)
-        {
-            <button class="btn btn-link float-end" data-bs-toggle="modal" data-bs-target="#editCommentModal"
-                    data-comment-id="@Model.Id" data-comment-string="@Model.CommentString">
-                Edit Comment
+<div class="comment mb-4 p-3 border rounded shadow-sm">
+    <div class="comment-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <img src="~/images/profile/@Model.User.Email/@Model.User.ProfileImage"
+                 class="profile-image rounded-circle me-3" />
+            <div>
+                <strong class="text-primary">@Model.User.UserName</strong>
+                <small class="text-muted d-block">@Model.DateTime.ToString("g")</small>
+                @if (Model.IsEdited)
+                {
+                    <span class="badge bg-warning text-dark">Edited</span>
+                }
+            </div>
+        </div>
+        <div>
+            @if (User.Identity.Name == Model.User.UserName)
+            {
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editCommentModal"
+                        data-comment-id="@Model.Id" data-comment-string="@Model.CommentString">
+                    <i class="bi bi-pencil-square me-1"></i>Edit
+                </button>
+            }
+            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reportCommentModal"
+                    data-comment-id="@Model.Id">
+                <i class="bi bi-exclamation-octagon-fill me-1"></i>Report
             </button>
-        }
+        </div>
     </div>
-    <div class="comment-body">
-        <p>@Model.CommentString</p>
+    <div class="comment-body mt-2">
+        <p class="mb-0">@Model.CommentString</p>
     </div>
-    <div class="comment-footer">
-        <span>@Model.Likes <a href="/Customer/Home/LikeComment?commentId=@Model.Id"><i class="bi bi-hand-thumbs-up-fill"></i></a></span>
-        <span>@Model.Dislikes <a href="#"><i class="bi bi-hand-thumbs-down-fill"></i></a></span>
+    <div class="comment-footer mt-3 d-flex align-items-center">
+        <a href="/Customer/Home/LikeComment?commentId=@Model.Id" class="text-decoration-none text-muted">
+            <i class="bi bi-hand-thumbs-up-fill me-1"></i>@Model.Likes
+        </a>
     </div>
 </div>
 
+<!-- Report Comment Modal -->
+<div class="modal fade" id="reportCommentModal" tabindex="-1" aria-labelledby="reportCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportCommentModalLabel">Report Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="ReportComment" method="post">
+                    <input type="hidden" id="commentId" value="@Model.Id" name="CommentId" />
+                   
+                    <div class="mb-3">
+                        <label for="userRequest" class="form-label">Description</label>
+                        <textarea class="form-control" id="userRequest" name="UserRequestString" rows="3"></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var reportCommentModal = document.getElementById('reportCommentModal');
+    reportCommentModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var commentId = button.getAttribute('data-comment-id');
+        var modal = this;
+        modal.querySelector('.modal-body #commentId').value = commentId;
+    });
+</script>
+
 <!-- Edit Comment Modal -->
 <div class="modal fade" id="editCommentModal" tabindex="-1" aria-labelledby="editCommentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editCommentModalLabel">Edit Comment</h5>
@@ -39,14 +86,17 @@
                     <input type="hidden" id="commentId" name="Id" />
                     <div class="mb-3">
                         <label for="commentString" class="form-label">Comment</label>
-                        <textarea class="form-control" id="commentString" name="CommentString" rows="3"></textarea>
+                        <textarea class="form-control" id="commentString" name="CommentString" rows="4" placeholder="Write your comment here..."></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 <script>
     var editCommentModal = document.getElementById('editCommentModal');
     editCommentModal.addEventListener('show.bs.modal', function (event) {
@@ -62,9 +112,25 @@
 
 <style>
     .profile-image {
-        width: 55px;
-        height: 55px;
+        width: 45px;
+        height: 45px;
         object-fit: cover;
-        border: 2px solid #007bff;
+        border: 2px solid #0d6efd;
+    }
+
+    .comment {
+        background-color: #f8f9fa;
+    }
+
+    .comment-header {
+        font-size: 0.9rem;
+    }
+
+    .comment-footer a {
+        font-size: 0.85rem;
+    }
+
+    .modal-content {
+        border-radius: 10px;
     }
 </style>

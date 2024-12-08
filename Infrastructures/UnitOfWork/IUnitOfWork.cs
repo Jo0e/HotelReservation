@@ -19,7 +19,7 @@ namespace Infrastructures.UnitOfWork
         IReservationRoomRepository ReservationRoomRepository { get; }
         IRatingRepository RatingRepository { get; }
         ICommentRepository CommentRepository { get; }
-        IReplayRepository ReplayRepository { get; }
+        IContactUsRepository ContactUsRepository { get; }
         int Complete();
     }
 }
