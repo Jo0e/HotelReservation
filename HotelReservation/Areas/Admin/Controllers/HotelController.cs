@@ -44,7 +44,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
             }
-            return NotFound();
+            return View(hotel);
 
         }
 
@@ -65,6 +65,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
+                if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                 return RedirectToAction(nameof(Index));
             }
@@ -86,6 +87,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult Delete(Hotel hotel)
         {
             var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
+            if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
             unitOfWork.HotelRepository.Commit();
             return RedirectToAction(nameof(Index));
@@ -117,6 +119,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult CreateImgList(ImageList imageList, ICollection<IFormFile> ImgUrl)
         {
             var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId, tracked: false);
+            if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.ImageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
             return RedirectToAction(nameof(ImageList));
         }
@@ -124,7 +127,9 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult DeleteImgList(int id)
         {
             var img = unitOfWork.ImageListRepository.GetOne(where: e => e.Id == id , tracked:false);
+            if (img == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId , tracked: false);
+            if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.ImageListRepository.DeleteImageList(id,hotel.Name);
             return RedirectToAction(nameof(ImageList));
         }
@@ -132,6 +137,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult DeleteAllImgList(int hotelId) 
         {
             var hotel = unitOfWork.HotelRepository.GetOne(include: [e=>e.ImageLists],where: e => e.Id == hotelId, tracked: false);
+            if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists,hotel.Name);
             return RedirectToAction(nameof(ImageList));
         }

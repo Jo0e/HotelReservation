@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models.Models
 {
@@ -14,11 +15,15 @@ namespace Models.Models
         public DateOnly CheckOutDate { get; set; }
         public double TotalPrice { get; set; }
         public int? CouponId { get; set; }
+        [ValidateNever]
         public Coupon Coupon { get; set; }
         public string UserId { get; set; }
+        [ValidateNever]
         public ApplicationUser User { get; set; }
         public int HotelId { get; set; }
+        [ValidateNever]
         public Hotel Hotel { get; set; }
+        [ValidateNever]
         public ICollection<ReservationRoom> ReservationRooms { get; set; }
 
 

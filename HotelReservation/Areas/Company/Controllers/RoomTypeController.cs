@@ -51,9 +51,13 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(RoomType roomType)
         {
-            unitOfWork.RoomTypeRepository.Create(roomType);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                unitOfWork.RoomTypeRepository.Create(roomType);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(roomType);
         }
 
         // GET: RoomTypeController/Edit/5
@@ -63,7 +67,7 @@ namespace HotelReservation.Areas.Company.Controllers
             ViewBag.HotelId = roomType?.HotelId;
             if (roomType == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
 
             ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
@@ -75,10 +79,13 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(RoomType roomType)
         {
+            if (ModelState.IsValid)
+            {
                 unitOfWork.RoomTypeRepository.Update(roomType);
                 unitOfWork.Complete();
                 return RedirectToAction(nameof(Index), new { hotelId = roomType.HotelId });
-           
+            }
+            return View(roomType);
         }
 
         // POST: RoomTypeController/Delete/5
@@ -91,7 +98,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 var roomType = unitOfWork.RoomTypeRepository.GetOne(where: e => e.Id == id);
                 if (roomType == null)
                 {
-                    return NotFound();
+                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 }
 
                 unitOfWork.RoomTypeRepository.Delete(roomType);

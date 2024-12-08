@@ -1,4 +1,6 @@
-﻿namespace Models.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace Models.Models
 {
     public class Report
     {
@@ -8,8 +10,9 @@
         public int TotalReservation { get; set; }
 
         public int HotelId { get; set; }
+        [ValidateNever]
         public Hotel Hotel { get; set; }
-
+        [ValidateNever]
         public ICollection<ReportDetails> ReportDetails { get; set; } = new List<ReportDetails>();
     }
 }

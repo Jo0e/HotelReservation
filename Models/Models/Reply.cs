@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,12 @@ namespace Models.Models
     {
         public int Id { get; set; }
         public string UserId { get; set; }
+        [ValidateNever]
         public ApplicationUser User { get; set; }
         public string ReplyString { get; set; }
         public DateTime DateTime { get; set; }
         public int CommentId { get; set; }
+        [ValidateNever]
         public Comment Comment { get; set; }
         public bool IsEdited { get; set; } = false;
         public int Likes { get; set; } = 0;

@@ -55,9 +55,13 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             //room.HotelId = hotelId;
 
-            unitOfWork.RoomRepository.Create(room);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                unitOfWork.RoomRepository.Create(room);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(room);
         }
 
         
@@ -66,14 +70,12 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult Book(int id)
         {
             var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
-            if (room.IsAvailable == true)
+            if (room == null)
             {
-                room.IsAvailable = false;
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            else
-            {
-                room.IsAvailable = true;
-            }
+
+            room.IsAvailable = !room.IsAvailable;
             unitOfWork.RoomRepository.Update(room);
             unitOfWork.Complete();
             return RedirectToAction(nameof(Index));

@@ -49,7 +49,7 @@ namespace HotelReservation.Areas.Company.Controllers
 
             if (room == null)
             {
-                return NotFound("Room not found.");
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
 
             return View(room);
@@ -68,9 +68,13 @@ namespace HotelReservation.Areas.Company.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Room room)
         {
-            unitOfWork.RoomRepository.Create(room);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index), new {id=room.HotelId});
+            if (ModelState.IsValid)
+            {
+                unitOfWork.RoomRepository.Create(room);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index), new { id = room.HotelId });
+            }
+            return View(room);
         }
         // POST: RoomsController/Book/5
         public ActionResult Book(int id)
@@ -78,7 +82,7 @@ namespace HotelReservation.Areas.Company.Controllers
             var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
             if (room == null)
             {
-                return NotFound("Room not found.");
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
 
             room.IsAvailable = !room.IsAvailable;
@@ -98,7 +102,7 @@ namespace HotelReservation.Areas.Company.Controllers
 
             if (room == null)
             {
-                return NotFound("Room not found.");
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
 
             return View(room);
@@ -111,7 +115,7 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             if (room == null)
             {
-                return NotFound("Room not found.");
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
                 unitOfWork.RoomRepository.Delete(room);
                  unitOfWork.Complete();

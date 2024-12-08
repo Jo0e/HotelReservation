@@ -34,7 +34,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 amenities = unitOfWork.HotelRepository.HotelsWithAmenities(hotelId);
                 return View(amenities);
             }
-            return NotFound();
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
         }
 
 
@@ -93,20 +93,5 @@ namespace HotelReservation.Areas.Admin.Controllers
             unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
-
-        // POST: AmenityController/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
     }
 }
