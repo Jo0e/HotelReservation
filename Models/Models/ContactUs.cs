@@ -18,6 +18,7 @@ namespace Models.Models
         [DataType(DataType.PhoneNumber)]
         public string? PhoneNumber { get; set; }
         public string? UserImgRequest { get; set; }
+        public int? HelperId { get; set; }
 
         public enum RequestType
         {

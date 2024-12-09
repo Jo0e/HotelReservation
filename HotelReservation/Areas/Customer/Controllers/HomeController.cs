@@ -217,7 +217,8 @@ namespace HotelReservation.Areas.Customer.Controllers
             {
                 Name = User.Identity.Name,
                 Request = ContactUs.RequestType.Complaint,
-                UserRequestString = $"Reported CommentID:{CommentId} \r\n {UserRequestString}",
+                UserRequestString =  $"Comment Report: \r\n{UserRequestString}",
+                HelperId = CommentId,
             };
             unitOfWork.ContactUsRepository.Create(contactUs);
             unitOfWork.Complete();
