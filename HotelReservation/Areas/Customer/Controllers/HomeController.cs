@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Utilities.Utility;
 
-
 namespace HotelReservation.Areas.Customer.Controllers
 {
     [Area("Customer")]
