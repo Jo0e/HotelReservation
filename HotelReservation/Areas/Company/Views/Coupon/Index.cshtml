@@ -1,82 +1,53 @@
-﻿@model ICollection<Coupon>
-<br />
-<div class="row">
-    <div class="col-9 mb-3">
-        <h2>
-            All Coupons
-        </h2>
-    </div>
-    <div class="col-3">
-        <a href="/Company/Coupon/Create" type="button" class="btn btn-warning">Create New Coupon</a>
-    </div>
-</div>
+﻿@model IEnumerable<Models.Models.Coupon>
 
-<table class="table table-hover">
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
     <thead>
-        <tr class="table-primary">
-            <th scope="col">#</th>
-            <th scope="col">Code</th>
-            <th scope="col">Limit</th>
-            <th scope="col">Discount</th>
-            <th scope="col">Expire Date</th>
-            <th scope="col">Actions</th>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Limit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Discount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExpireDate)
+            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <th scope="row">@item.Id</th>
-                <td>@item.Code</td>
-                <td>@item.Limit</td>
-                <td>@item.Discount</td>
-                <td>@item.ExpireDate</td>
-                <td>
-                    <a href="/Company/Coupon/Edit?couponId=@item.Id" class="btn btn-dark">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </a> |
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" data-code="@item.Code">
-                        <i class="bi bi-trash3-fill"></i> Delete
-                    </button>
-                </td>
-            </tr>
-        }
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Code)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Limit)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Discount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpireDate)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the coupon <strong id="couponCode"></strong>?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a id="confirmDelete" href="#" class="btn btn-danger">Delete</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        var deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var couponId = button.getAttribute('data-id');
-            var couponCode = button.getAttribute('data-code');
-
-            // Set the coupon code in the modal
-            document.getElementById('couponCode').textContent = couponCode;
-
-            // Set the delete link
-            var confirmDelete = document.getElementById('confirmDelete');
-            confirmDelete.href = '/Company/Coupon/Delete?couponId=' + couponId;
-        });
-    </script>
-}

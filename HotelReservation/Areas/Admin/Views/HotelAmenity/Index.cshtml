@@ -4,15 +4,13 @@
     ViewData["Title"] = "Hotel Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<br />
-<div class="row">
-    <div class="col-9 mb-3">
-        <h1>@Model.Name</h1>
-    </div>
-    <div class="col-3">
-        <a asp-action="Create" asp-route-hotelId="@Model.Id" class="btn btn-success">Create New</a>
-    </div>
-</div>
+
+<h1>@Model.Name</h1>
+
+<p>
+    <a asp-action="Create" asp-route-hotelId="@Model.Id" class="btn btn-success">Create New</a>
+</p>
+
 <div class="container mt-5">
     <h2 class="display-4">@Model.Name</h2>
     <div class="card">
@@ -23,26 +21,17 @@
                 {
 
                     <li class="list-group-item ">
-                        <div class="table-responsive ">
-                            <table class="table table-hover align-middle">
-                                <tbody>
-                                        <tr class="text-center">
-                                            <td>@hotelAmenity.Amenity.Name</td>
-                                            <td>
-                                                <img src="~/images/amenities/@hotelAmenity.Amenity.Img" alt="Amenity Image" class="img-thumbnail" style="max-width: 100px; height: auto;border-radius: 5px;object-fit: cover;" />
-                                            </td>
-                                            <td class=" justify-content-center gap-2 ">
-                                            <div class="col-6">
-                                                <form asp-action="Delete" method="post">
-                                                    <input type="hidden" name="amenityId" value="@hotelAmenity.AmenityId" />
-                                                    <input type="hidden" name="hotelId" value="@Model.Id" />
-                                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                                </form>
-                                            </div>
-                                            </td>
-                                        </tr>
-                                </tbody>
-                            </table>
+                        <div>
+                            <img src="~/images/amenities/@hotelAmenity.Amenity.Img" class="img-thumbnail w-25 mr-2 col-6" alt="@hotelAmenity.Amenity.Name" />
+                            @hotelAmenity.Amenity.Name
+                        </div>
+
+                        <div class="col-6">
+                            <form asp-action="Delete" method="post">
+                                <input type="hidden" name="amenityId" value="@hotelAmenity.AmenityId" />
+                                <input type="hidden" name="hotelId" value="@Model.Id" />
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
                         </div>
 
                     </li>

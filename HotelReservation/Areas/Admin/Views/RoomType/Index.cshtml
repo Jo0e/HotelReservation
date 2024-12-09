@@ -3,16 +3,11 @@
 @{
     ViewData["Title"] = "Index";
 }
-<br />
-<div class="row">
-    <div class="col-9 mb-3">
-        <h1>Room Types</h1>
-    </div>
-    <div class="col-3">
-        <a asp-action="Create" asp-route-hotelId="@ViewBag.HotelId" class="btn btn-success">Create New</a>
-    </div>
-</div>
+
+<h1>Room Types</h1>
+
 <p>
+    <a asp-action="Create" asp-route-hotelId="@ViewBag.HotelId">Create New</a>
 </p>
 <table class="table">
     <thead>
