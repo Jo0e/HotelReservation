@@ -1,5 +1,5 @@
 ﻿@model ICollection<Coupon>
-
+<br />
 <div class="row">
     <div class="col-9 mb-3">
         <h2>
@@ -34,7 +34,7 @@
                 <td>
                     <a href="/Admin/Coupon/Edit?couponId=@item.Id" class="btn btn-dark">
                         <i class="bi bi-pencil-square"></i> Edit
-                    </a>
+                    </a> |
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" data-code="@item.Code">
                         <i class="bi bi-trash3-fill"></i> Delete
                     </button>
