@@ -27,11 +27,33 @@ namespace HotelReservation.Areas.Admin.Controllers
             this.userManager = userManager;
             this.roleManager = roleManager;
         }
-        public IActionResult Index()
+        [HttpGet]
+        public IActionResult Index(string? search, int pageNumber = 1)
         {
-            var Company = unitOfWork.CompanyRepository.Get();
-            return View(Company);
+            const int pageSize = 10;
+            var companies = unitOfWork.CompanyRepository.Get();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                companies = companies.Where(c =>
+                    c.UserName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.Addres.Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
 
+            var totalItems = companies.Count();
+            var pagedCompanies = companies
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.SearchText = search;
+
+            return View(pagedCompanies);
         }
         public IActionResult Create()
         {

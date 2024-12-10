@@ -20,12 +20,32 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
 
         // GET: HotelController
-        public ActionResult Index()
+        public ActionResult Index(string? search, int pageNumber = 1)
         {
-            var hotel = unitOfWork.HotelRepository.Get(include: [p => p.company]);
-            return View(hotel.ToList());
-        }
+            const int pageSize = 4;
+            var hotels = unitOfWork.HotelRepository.Get(include: [p => p.company]);
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                hotels = hotels.Where(c =>
+                    c.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.Address.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.City.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.company.UserName.Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+            var totalItems = hotels.Count();
+            var pagedHotels = hotels
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.SearchText = search;
+
+            return View(pagedHotels);
+        }
 
         // GET: HotelController/Create
         public IActionResult Create()

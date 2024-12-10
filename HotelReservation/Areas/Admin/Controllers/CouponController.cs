@@ -15,11 +15,31 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             this.unitOfWork = unitOfWork;
         }
-        public IActionResult Index()
+        public IActionResult Index(string? search, int pageNumber = 1)
         {
+            const int pageSize = 10;
             var coupons = unitOfWork.CouponRepository.Get();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                coupons = coupons.Where(c =>
+                    c.Code.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.Discount.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.ExpireDate.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
 
-            return View(model: coupons);
+            var totalItems = coupons.Count();
+            var PagedCoupons = coupons
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Search = search;
+
+            return View(PagedCoupons);
         }
         [HttpGet]
         public IActionResult Create()
