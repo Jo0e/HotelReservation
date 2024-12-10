@@ -33,19 +33,14 @@ namespace HotelReservation.Areas.Customer.Controllers
 
         public IActionResult Index(string? search = null)
         {
-            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
-            var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
-            //var roomCondition = roomRepository.Get([n => n.IsAvailable]);
-            var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
+            var hotels = unitOfWork.HotelRepository.Get();
+
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
                 hotels = hotels.Where(h =>
                 h.City.Contains(search, StringComparison.OrdinalIgnoreCase));
             }
-
-
-            // ViewBag.HotelAmenities = hotelAmenities;
 
             var hotelsByCity = hotels.GroupBy(h => h.City)
                                .Select(g => g.First())
@@ -60,65 +55,39 @@ namespace HotelReservation.Areas.Customer.Controllers
 
 
 
-        public IActionResult HotelsByCity(string city, int? stars, List<string> amenitiess, string? search = null, int pageNumber = 1)
+        public IActionResult HotelsByCity(string city, List<int>? stars, List<string> amenities, string? search = null, int pageNumber = 1)
         {
-
             const int pageSize = 5;
-
-
-
-            var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms], where: c => c.City.Contains(city));
-            //.Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
-
-            //var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
-            //                             .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
-            var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
-            var hotelAmenitiesResults = Enumerable.Empty<Hotel>();
-
-            if (stars.HasValue)
+            IEnumerable<Hotel> hotels = Enumerable.Empty<Hotel>();
+            if (string.IsNullOrWhiteSpace(search))
             {
-                hotels = hotels.Where(h => h.Stars == stars.Value);
+                hotels = unitOfWork.HotelRepository.HotelsWithCity(city);
             }
-            else
-            {
-                RedirectToAction("NotFound");
-            }
-
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-
-                search = search.Trim();
-                hotels = hotels.Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
-                || h.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
-                || h.Address.Contains(search, StringComparison.OrdinalIgnoreCase) || h.City.Contains(search, StringComparison.OrdinalIgnoreCase));
-
-                //|| h.HotelAmenities.Any(a => a.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();   /*Contains(search, StringComparison.OrdinalIgnoreCase) || h.Rooms.ToString().Contains(search, StringComparison.OrdinalIgnoreCase));*/
-            }
-
-
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                var amenities = unitOfWork.HotelAmenitiesRepository.Get([ha => ha.Amenity])
-                            .Where(ha => ha.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
-                            .Select(ha => ha.Hotel)
-                            .ToList();
-
-                hotelAmenitiesResults = amenities;
+                hotels = unitOfWork.HotelRepository.HotelsWithCity(city)
+                    .Where(h => h.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    || h.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    || h.Address.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    || h.HotelAmenities.Any(ha => ha.Amenity.Name.Contains(search, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
             }
-            hotels = hotels.Union(hotelAmenitiesResults).ToList();
 
-            if (amenitiess != null && amenitiess.Count > 0)
+            if (stars != null && stars.Count > 0)
             {
-                hotels = hotels.Where(h => h.HotelAmenities.Any(ha => amenitiess.Contains(ha.Amenity.Name, StringComparer.OrdinalIgnoreCase)));
+                hotels = hotels.Where(h => stars.Contains(h.Stars));
+            }
+            if (amenities != null && amenities.Count > 0)
+            {
+                hotels = hotels.Where(h => h.HotelAmenities.Any(ha => amenities.Contains(ha.Amenity.Name, StringComparer.OrdinalIgnoreCase)));
             }
 
             int TotalResult = hotels.Count();
             var paginatedHotels = hotels.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
             ViewBag.City = city;
             ViewBag.Stars = stars;
-            ViewBag.Amenities = amenitiess;
+            ViewBag.Amenities = amenities;
             ViewBag.pageNumber = pageNumber;
             ViewBag.totalPages = (int)Math.Ceiling((double)TotalResult / pageSize);
             ViewBag.AllAmenities = unitOfWork.AmenityRepository.Get();
@@ -126,6 +95,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             ViewBag.search = search;
 
             return View(paginatedHotels);
+
         }
 
         // Displays hotel details by ID
@@ -147,7 +117,6 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
 
 
-
         public async Task<IActionResult> AddComment(int hotelId, string comment)
         {
             var user = await userManager.GetUserAsync(User);
@@ -167,6 +136,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             unitOfWork.Complete();
             return RedirectToAction("Details", new { id = hotelId });
         }
+
         [HttpPost]
         public IActionResult EditComment(int id, string commentString)
         {
@@ -209,6 +179,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             unitOfWork.Complete();
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReportComment(int commentId, string UserRequestString)
@@ -231,6 +202,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Index");
 
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteComment(int commentId)

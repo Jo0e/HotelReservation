@@ -2,79 +2,79 @@
 <style>
     /* Home Page Styles */
     .container {
-        margin-top: 30px;
+    margin-top: 30px;
     }
 
     h1.text-center {
-        font-size: 2.5rem;
-        color: #343a40;
-        font-weight: bold;
-        margin-bottom: 20px;
+    font-size: 2.5rem;
+    color: #343a40;
+    font-weight: bold;
+    margin-bottom: 20px;
     }
 
     .card {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        border-radius: 10px;
-        overflow: hidden;
-        transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
     }
 
-        .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
+    .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
 
-        .card img {
-            height: 200px;
-            object-fit: cover;
-        }
+    .card img {
+    height: 200px;
+    object-fit: cover;
+    }
 
     .card-title {
-        font-size: 1.25rem;
-        color: #007bff;
-        font-weight: bold;
+    font-size: 1.25rem;
+    color: #007bff;
+    font-weight: bold;
     }
 
     .card .btn-primary {
-        background-color: #007bff;
-        border: none;
-        border-radius: 5px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
     }
 
-        .card .btn-primary:hover {
-            background-color: #0056b3;
-        }
+    .card .btn-primary:hover {
+    background-color: #0056b3;
+    }
 
     .pagination {
-        justify-content: center;
-        margin-top: 20px;
+    justify-content: center;
+    margin-top: 20px;
     }
 
 </style>
 <style>
     .search-header {
-        text-align: center;
-        margin-bottom: 10px;
-        font-size: 15px;
-        color: #555;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #555;
     }
 
     .rotator-text {
-        display: inline-block;
-        overflow: hidden;
-        white-space: nowrap;
-        animation: fadeInOut 4s linear infinite;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: fadeInOut 4s linear infinite;
     }
 
     keyframes fadeInOut {
-        0%, 100%
+    0%, 100%
 
     {
-        opacity: 0;
+    opacity: 0;
     }
 
     10%, 90% {
-        opacity: 1;
+    opacity: 1;
     }
 
     }
@@ -83,32 +83,32 @@
 
 <style>
     .badge {
-        font-size: 0.9rem;
-        margin: 2px;
-        padding: 5px 10px;
-        border-radius: 20px;
+    font-size: 0.9rem;
+    margin: 2px;
+    padding: 5px 10px;
+    border-radius: 20px;
     }
 </style>
 <style>
     .btn-primary {
-        background: linear-gradient(45deg, #007bff, #0056b3);
-        transition: 0.3s;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    transition: 0.3s;
     }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
+    .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
 </style>
 
 <style>
     body {
-        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     }
 </style>
 <style>
     h1.text-center {
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
 </style>
 
@@ -121,10 +121,10 @@
     <div class="container mt-4">
         <form class="d-flex" method="get" action="@Url.Action("HotelsByCity", "Home")">
             <input class="form-control me-sm-2"
-                   type="search"
-                   placeholder="Search by Name or Description or City or Address or Amenities"
-                   value="@ViewBag.search"
-                   name="search" />
+            type="search"
+            placeholder="Search by Name or Description or City or Address or Amenities"
+            value="@ViewBag.search"
+            name="search" />
             <input type="hidden" value="@ViewBag.City" name="city" />
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
         </form>
@@ -165,20 +165,23 @@
                         <input type="hidden" name="city" value="@ViewBag.City" />
 
                         <div class="form-group mb-4">
-                            <label class="fw-bold">Filtring On Stars :</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="stars3" name="stars" value="3" @(ViewBag.Stars == 3 ? "checked" : "")>
-                                <label class="form-check-label" for="stars3">3 Stras</label>
-                            </div>
-                            <div class="form-check">
+                            <label class="fw-bold">Filtering On Stars :</label>
+                            @for (var i = 1; i <= 5; i++)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="star @i" name="stars" value="@i" @(ViewBag.Stars.Contains(i) ? "checked" : "")>
+                                    <label class="form-check-label" for="star @i">@i Stars</label>
+                                </div>
+                            }
+                            @*  <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="stars4" name="stars" value="4" @(ViewBag.Stars == 4 ? "checked" : "")>
                                 <label class="form-check-label" for="stars4">4 Stars </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="stars5" name="stars" value="5" @(ViewBag.Stars == 5 ? "checked" : "")>
                                 <label class="form-check-label" for="stars5">5 Stars</label>
-                            </div>
-                        </div>
+                            </div>*@
+                        </div> 
 
                         <div class="form-group mb-4">
                             <label class="fw-bold">Filtring On Amenities:</label>
@@ -186,7 +189,7 @@
                             @foreach (var item in ViewBag.AllAmenities)
                             {
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="@item.Name" name="amenitiess" value="@item.Name" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains(@item.Name) ? "checked" : "")>
+                                    <input class="form-check-input" type="checkbox" id="@item.Name" name="amenities" value="@item.Name" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains(@item.Name) ? "checked" : "")>
                                     <label class="form-check-label" for="@item.Name">@item.Name</label>
                                 </div>
                             }
@@ -235,12 +238,11 @@
                                                 }
                                             </p>
                                             <p class="card-text">
-                                                <a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(hotel.Address)"
-                                                   target="https://ar.trivago.com/ar-145?themeId=280&sem_keyword=trivago&sem_creativeid=719176583703&sem_matchtype=e&sem_network=g&sem_device=c&sem_placement=&sem_target=&sem_adposition=&sem_param1=&sem_param2=&sem_campaignid=283863652&sem_adgroupid=25643578372&sem_targetid=aud-1811962056193:kwd-5593367084&sem_location=9195686&cipc=br&cip=9661900005&gad_source=1&gclid=Cj0KCQiAr7C6BhDRARIsAOUKifivzz4QERxqbjmiyQ68dGNJvjyV1TE9OmiGOMDCz75KYnit1EWd6jEaArJPEALw_wcB"
+                                                <p
                                                    class=""
                                                    title="Open location of @hotel.Name in Google Maps">
                                                     <i class="bi bi-geo-alt"></i>@hotel.City
-                                                </a>
+                                                </p>
                                             </p>
                                             <p class="card-text">
                                                 @if (hotel.Rooms.Any(p => p.IsAvailable == true))

@@ -11,6 +11,7 @@ namespace Models.Models
         public string Description { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
+        [Range(1,5)]
         public int Stars { get; set; }
         [ValidateNever]
         public string CoverImg { get; set; }
