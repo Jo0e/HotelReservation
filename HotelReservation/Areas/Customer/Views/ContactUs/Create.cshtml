@@ -13,17 +13,16 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create" enctype="multipart/form-data">
-            >
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
+            @*  <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
+            </div> *@
             <div class="form-group">
                 <label asp-for="Request" class="control-label"></label>
-                <select asp-for="Request" class="form-control">
-
+                <select asp-for="Request" class="form-control" required>
+                    <option selected disabled hidden>Open this select menu</option>
                     <option value="Complaint">Complaint</option>
                     <option value="Suggestion">Suggestion</option>
                     <option value="Company_Request">Company Request</option>
@@ -32,17 +31,17 @@
                 <span asp-validation-for="Request" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserRequestString" class="control-label"></label>
-                <input asp-for="UserRequestString" class="form-control" />
+                <label asp-for="UserRequestString" class="control-label">Your Request</label>
+                <textarea asp-for="UserRequestString" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="UserRequestString" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" type="number" />
+                <input asp-for="PhoneNumber" placeholder="Optional For contact " class="form-control" type="number" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserImgRequest" class="control-label"></label>
+                <label asp-for="UserImgRequest" class="control-label">Img <small>(Optional)</small></label>
                 <input asp-for="UserImgRequest" class="form-control" type="file" name="ImgFile" />
                 <span asp-validation-for="UserImgRequest" class="text-danger"></span>
             </div>

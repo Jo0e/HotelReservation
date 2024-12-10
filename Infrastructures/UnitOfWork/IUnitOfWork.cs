@@ -20,6 +20,7 @@ namespace Infrastructures.UnitOfWork
         IRatingRepository RatingRepository { get; }
         ICommentRepository CommentRepository { get; }
         IContactUsRepository ContactUsRepository { get; }
+        IMessageRepository MessageRepository { get; }
         int Complete();
     }
 }

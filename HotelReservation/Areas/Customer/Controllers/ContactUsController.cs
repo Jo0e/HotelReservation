@@ -19,10 +19,12 @@ namespace HotelReservation.Areas.Customer.Controllers
     {
 
         private readonly IUnitOfWork unitOfWork;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public ContactUsController(IUnitOfWork unitOfWork)
+        public ContactUsController(IUnitOfWork unitOfWork,UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.userManager = userManager;
         }
 
         [HttpGet]
@@ -32,65 +34,40 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(ContactUs contactUs, IFormFile ImgFile)
+        public async Task<IActionResult> Create(ContactUs contactUs, IFormFile ImgFile)
         {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            contactUs.UserId = user.Id;
+            contactUs.Name = user.Email;
             ModelState.Remove(nameof(ImgFile));
             if (ModelState.IsValid)
             {
                 unitOfWork.ContactUsRepository.CreateWithImage(contactUs, ImgFile, "ContactUsImages", "UserImgRequest");
+                var message = ConfirmationMessage(user.Id);
+                unitOfWork.MessageRepository.Create(message);
                 unitOfWork.Complete();
-                return RedirectToAction(nameof(Create));
+                return RedirectToAction("Index","Home");
             }
             return View(model: contactUs);
         }
 
-        [HttpGet]
-        public IActionResult Edit(int contactUsId)
+
+        private static Message ConfirmationMessage(string userId) 
         {
-            var contactUs = unitOfWork.ContactUsRepository.GetOne(where: c => c.Id == contactUsId);
-            if (contactUs != null)
+            var message = new Message
             {
-                return View(model: contactUs);
-            }
-
-            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                UserId = userId,
+                Title = "Contact Us",
+                MessageString = $"Thank you for Contacting us, \r\nYour Request Has been submitted successfully ",
+                Description = "we will replay ASAP",
+                MessageDateTime = DateTime.Now,
+            };
+            return message;
         }
 
-        [HttpPost]
-        public IActionResult Edit(ContactUs contactUs, IFormFile ImgeFile)
-        {
-            ModelState.Remove(nameof(ImgeFile));
-            if (ModelState.IsValid)
-            {
-                var oldContactUs = unitOfWork.ContactUsRepository.GetOne(where: e => e.Id == contactUs.Id);
-                if (oldContactUs == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-
-                unitOfWork.ContactUsRepository.UpdateImage(contactUs, ImgeFile, oldContactUs.UserImgRequest, "ContactUsImages", "UserImgRequest");
-                unitOfWork.Complete();
-
-                return RedirectToAction(nameof(Create));
-            }
-            return View(contactUs);
-        }
-
-        [HttpGet]
-        public IActionResult Delete(int contactUsId)
-        {
-            var contactUs = unitOfWork.ContactUsRepository.GetOne(where: e => e.Id == contactUsId);
-
-
-
-            return View(model: contactUs);
-        }
-        [HttpPost]
-        public IActionResult Delete(ContactUs contactUs, IFormFile ImgFile)
-        {
-            var oldContactUs = unitOfWork.ContactUsRepository.GetOne(where: e => e.Id == contactUs.Id);
-            if (oldContactUs == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-            unitOfWork.ContactUsRepository.DeleteWithImage(contactUs, "ContactUsImages", contactUs.UserImgRequest);
-            unitOfWork.Complete();
-
-            return RedirectToAction(nameof(Create));
-        }
     }
 }

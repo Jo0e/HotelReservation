@@ -59,21 +59,22 @@ namespace HotelReservation
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+            builder.Services.AddScoped<IAmenityRepository, AmenityRepository >();
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+            builder.Services.AddScoped<IContactUsRepository, ContactUsRepository >();
+            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
             builder.Services.AddScoped<IHotelAmenitiesRepository, HotelAmenitiesRepository>();
             builder.Services.AddScoped<IHotelRepository, HotelRepository>();
             builder.Services.AddScoped<IImageListRepository, ImageListRepository>();
+            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+            builder.Services.AddScoped<IRatingRepository, RatingRepository >();
             builder.Services.AddScoped<IReportRepository, ReportRepository>();
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+            builder.Services.AddScoped<IReservationRoomRepository, ReservationRoomRepository>();
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
             builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-            builder.Services.AddScoped<IReservationRoomRepository, ReservationRoomRepository>();
-            builder.Services.AddScoped<IAmenityRepository, AmenityRepository >();
-            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-            builder.Services.AddScoped<IRatingRepository, RatingRepository >();
-            builder.Services.AddScoped<IContactUsRepository, ContactUsRepository >();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork >();
 
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));

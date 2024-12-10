@@ -27,6 +27,7 @@ namespace Infrastructures.UnitOfWork
             RatingRepository = new RatingRepository(_context);
             CommentRepository = new CommentRepository(_context);
             ContactUsRepository = new ContactUsRepository(_context);
+            MessageRepository = new MessageRepository(_context);
 
         }
 
@@ -45,6 +46,7 @@ namespace Infrastructures.UnitOfWork
         public ICommentRepository CommentRepository { get; private set; }
         public IRatingRepository RatingRepository { get; private set; }
         public IContactUsRepository ContactUsRepository { get; private set; }
+        public IMessageRepository MessageRepository { get; private set; }
 
         public int Complete()
         {

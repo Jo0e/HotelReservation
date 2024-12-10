@@ -30,6 +30,7 @@ namespace Infrastructures.Data
         public DbSet<Comment> Comments { get; set; }
         //public DbSet<Reply> Replies { get; set; }
         public DbSet<ContactUs> ContactUs { get; set; }
+        public DbSet<Message> Message { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

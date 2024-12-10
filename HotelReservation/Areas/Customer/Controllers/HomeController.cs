@@ -211,11 +211,17 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ReportComment(int CommentId, string UserRequestString)
+        public async Task<IActionResult> ReportComment(int CommentId, string UserRequestString)
         {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null) 
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             var contactUs = new ContactUs
             {
-                Name = User.Identity.Name,
+                UserId = user.Id,
+                Name = user.Email,
                 Request = ContactUs.RequestType.Complaint,
                 UserRequestString =  $"Comment Report: \r\n{UserRequestString}",
                 HelperId = CommentId,

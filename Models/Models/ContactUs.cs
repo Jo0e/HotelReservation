@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Models.Models
     public class ContactUs
     {
         public int Id { get; set; }
+        [ValidateNever]
         public string Name { get; set; }
         [Required]
         public RequestType Request { get; set; }
@@ -19,6 +21,9 @@ namespace Models.Models
         public string? PhoneNumber { get; set; }
         public string? UserImgRequest { get; set; }
         public int? HelperId { get; set; }
+        public string? UserId { get; set; }
+        [ValidateNever]
+        public ApplicationUser User { get; set; }
 
         public enum RequestType
         {
