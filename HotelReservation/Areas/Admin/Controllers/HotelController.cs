@@ -89,7 +89,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
             if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
-            unitOfWork.HotelRepository.Commit();
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
 

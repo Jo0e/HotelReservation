@@ -1,4 +1,9 @@
-﻿@using Utilities.Utility
+﻿@using Infrastructures.Data
+@using Microsoft.AspNetCore.Identity
+@using Utilities.Utility
+@inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext Context
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,18 +28,43 @@
                     <i class="bi bi-building"></i> HotelReservation
                 </h5>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <!-- Left links -->
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0" >
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link active" style="margin-right:15px;" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-fill"></i> Home
                             </a>
                         </li>
-                        
+                        @*   <li class="nav-item">
+                            <a class="nav-link active" style="margin-right:15px;" asp-area="" asp-controller="ContactUs" asp-action="Create">
+                                Contact Us
+                            </a>
+                        </li> *@
+                        @{
+                            ApplicationUser user;
+                            int messages;
+                            if (User.Identity.IsAuthenticated)
+                            {
+                                user = await UserManager.GetUserAsync(User) as ApplicationUser;
+                                messages = Context.Message.Where(e => e.UserId == user.Id).Count();
+                            }
+                            else{
+                                user = null;
+                                messages = 0;
+                            }
+                        }
+                        @if (user != null && user.MessageString != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link active" style="margin-right:15px;" asp-area="" asp-controller="Inbox" asp-action="Index">
+                                    <i class="bi bi-envelope-fill"> @messages</i>
+                                </a>
+                            </li>
+                        }
                         @if (User.IsInRole(SD.AdminRole))
                         {
                             <div class="dropdown">
@@ -60,9 +90,9 @@
                                 </ul>
                             </div>
                         }
-                    </ul>                  
+                    </ul>
                     <ul class="navbar-nav">
-                        
+
                         <partial name="_LoginPartial.cshtml"></partial>
                     </ul>
                 </div>

@@ -20,11 +20,17 @@
 
         <div class="profile-details ms-3">
             <h5 class="mb-0">Hello, @UserManager.GetUserName(User).Substring(0, user.Email.IndexOf('@')) !</h5>
-            <a id="manage" class="btn btn-outline-primary btn-sm text-light custom-btn" style="box-shadow:none;padding:10px" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
+            <a id="manage" class="btn btn-primary btn-sm text-light custom-btn" style="box-shadow:none;padding:10px" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
         </div>
+        <div>
+            <a style="box-shadow:none;padding:0px 5px 0px 5px;margin:3px 0px 0px 10px;height: 1.5rem" class="btn btn-primary btn-sm text-light custom-btn" style="margin-right:15px;" asp-area="" asp-controller="ContactUs" asp-action="Create">
+                Contact Us
+            </a>
+        
         <form id="logoutForm" class="ms-3" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" style="box-shadow:none;padding:10px;" class="btn btn-outline-danger btn-sm text-light custom-btn">Logout</button>
+                <button id="logout" type="submit" style="box-shadow:none;padding:0px 10px 0px 10px;margin:3px 0px 0px 0px;height: 1.5rem" class="btn btn-danger btn-sm text-light custom-btn">Logout</button>
         </form>
+        </div>
     </div>
 }
 else

@@ -46,7 +46,7 @@
             </div> *@
 
             <label asp-for="CompanyId" class="control-label"></label>
-            <select class="form-select" name="CompanyId">
+            <select class="form-select" name="CompanyId" required>
                 <option selected disabled hidden>Open this select menu</option>
                 @foreach (var item in companies)
                 {

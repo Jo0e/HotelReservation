@@ -4,6 +4,7 @@ using Infrastructures.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241210104922_addMessages")]
+    partial class addMessages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -604,11 +607,11 @@ namespace Infrastructures.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CheckInDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("CheckInDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime>("CheckOutDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("CheckOutDate")
+                        .HasColumnType("date");
 
                     b.Property<int?>("CouponId")
                         .HasColumnType("int");
@@ -640,12 +643,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reservations", t =>
-                        {
-                            t.HasTrigger("SetRoomAvailableOnCheckOuts");
-                        });
-
-                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("Models.Models.ReservationRoom", b =>
