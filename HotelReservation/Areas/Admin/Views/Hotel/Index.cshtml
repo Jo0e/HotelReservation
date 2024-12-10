@@ -181,24 +181,31 @@
         }
 
 </style>
-
-<div class="container">
+    
+    <div class="container">
     <h1>@ViewData["Title"]</h1>
 
-    <p>
-        <a asp-action="Create" class="btn btn-success btn-sm">
-            <i class="fas fa-plus"></i> Create New
-        </a>
-    </p>
-    <p>
-        <a asp-action="Index" asp-controller="Coupon" class="btn btn-success btn-sm">
-            Coupon
-        </a>
-    </p>
+    <form class="d-flex mb-4" method="get" asp-action="Index">
+        <input class="form-control me-sm-2"
+               type="search"
+               placeholder="Search by Name or City or Address or Company "
+               value="@ViewBag.searchText"
+               name="search" />
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+    </form>
 
-    <div class="table-container">
-        <table class="table">
-            <thead>
+        <div class="mb-3 d-flex justify-content-between">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus"></i> Create New
+            </a>
+            <a asp-action="Index" asp-controller="Coupon" class="btn btn-success">
+                <i class="fas fa-tags"></i> Manage Coupons
+            </a>
+        </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class=" text-center">
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.Name)</th>
                     <th>@Html.DisplayNameFor(model => model.Description)</th>
@@ -218,7 +225,7 @@
                         <td>@Html.DisplayFor(modelItem => item.Address)</td>
                         <td>@Html.DisplayFor(modelItem => item.City)</td>
                         <td>
-                            <img src="~/images/homeImage/@item.CoverImg" class="img-thumbnail" alt="Image" />
+                                <img src="~/images/homeImage/@item.CoverImg" class="img-thumbnail" style="max-width: 100px; height: auto;border-radius: 5px;object-fit: cover;" alt="Image"/>
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.company.Email)</td>
 
@@ -264,3 +271,23 @@
         </table>
     </div>
 </div>
+<!-- Pagination -->
+<nav aria-label="Page navigation example" class="mt-5">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage - 1)">Previous</a>
+        </li>
+        @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+            </li>
+        }
+        <li class="page-item @(ViewBag.CurrentPage == Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
+<nav aria-label="Page navigation example" class="mt-5">
+</nav>
+

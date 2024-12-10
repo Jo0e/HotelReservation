@@ -168,11 +168,22 @@
 </style>
 
 <h1>@ViewData["Title"]</h1>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
-    <a asp-controller="Amenity" asp-action="Index" class="btn btn-secondary">Manage Amenities</a>
-</p>
+<form class="d-flex mb-4" method="get" asp-action="Index">
+    <input class="form-control me-sm-2"
+           type="search"
+           placeholder="Search by Name or City or Address"
+           value="@ViewBag.searchText"
+           name="search" />
+    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+</form>
+<div class="mb-3 d-flex justify-content-between">
+    <a asp-action="Create" class="btn btn-success">
+        <i class="fas fa-plus"></i> Create New
+    </a>
+    <a asp-action="Index" asp-controller="Amenity" class="btn btn-success">
+        <i class="fas fa-tags"></i> Manage Amenities
+    </a>
+</div>
 
 <div class="table-container">
     <table class="table">
@@ -195,7 +206,7 @@
                     <td>@item.Description</td>
                     <td>@item.Address</td>
                     <td>@item.City</td>
-                    <td><img src="~/images/homeImage/@item.CoverImg" class="img-thumbnail" alt="Hotel Image"></td>
+                    <td><img src="~/images/homeImage/@item.CoverImg" class="img-thumbnail" style="max-width: 100px; height: auto;border-radius: 5px;object-fit: cover;"alt="Hotel Image"></td>
                     <td>@item.company.Email</td>
                     <td class="hotel-actions">
                         <div class="dropdown">
@@ -219,7 +230,8 @@
 
                                 </li>
                                 <li>
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
+                                   <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                    data-userid="@item.Id" data-username="@item.Name">Delete</a>
                                 </li>
                             </ul>
                         </div>
@@ -229,3 +241,57 @@
         </tbody>
     </table>
 </div>
+<nav aria-label="Page navigation example" class="mt-5">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage - 1)">Previous</a>
+        </li>
+        @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+            </li>
+        }
+        <li class="page-item @(ViewBag.CurrentPage == Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="deleteForm" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the Hotel <strong id="deleteUserName"></strong>?</p>
+                    <input type="hidden" id="deleteUserId" name="id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        const userId = button.getAttribute('data-userid');
+        const userName = button.getAttribute('data-username');
+        // Update modal content
+        const deleteUserName = deleteModal.querySelector('#deleteUserName');
+        const deleteUserId = deleteModal.querySelector('#deleteUserId');
+        deleteUserName.textContent = userName;
+        deleteUserId.value = userId;
+        // Set form action dynamically
+        const deleteForm = deleteModal.querySelector('#deleteForm');
+        deleteForm.action = '@Url.Action("Delete", "Hotels", new { area = "Company" })';
+    });
+</script>

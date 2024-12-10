@@ -21,7 +21,7 @@ namespace HotelReservation.Areas.Company.Controllers
         }
 
         // GET: HotelsController
-        public IActionResult Index()
+        public IActionResult Index(string? search, int pageNumber = 1)
         {
             try
             {
@@ -40,7 +40,27 @@ namespace HotelReservation.Areas.Company.Controllers
                 }
 
                 var hotels = unitOfWork.HotelRepository.Get(where: e => e.CompanyId == company.Id);
-                return View(hotels.ToList());
+                const int pageSize = 8;
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    search = search.Trim();
+                    hotels = hotels.Where(c =>
+                        c.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        c.Address.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        c.City.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        c.company.UserName.Contains(search, StringComparison.OrdinalIgnoreCase));
+                }
+                var totalItems = hotels.Count();
+                var pagedHotels = hotels
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                ViewBag.CurrentPage = pageNumber;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalItems = totalItems;
+                ViewBag.SearchText = search;
+                return View(pagedHotels.ToList());
             }
             catch (Exception)
             {

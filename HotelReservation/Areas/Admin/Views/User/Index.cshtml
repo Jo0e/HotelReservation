@@ -1,10 +1,21 @@
 ﻿@using Models.ViewModels
 @model IEnumerable<UserViewModel>
-
+<br />
 <h2>Users</h2>
+<br />
+<form class="d-flex mb-4" method="get" asp-action="Index">
+    <input class="form-control me-sm-2"
+           type="search"
+           placeholder="Search by UserName or Email or Phone Number or Roles "
+           value="@ViewBag.searchText"
+           name="search" />
+    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+</form>
 <table class="table">
     <thead>
         <tr>
+            <th>Id</th>
+            <th>UserName</th>
             <th>Email</th>
             <th>Phone Number</th>
             <th>Roles</th>
@@ -16,6 +27,7 @@
         {
             <tr>
                 <td>@userViewModel.User.Id</td>
+                <td>@userViewModel.User.UserName</td>
                 <td>@userViewModel.User.Email</td>
                 <td>@userViewModel.User.PhoneNumber</td>
 
@@ -53,6 +65,22 @@
     </tbody>
 </table>
 
+<nav aria-label="Page navigation example" class="mt-5">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage - 1)">Previous</a>
+        </li>
+        @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+            </li>
+        }
+        <li class="page-item @(ViewBag.CurrentPage == Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
