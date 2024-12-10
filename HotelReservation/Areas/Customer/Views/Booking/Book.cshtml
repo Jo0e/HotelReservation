@@ -1,20 +1,24 @@
 ﻿@model Hotel
 
-<div class="hotel-details">
-    <h1>@Model.Name</h1>
-    <p>@Model.Description</p>
-
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-4">
-                <img src="~/images/homeImage/@Model.CoverImg" class="img-fluid" alt="Hotel Image">
-            </div>
-            <div class="col-md-8">
-                <h4>Available Rooms: @ViewBag.AvailableRooms</h4>
-            </div>
-        </div>
+@if (Model == null)
+{
+    <p class="text-danger">Hotel details could not be loaded.</p>
+}
+else
+{
+    <div class="hotel-details">
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+        <img src="~/images/homeImage/@Model.CoverImg" class="img-fluid" alt="Hotel Image">
     </div>
-</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 
 <br />
 
@@ -42,12 +46,15 @@
     <div class="form-group">
         <label for="checkInDate">Check-In Date:</label>
         <input type="date" id="checkInDate" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
+       
     </div>
 
     <div class="form-group">
         <label for="checkOutDate">Check-Out Date:</label>
         <input type="date" id="checkOutDate" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
+        
     </div>
+
 
     <div class="form-group">
         <label for="meals">Include Meals:</label>
@@ -131,6 +138,35 @@
             form.scrollIntoView({ behavior: 'smooth' });
         }, 3000);
     }
+
+
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInInput = document.getElementById('checkInDate');
+        const checkOutInput = document.getElementById('checkOutDate');
+        const form = document.querySelector(".booking-form");
+
+        form.addEventListener("submit", function (event) {
+            const checkInDate = new Date(checkInInput.value);
+            const checkOutDate = new Date(checkOutInput.value);
+            const now = new Date();
+
+            // Check if Check-In date is in the past
+            if (checkInDate < now.setHours(0, 0, 0, 0)) {
+                alert("Check-In date cannot be in the past.");
+                event.preventDefault();
+                return false;
+            }
+
+            // Ensure Check-Out is after Check-In
+            if (checkOutDate <= checkInDate) {
+                alert("Check-Out date must be after Check-In date.");
+                event.preventDefault();
+                return false;
+            }
+        });
+    });
 </script>
 
  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

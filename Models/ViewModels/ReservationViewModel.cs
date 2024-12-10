@@ -12,8 +12,8 @@ namespace Models.ViewModels
         public int NAdult { get; set; }
         public int? NChildren { get; set; }
         public List<int>? ChildrenAge { get; set; }
-        public DateOnly CheckInDate { get; set; }
-        public DateOnly CheckOutDate { get; set; }
+        public DateTime CheckInDate { get; set; }
+        public DateTime CheckOutDate { get; set; }
         public bool IncludesMeal { get; set; }
         public int RoomCount { get; set; }
         public Models.Type RoomType { get; set; }

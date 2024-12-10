@@ -1,4 +1,5 @@
-﻿using Infrastructures.Repository.IRepository;
+﻿using AutoMapper;
+using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -9,35 +10,38 @@ namespace HotelReservation.Areas.Company.Controllers
     public class RoomsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly IMapper mapper;
 
-        public RoomsController(IUnitOfWork unitOfWork)
+        public RoomsController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
+            this.mapper = mapper;
         }
 
         // GET: RoomsController
-        public ActionResult Index(int id)
+        public ActionResult Index(int id, string roomType = "All")
         {
-
             IEnumerable<Room> rooms;
+
             if (id != 0)
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
-                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
-                ViewBag.roomsCount = rooms.Select(e => e.RoomType.AvailableRooms.Value);
-                ViewBag.HotelId = id;
-                return View(rooms);
             }
-            else if (id == 0)
+            else
             {
-                var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
-                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
-                ViewBag.HotelId = hotelId;
-                return View(rooms);
+                id = int.Parse(Request.Cookies["HotelIdCookie"]);
             }
-            return NotFound();
 
+            rooms = unitOfWork.RoomRepository.Get(
+                where: e => e.HotelId == id && (roomType == "All" || e.RoomType.Type.ToString() == roomType),
+                include: [e => e.Hotel, w => w.RoomType]
+            );
+
+            ViewBag.HotelId = id;
+            ViewBag.RoomType = roomType;
+            return View(rooms);
         }
+
 
         // GET: RoomsController/Details/5
         public ActionResult Details(int id)
@@ -66,13 +70,19 @@ namespace HotelReservation.Areas.Company.Controllers
         // POST: RoomController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Room room)
+        public ActionResult Create(Room room, int count)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.RoomRepository.Create(room);
+                var rooms = new List<Room>();
+                for (int i = 0; i < count; i++)
+                {
+                    var newRoom = mapper.Map<Room>(room);
+                    rooms.Add(newRoom);
+                }
+                unitOfWork.RoomRepository.AddRange(rooms);
                 unitOfWork.Complete();
-                return RedirectToAction(nameof(Index), new { id = room.HotelId });
+                return RedirectToAction(nameof(Index));
             }
             return View(room);
         }
