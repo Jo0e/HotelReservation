@@ -9,10 +9,10 @@ namespace Models.Models
         public int Id { get; set; }
         public int RoomCount { get; set; }
         public int NChildren { get; set; }
-        public int NAdult { get; set; }
-        public DateOnly CheckInDate { get; set; }
+        public int NAdult { get; set; }        
+        public DateTime CheckInDate { get; set; }
         [CustomValidation(typeof(Reservation) , "ValidateCheckInOutDate")]
-        public DateOnly CheckOutDate { get; set; }
+        public DateTime CheckOutDate { get; set; }
         public double TotalPrice { get; set; }
         public int? CouponId { get; set; }
         [ValidateNever]
@@ -29,7 +29,7 @@ namespace Models.Models
 
 
 
-        public static ValidationResult ValidateCheckInOutDate(DateOnly checkOutDate, ValidationContext context)
+        public static ValidationResult ValidateCheckInOutDate(DateTime checkOutDate, ValidationContext context)
         {
             var instance = context.ObjectInstance as Reservation;
             if (instance == null || instance.CheckInDate <= checkOutDate)
