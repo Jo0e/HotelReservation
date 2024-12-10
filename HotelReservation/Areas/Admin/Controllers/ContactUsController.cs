@@ -24,12 +24,18 @@ namespace HotelReservation.Areas.Admin.Controllers
         public IActionResult Details(int reqId)
         {
             var req = unitOfWork.ContactUsRepository.GetOne(where: c => c.Id == reqId);
+            if (req == null) {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             if (req.HelperId != null && req.HelperId != 0)
             {
                 ViewBag.Comment = unitOfWork.CommentRepository.GetOne(where: e => e.Id == req.HelperId
                 , include: [s => s.User]);
             }
-            ReadMessage(req);
+            if (req.IsReadied == false)
+            {
+                ReadMessage(req);
+            }
             return View(req);
         }
         public IActionResult Respond(Models.Models.Message message)
@@ -48,7 +54,13 @@ namespace HotelReservation.Areas.Admin.Controllers
         public IActionResult ReadMessage(int messageId)
         {
             var contact = unitOfWork.ContactUsRepository.GetOne(where: m => m.Id == messageId);
-            ReadMessage(contact);
+            if (contact == null) {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            if (contact.IsReadied == false)
+            {
+                ReadMessage(contact);
+            }
             return RedirectToAction("Index");
         }
         public IActionResult Delete(int reqId)

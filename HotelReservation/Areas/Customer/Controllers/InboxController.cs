@@ -20,15 +20,26 @@ namespace HotelReservation.Areas.Customer.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             var messages = unitOfWork.MessageRepository.Get(where: m => m.UserId == user.Id);
             return View(messages);
         }
         public IActionResult ReadMessage(int messageId)
         {
             var message = unitOfWork.MessageRepository.GetOne(where: m => m.Id == messageId);
-            message.IsReadied= true;
-            unitOfWork.MessageRepository.Update(message);
-            unitOfWork.Complete();
+            if (message == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            if (message.IsReadied == false)
+            {
+                message.IsReadied = true;
+                unitOfWork.MessageRepository.Update(message);
+                unitOfWork.Complete();
+            }
             return RedirectToAction("Index");
         }
         public IActionResult Delete(int id)

@@ -57,7 +57,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
         public IActionResult HotelsByCity(string city, List<int>? stars, List<string> amenities, string? search = null, int pageNumber = 1)
         {
-            const int pageSize = 5;
+            const int pageSize = 6;
             IEnumerable<Hotel> hotels = Enumerable.Empty<Hotel>();
             if (string.IsNullOrWhiteSpace(search))
             {
