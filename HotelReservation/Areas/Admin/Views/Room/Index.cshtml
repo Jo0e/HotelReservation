@@ -1,10 +1,10 @@
 ﻿@using Models.Models
 @model IEnumerable<Room>
-
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <style>
     body {
         font-family: 'Arial', sans-serif;
@@ -157,6 +157,7 @@
 
     }
 </style>
+
 <h1>Rooms</h1>
 
 <p>
@@ -165,197 +166,66 @@
         <a asp-controller="RoomType" asp-action="Index" asp-route-hotelId="@ViewBag.HotelId">Create Type</a>
     </div>
 </p>
-<table class="table">
+
+<div>
+    <label for="roomTypeFilter">Filter by Room Type:</label>
+    <select id="roomTypeFilter" onchange="filterRooms()">
+        <option value="All">All</option>
+        <option value="Single">Single</option>
+        <option value="Double">Double</option>
+        <option value="Triple">Triple</option>
+        <option value="Quadruple">Quadruple</option>
+    </select>
+</div>
+
+<table class="table" id="roomsTable">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsAvailable)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Hotel)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomType.MaxPersons)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomType.PricePN)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomType.MealPrice)
-            </th>
+            <th>@Html.DisplayNameFor(model => model.Id)</th>
+            <th>@Html.DisplayNameFor(model => model.IsAvailable)</th>
+            <th>@Html.DisplayNameFor(model => model.Hotel)</th>
+            <th>@Html.DisplayNameFor(model => model.RoomType)</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Single Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Single && a.IsAvailable == true).Count()</td>
-        </tr>
-        @foreach (var item in Model.Where(e => e.RoomType.Type == Models.Models.Type.Single))
+        @foreach (var item in Model)
         {
-            <tr>
+            <tr data-room-type="@item.RoomType.Type">
+                <td>Room ID: @Html.DisplayFor(modelItem => item.Id)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsAvailable)</td>
+                <td>@Html.DisplayFor(modelItem => item.Hotel.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.RoomType.Type)</td>
                 <td>
-                  Room ID: @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsAvailable)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Hotel.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.Type)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
-                </td>
-                <td>
+                    @if (!item.IsAvailable)
+                    {
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-book">Book</a>
+                    }
                     @if (item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
-                    }
-                    else
-                    {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
+                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-unbook">UnBook</a>
                     }
                     |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
-                </td>
-            </tr>
-        }
-        <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Double Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Double && a.IsAvailable == true).Count()</td>
-        </tr>
-        @foreach (var item in Model.Where(a => a.RoomType.Type == Models.Models.Type.Double))
-        {
-            <tr>
-                <td>
-                    Room ID:  @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsAvailable)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Hotel.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.Type)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
-                </td>
-                <td>
-                    @if (item.IsAvailable)
-                    {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
-                    }
-                    else
-                    {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
-                    }
-                    |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
-                </td>
-            </tr>
-        }
-        <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Triple Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Triple && a.IsAvailable == true).Count()</td>
-        </tr>
-        @foreach (var item in Model.Where(a => a.RoomType.Type == Models.Models.Type.Triple))
-        {
-            <tr>
-                <td>
-                    Room ID: @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsAvailable)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Hotel.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.Type)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
-                </td>
-                <td>
-                    @if (item.IsAvailable)
-                    {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
-                    }
-                    else
-                    {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
-                    }
-                    |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
-                </td>
-            </tr>
-        }
-        <tr>
-            <td style="color:blueviolet;padding-left:35%;" colspan="5">Available Quadruple Rooms: @Model.Where(a => a.RoomType.Type == Models.Models.Type.Quadruple && a.IsAvailable == true).Count()</td>
-        </tr>
-        @foreach (var item in Model.Where(a => a.RoomType.Type == Models.Models.Type.Quadruple))
-        {
-            <tr>
-                <td>
-                    Room ID:  @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsAvailable)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Hotel.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.Type)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MaxPersons)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.PricePN)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
-                </td>
-                <td>
-                    @if (item.IsAvailable)
-                    {
-                        <a asp-action="Book" asp-route-id="@item.Id">Book </a>
-                    }
-                    else
-                    {
-                        <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
-                    }
-                    |
-                    <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<script>
+    function filterRooms() {
+        const selectedType = document.getElementById("roomTypeFilter").value;
+        const rows = document.querySelectorAll("#roomsTable tbody tr");
+
+        rows.forEach(row => {
+            const roomType = row.getAttribute("data-room-type");
+            if (selectedType === "All" || roomType === selectedType) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+</script>
+

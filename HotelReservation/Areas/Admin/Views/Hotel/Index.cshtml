@@ -162,6 +162,24 @@
     }
 
     }
+
+    .dropdown-menu {
+        min-width: 150px;
+    }
+
+    .dropdown-item i {
+        margin-right: 8px;
+    }
+
+    .dropdown-item.text-danger {
+        color: #dc3545;
+    }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
 </style>
 
 <div class="container">
@@ -203,23 +221,43 @@
                             <img src="~/images/homeImage/@item.CoverImg" class="img-thumbnail" alt="Image" />
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.company.Email)</td>
+
+
                         <td class="hotel-actions">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a asp-action="ImageList" asp-route-hotelId="@item.Id" class="btn btn-info btn-sm">
-                                <i class="fas fa-image"></i> Edit Images
-                            </a>
-                            <a asp-controller="Room" asp-action="Index" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
-                                <i class="fas fa-bed"></i> Edit Rooms
-                            </a>
-                            <a asp-controller="HotelAmenity" asp-action="Index" asp-route-id="@item.Id" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-cogs"></i> Edit Amenities
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </a>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@item.Id" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@item.Id">
+                                    <li>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-action="ImageList" asp-route-hotelId="@item.Id" class="dropdown-item">
+                                            <i class="fas fa-image"></i> Edit Images
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Room" asp-action="Index" asp-route-id="@item.Id" class="dropdown-item">
+                                            <i class="fas fa-bed"></i> Edit Rooms
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="HotelAmenity" asp-action="Index" asp-route-id="@item.Id" class="dropdown-item">
+                                            <i class="fas fa-cogs"></i> Edit Amenities
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="dropdown-item text-danger">
+                                            <i class="fas fa-trash-alt"></i> Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
+
                     </tr>
                 }
             </tbody>

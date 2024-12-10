@@ -4,11 +4,14 @@ using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Models.Models;
 using Models.ViewModels;
 
 using Stripe.Checkout;
+using System.Linq.Expressions;
 
 namespace HotelReservation.Areas.Customer.Controllers
 {
@@ -20,7 +23,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         private readonly IUnitOfWork unitOfWork;
 
 
-        public BookingController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager )
+        public BookingController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
             this.userManager = userManager;
             this.unitOfWork = unitOfWork;
@@ -31,7 +34,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Filter(int hotelId, Models.Models.Type RoomType)
         {
             var rooms = unitOfWork.RoomRepository.Get(where: h => h.HotelId == hotelId
-           && h.RoomType.Type ==RoomType
+           && h.RoomType.Type == RoomType
            , include: [e => e.RoomType]);
 
 
@@ -39,10 +42,11 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             return View(rooms);
         }
-
+       
         [HttpGet]
         public IActionResult Book(TypeViewModel typeModel)
         {
+
             var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == typeModel.HotelId);
             if (hotel == null) return NotFound();
 
@@ -62,14 +66,29 @@ namespace HotelReservation.Areas.Customer.Controllers
             return View(hotel);
 
         }
-        
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
 
-        public IActionResult Book(ReservationViewModel viewModel,TypeViewModel typeModel)
+        public IActionResult Book(ReservationViewModel viewModel, TypeViewModel typeModel)
         {
-            if (!ModelState.IsValid) return View(viewModel);
+            if (viewModel.CheckInDate < DateTime.Now.Date)
+            {
+                ModelState.AddModelError("CheckInDate", "Check-In date cannot be in the past.");
+
+            }
+
+            if (viewModel.CheckOutDate <= viewModel.CheckInDate)
+            {
+                ModelState.AddModelError("CheckOutDate", "Check-Out date must be after the Check-In date.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Invalid dates selected. Please correct the errors and try again.";
+                return View(viewModel);
+            }
 
             var appUserId = userManager.GetUserId(User);
             if (appUserId == null) return RedirectToAction("Login", "Account");
@@ -81,7 +100,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                          && r.RoomType.Type == typeModel.RoomType
                          && r.RoomType.PricePN == typeModel.PricePN
                           && (r.RoomType.MealPrice == typeModel.MealPrice || (r.RoomType.MealPrice == null && typeModel.MealPrice == null)),
-                           include: [r=>r.RoomType]).ToList();
+                           include: [r => r.RoomType]).ToList();
 
             if (availableRooms == null || availableRooms.Count < viewModel.RoomCount)
             {
@@ -98,7 +117,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             if (!string.IsNullOrEmpty(viewModel.CouponCode))
             {
-                var coupon = unitOfWork.CouponRepository.GetOne(where:c => c.Code == viewModel.CouponCode);
+                var coupon = unitOfWork.CouponRepository.GetOne(where: c => c.Code == viewModel.CouponCode);
                 if (coupon != null && coupon.Limit > 0)
                 {
                     totalPrice -= (int)coupon.Discount;
@@ -111,22 +130,20 @@ namespace HotelReservation.Areas.Customer.Controllers
                     return View(viewModel);
                 }
             }
-
-            var reservation = new Reservation
-            {
-                HotelId = viewModel.HotelId,
-                NAdult = viewModel.NAdult,
-                NChildren = viewModel.NChildren ?? 0,
-                CheckInDate = viewModel.CheckInDate,
-                CheckOutDate = viewModel.CheckOutDate,
-                RoomCount = viewModel.RoomCount,
-                TotalPrice = totalPrice,
-                UserId = appUserId
-            };
-
-            unitOfWork.ReservationRepository.Create(reservation);
-            unitOfWork.Complete();
-
+                var reservation = new Reservation
+                {
+                    HotelId = viewModel.HotelId,
+                    NAdult = viewModel.NAdult,
+                    NChildren = viewModel.NChildren ?? 0,
+                    CheckInDate = viewModel.CheckInDate,
+                    CheckOutDate = viewModel.CheckOutDate,
+                    RoomCount = viewModel.RoomCount,
+                    TotalPrice = totalPrice,
+                    UserId = appUserId
+                };
+                unitOfWork.ReservationRepository.Create(reservation);
+                unitOfWork.Complete();
+            
             for (int i = 0; i < viewModel.RoomCount; i++)
             {
                 var room = availableRooms[i];
@@ -135,7 +152,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                     RoomId = room.Id,
                     ReservationID = reservation.Id
                 };
-                room.IsAvailable = false;
+               // room.IsAvailable = false;
                 unitOfWork.ReservationRoomRepository.Create(reservationRoom);
                 unitOfWork.RoomRepository.Update(room);
             }
@@ -149,36 +166,53 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Pay(int reservationId)
         {
             var appUser = userManager.GetUserId(User);
-            var reservations = unitOfWork.ReservationRepository.Get(
-             include: [r => r.ReservationRooms,r=>r.Hotel],
-             where: r => r.UserId == appUser && r.Id==reservationId
-             ).ToList();
+            if (appUser == null)
+            {
+                TempData["Error"] = "Unable to verify the user. Please log in.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var reservation = unitOfWork.ReservationRepository.GetOne(
+                include: [r => r.Hotel],
+                where: r => r.UserId == appUser && r.Id == reservationId
+            );
+
+            if (reservation == null)
+            {
+                TempData["Error"] = "Reservation not found.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Check date validity
+            if (reservation.CheckInDate < DateTime.Now.Date || reservation.CheckInDate >= reservation.CheckOutDate)
+            {
+                TempData["Error"] = "Cannot proceed with payment. Invalid reservation dates.";
+                return RedirectToAction("Index", "Home");
+            }
+            // Create Stripe payment session
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
-                LineItems = new List<SessionLineItemOptions>(),
+                LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    Currency = "egp",
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = $"Hotel: {reservation.Hotel.Name}, Rooms: {reservation.RoomCount}"
+                    },
+                    UnitAmountDecimal = (decimal?)(reservation.TotalPrice * 100),
+                },
+                Quantity = 1,
+            }
+        },
                 Mode = "payment",
                 SuccessUrl = $"{Request.Scheme}://{Request.Host}/Customer/Booking/CheckOutSuccess",
                 CancelUrl = $"{Request.Scheme}://{Request.Host}/Customer/Booking/CancelCheckout",
             };
-
-            foreach (var item in reservations)
-            {
-                var result = new SessionLineItemOptions
-                {
-                    PriceData = new SessionLineItemPriceDataOptions
-                    {
-                        Currency = "egp",
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
-                        {
-                            Name = $"Hotel: {item.Hotel.Name}, Rooms: {item.RoomCount}"
-                        },
-                        UnitAmountDecimal = (decimal?)(item.TotalPrice * 100),
-                    },
-                    Quantity = 1,
-                };
-                options.LineItems.Add(result);
-            }
 
             var service = new SessionService();
             var session = service.Create(options);
@@ -189,21 +223,40 @@ namespace HotelReservation.Areas.Customer.Controllers
         {
             var appUser = userManager.GetUserId(User);
 
+            if (appUser == null)
+            {
+                TempData["Error"] = "Unable to verify the user.";
+                return RedirectToAction("Index", "Home");
+            }
+
+           
             var reservations = unitOfWork.ReservationRepository.Get(
-                        where: r => r.UserId == appUser
-                        ).ToList();
+                include: new Expression<Func<Reservation, object>>[] {
+            r => r.ReservationRooms,
+            r => r.ReservationRooms.Select(rr => rr.Room)
+                },
+                where: r => r.UserId == appUser
+            ).ToList();
+
+           
 
             foreach (var reservation in reservations)
             {
-                 
-                //RoomTypeRepository.Update(reservation);
+                foreach (var reservationRoom in reservation.ReservationRooms)
+                {
+                    var room = reservationRoom.Room;
+                    if (room != null)
+                    {
+                        room.IsAvailable = false;
+                        
+                    }
+                }
             }
-            //RoomTypeRepository.Commit();
-
             TempData["Success"] = "Payment successful! Your reservations have been confirmed.";
             return View();
-
         }
+
+
         public IActionResult CancelCheckout()
         {
             TempData["Error"] = "Your payment was canceled. Please try again if you'd like to complete your booking.";

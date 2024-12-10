@@ -4,6 +4,7 @@ using Infrastructures.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241210151522_Date")]
+    partial class Date
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -350,9 +353,6 @@ namespace Infrastructures.Migrations
                     b.Property<int>("Request")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("UserImgRequest")
                         .HasColumnType("nvarchar(max)");
 
@@ -361,8 +361,6 @@ namespace Infrastructures.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("ContactUs");
                 });
@@ -472,40 +470,6 @@ namespace Infrastructures.Migrations
                     b.HasIndex("HotelId");
 
                     b.ToTable("ImageLists");
-                });
-
-            modelBuilder.Entity("Models.Models.Message", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("MessageDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MessageString")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Message");
                 });
 
             modelBuilder.Entity("Models.Models.Rating", b =>
@@ -803,15 +767,6 @@ namespace Infrastructures.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Models.Models.ContactUs", b =>
-                {
-                    b.HasOne("Models.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Models.Models.Hotel", b =>
                 {
                     b.HasOne("Models.Models.Company", "company")
@@ -851,17 +806,6 @@ namespace Infrastructures.Migrations
                         .IsRequired();
 
                     b.Navigation("Hotel");
-                });
-
-            modelBuilder.Entity("Models.Models.Message", b =>
-                {
-                    b.HasOne("Models.Models.ApplicationUser", "User")
-                        .WithMany("MessageString")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Models.Models.Rating", b =>
@@ -1048,8 +992,6 @@ namespace Infrastructures.Migrations
 
             modelBuilder.Entity("Models.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("MessageString");
-
                     b.Navigation("Ratings");
 
                     b.Navigation("Reservations");
