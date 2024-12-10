@@ -28,7 +28,7 @@
                     <i class="bi bi-building"></i> HotelReservation
                 </h5>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -47,14 +47,24 @@
                         @{
                             ApplicationUser user;
                             int messages;
+                            int contactUsCount;
                             if (User.Identity.IsAuthenticated)
                             {
                                 user = await UserManager.GetUserAsync(User) as ApplicationUser;
-                                messages = Context.Message.Where(e => e.UserId == user.Id).Count();
+                                messages = Context.Message.Where(e => e.UserId == user.Id&&e.IsReadied==false).Count();
                             }
-                            else{
+                            else
+                            {
                                 user = null;
                                 messages = 0;
+                            }
+                            if (await UserManager.IsInRoleAsync(user, SD.AdminRole))
+                            {
+                                contactUsCount = Context.ContactUs.Where(e=>e.IsReadied==false).Count();
+                            }
+                            else
+                            {
+                                contactUsCount = 0;
                             }
                         }
                         @if (user != null && user.MessageString != null)
@@ -75,6 +85,7 @@
                                     <li><a class="dropdown-item" asp-area="Admin" asp-controller="Company" asp-action="Index">Company</a></li>
                                     <li><a class="dropdown-item" asp-area="Admin" asp-controller="Hotel" asp-action="Index">Hotels</a></li>
                                     <li><a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">Amenity</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="ContactUs" asp-action="Index">ContactUs: <i class="bi bi-chat-right-dots"></i> @contactUsCount </a></li>
                                 </ul>
                             </div>
                         }

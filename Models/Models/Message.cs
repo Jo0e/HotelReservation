@@ -14,6 +14,8 @@ namespace Models.Models
         public string MessageString { get; set; }
         public string Description { get; set; }
         public DateTime MessageDateTime { get; set; }
+        public bool IsReadied { get; set; } = false;
+
         public string UserId { get; set; }
         [ValidateNever]
         public ApplicationUser User { get; set; }

@@ -31,7 +31,11 @@
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-reqId="@item.Id" class="btn btn-info btn-sm"><i class="bi bi-eye"></i> Details</a> |
-                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id"><i class="bi bi-trash"></i> Delete</button>
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id"><i class="bi bi-trash"></i> Delete</button> |
+                    <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm ms-1">
+                        <i class="@(item.IsReadied ? "bi bi-check-circle-fill text-success" : "bi bi-check2-all")"></i>
+                    </a>
+               
                 </td>
             </tr>
         }

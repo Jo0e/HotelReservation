@@ -23,6 +23,14 @@ namespace HotelReservation.Areas.Customer.Controllers
             var messages = unitOfWork.MessageRepository.Get(where: m => m.UserId == user.Id);
             return View(messages);
         }
+        public IActionResult ReadMessage(int messageId)
+        {
+            var message = unitOfWork.MessageRepository.GetOne(where: m => m.Id == messageId);
+            message.IsReadied= true;
+            unitOfWork.MessageRepository.Update(message);
+            unitOfWork.Complete();
+            return RedirectToAction("Index");
+        }
         public IActionResult Delete(int id)
         {
             var toDelete = unitOfWork.MessageRepository.GetOne(where: a => a.Id == id);

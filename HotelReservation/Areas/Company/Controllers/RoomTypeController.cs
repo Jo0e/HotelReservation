@@ -24,18 +24,14 @@ namespace HotelReservation.Areas.Company.Controllers
             if (hotelId != 0)
             {
                 Response.Cookies.Append("HotelId", hotelId.ToString());
-                types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
-                ViewBag.HotelId = hotelId;
-                return View(types);
             }
-            else if (hotelId == 0)
+            else
             {
-                var Id = int.Parse(Request.Cookies["HotelId"]);
-                types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == Id);
-                ViewBag.HotelId = Id;
-                return View(types);
+                hotelId = int.Parse(Request.Cookies["HotelId"]);
             }
-            return NotFound();
+            types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
+            ViewBag.HotelId = hotelId;
+            return View(types);
         }
 
         // GET: RoomTypeController/Create

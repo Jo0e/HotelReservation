@@ -24,22 +24,20 @@ namespace HotelReservation.Areas.Company.Controllers
                 if (id != 0)
                 {
                     Response.Cookies.Append("HotelIdCookie", id.ToString());
-                    amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
-                    return View(amenities);
+                    
                 }
-                else if (id == 0)
+                else
                 {
-                    var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
-                    amenities = unitOfWork.HotelRepository.HotelsWithAmenities(hotelId);
-                    return View(amenities);
+                    id = int.Parse(Request.Cookies["HotelIdCookie"]);
+                    
                 }
+                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
+                return View(amenities);
             }
             catch
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-
-            return NotFound();
         }
 
         // GET: AmenityController/Create

@@ -113,7 +113,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 return View(hotel);
             }
 
-            return RedirectToAction("NotFound");
+            return RedirectToAction("NotFound", "Home");
         }
 
 
@@ -122,7 +122,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             var user = await userManager.GetUserAsync(User);
             if (user == null)
             {
-                return RedirectToAction("NotFound");
+                return RedirectToAction("NotFound", "Home");
             }
 
             Comment NewComment = new()
@@ -143,7 +143,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
             if (comment == null)
             {
-                return RedirectToAction("NotFound");
+                return RedirectToAction("NotFound", "Home");
             }
 
             comment.CommentString = commentString;
@@ -158,13 +158,13 @@ namespace HotelReservation.Areas.Customer.Controllers
             var user = await userManager.GetUserAsync(User);
             if (user == null)
             {
-                return RedirectToAction("NotFound");
+                return RedirectToAction("NotFound", "Home");
             }
             var comment = unitOfWork.CommentRepository.GetOne(where: c => c.Id == commentId);
 
             if (comment == null)
             {
-                return RedirectToAction("NotFound");
+                return RedirectToAction("NotFound", "Home");
             }
             var isExist = comment.ReactionUsersId.Any(e => e.Equals(user.Id));
             if (isExist)

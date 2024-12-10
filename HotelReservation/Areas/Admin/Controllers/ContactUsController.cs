@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Models.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
@@ -28,6 +29,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 ViewBag.Comment = unitOfWork.CommentRepository.GetOne(where: e => e.Id == req.HelperId
                 , include: [s => s.User]);
             }
+            ReadMessage(req);
             return View(req);
         }
         public IActionResult Respond(Models.Models.Message message)
@@ -40,17 +42,31 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            return RedirectToAction("NotFound");
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+        }
+
+        public IActionResult ReadMessage(int messageId)
+        {
+            var contact = unitOfWork.ContactUsRepository.GetOne(where: m => m.Id == messageId);
+            ReadMessage(contact);
+            return RedirectToAction("Index");
         }
         public IActionResult Delete(int reqId)
         {
             var toDelete = unitOfWork.ContactUsRepository.GetOne(where: o=>o.Id == reqId);
             if (toDelete != null)
             {
-                unitOfWork.ContactUsRepository.Delete(toDelete);
+                unitOfWork.ContactUsRepository.DeleteWithImage(toDelete, "ContactUsImages",toDelete.UserImgRequest);
                 unitOfWork.Complete();
             }
             return RedirectToAction("Index");
+        }
+
+        private void ReadMessage(ContactUs req)
+        {
+            req.IsReadied = true;
+            unitOfWork.ContactUsRepository.Update(req);
+            unitOfWork.Complete();
         }
     }
 }

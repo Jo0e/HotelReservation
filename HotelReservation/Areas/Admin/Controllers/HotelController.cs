@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
@@ -77,7 +78,10 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult Delete(int id)
         {
             var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == id, include: [c => c.company]);
-
+            if (hotel == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             return View(hotel);
         }
 

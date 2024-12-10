@@ -21,6 +21,7 @@ namespace Models.Models
         public string? PhoneNumber { get; set; }
         public string? UserImgRequest { get; set; }
         public int? HelperId { get; set; }
+        public bool IsReadied { get; set; } = false;
         public string? UserId { get; set; }
         [ValidateNever]
         public ApplicationUser User { get; set; }

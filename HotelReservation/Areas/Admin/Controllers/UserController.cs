@@ -84,6 +84,11 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var user = await userManager.FindByIdAsync(id);
             var appUser = user as ApplicationUser;
+
+            if (appUser == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             var role =  roleManager.Roles.ToList();
             ViewBag.Role = role;
 
@@ -102,7 +107,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 var appUser = existingUser as ApplicationUser;
                 if (appUser == null)
                 {
-                    return NotFound($"User with ID {user.Id} not found.");
+                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 }
 
                 // Update user's profile image

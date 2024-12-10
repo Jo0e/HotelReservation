@@ -21,8 +21,6 @@ namespace HotelReservation.Areas.Admin.Controllers
         // GET: RoomController
         public ActionResult Index(int id, string roomType = "All")
         {
-            IEnumerable<Room> rooms;
-
             if (id != 0)
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
@@ -32,7 +30,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 id = int.Parse(Request.Cookies["HotelIdCookie"]);
             }
 
-            rooms = unitOfWork.RoomRepository.Get(
+            var rooms = unitOfWork.RoomRepository.Get(
                 where: e => e.HotelId == id && (roomType == "All" || e.RoomType.Type.ToString() == roomType),
                 include: [e => e.Hotel, w => w.RoomType]
             );
@@ -91,7 +89,12 @@ namespace HotelReservation.Areas.Admin.Controllers
         // GET: RoomController/Delete/5
         public ActionResult Delete(int id)
         {
-            var room = unitOfWork.RoomRepository.GetOne(where: a => a.Id == id, include: [e => e.Hotel, w => w.RoomType]);
+            var room = unitOfWork.RoomRepository.GetOne(where: a => a.Id == id,
+                include: [e => e.Hotel, w => w.RoomType]);
+            if (room == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             return View(room);
         }
 

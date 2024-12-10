@@ -27,11 +27,16 @@
                     </p>
                 </div>
                 <div class="chat-actions text-end">
-                    <small class="text-muted">@item.MessageDateTime.ToString("g")</small>
+                    <small class="text-muted ">@item.MessageDateTime.ToString("g")</small>
+                    <div class="d-flex justify-content-end">
+                    <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm ms-1">
+                            <i class="@(item.IsReadied ? "bi bi-check-circle-fill text-success" : "bi bi-check2-all")"></i>
+                        </a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm ms-2">
                         <i class="bi bi-trash"></i>
                     </a>
-                </div>
+                    </div>
+                    </div>
             </div>
         }
     </div>

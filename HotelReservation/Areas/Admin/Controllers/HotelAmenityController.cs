@@ -10,7 +10,7 @@ namespace HotelReservation.Areas.Admin.Controllers
     [Area("Admin")]
     public class HotelAmenityController : Controller
     {
-        
+
         private readonly IUnitOfWork unitOfWork;
 
         public HotelAmenityController(IUnitOfWork unitOfWork)
@@ -21,20 +21,16 @@ namespace HotelReservation.Areas.Admin.Controllers
         // GET: AmenityController
         public ActionResult Index(int id)
         {
-            Hotel amenities;
             if (id != 0)
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
-                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
-                return View(amenities);
             }
-            else if (id == 0)
+            else
             {
-                var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
-                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(hotelId);
-                return View(amenities);
+                id = int.Parse(Request.Cookies["HotelIdCookie"]);
             }
-            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+           var amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
+            return View(amenities);
         }
 
 
