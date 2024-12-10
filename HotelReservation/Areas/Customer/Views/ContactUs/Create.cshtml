@@ -1,0 +1,64 @@
+﻿﻿@using Models.Models
+@model ContactUs
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>ContactUs</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            >
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Request" class="control-label"></label>
+                <select asp-for="Request" class="form-control">
+
+                    <option value="Complaint">Complaint</option>
+                    <option value="Suggestion">Suggestion</option>
+                    <option value="Company_Request">Company Request</option>
+
+                </select>
+                <span asp-validation-for="Request" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserRequestString" class="control-label"></label>
+                <input asp-for="UserRequestString" class="form-control" />
+                <span asp-validation-for="UserRequestString" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" type="number" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserImgRequest" class="control-label"></label>
+                <input asp-for="UserImgRequest" class="form-control" type="file" name="ImgFile" />
+                <span asp-validation-for="UserImgRequest" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Home" asp-action="Index">Back to Home</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
