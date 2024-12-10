@@ -42,7 +42,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             return View(rooms);
         }
-       
+
         [HttpGet]
         public IActionResult Book(TypeViewModel typeModel)
         {
@@ -130,20 +130,20 @@ namespace HotelReservation.Areas.Customer.Controllers
                     return View(viewModel);
                 }
             }
-                var reservation = new Reservation
-                {
-                    HotelId = viewModel.HotelId,
-                    NAdult = viewModel.NAdult,
-                    NChildren = viewModel.NChildren ?? 0,
-                    CheckInDate = viewModel.CheckInDate,
-                    CheckOutDate = viewModel.CheckOutDate,
-                    RoomCount = viewModel.RoomCount,
-                    TotalPrice = totalPrice,
-                    UserId = appUserId
-                };
-                unitOfWork.ReservationRepository.Create(reservation);
-                unitOfWork.Complete();
-            
+            var reservation = new Reservation
+            {
+                HotelId = viewModel.HotelId,
+                NAdult = viewModel.NAdult,
+                NChildren = viewModel.NChildren ?? 0,
+                CheckInDate = viewModel.CheckInDate,
+                CheckOutDate = viewModel.CheckOutDate,
+                RoomCount = viewModel.RoomCount,
+                TotalPrice = totalPrice,
+                UserId = appUserId
+            };
+            unitOfWork.ReservationRepository.Create(reservation);
+            unitOfWork.Complete();
+
             for (int i = 0; i < viewModel.RoomCount; i++)
             {
                 var room = availableRooms[i];
@@ -152,7 +152,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                     RoomId = room.Id,
                     ReservationID = reservation.Id
                 };
-               // room.IsAvailable = false;
+                // room.IsAvailable = false;
                 unitOfWork.ReservationRoomRepository.Create(reservationRoom);
                 unitOfWork.RoomRepository.Update(room);
             }
@@ -229,16 +229,16 @@ namespace HotelReservation.Areas.Customer.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-           
-            var reservations = unitOfWork.ReservationRepository.Get(
-                include: new Expression<Func<Reservation, object>>[] {
-            r => r.ReservationRooms,
-            r => r.ReservationRooms.Select(rr => rr.Room)
-                },
-                where: r => r.UserId == appUser
-            ).ToList();
 
-           
+            //var reservations = unitOfWork.ReservationRepository.Get(
+            //    include: [
+            //r => r.ReservationRooms,
+            //r => r.ReservationRooms.Select(rr => rr.Room)
+            //    ],
+            //    where: r => r.UserId == appUser
+            //).ToList();
+
+            var reservations = unitOfWork.ReservationRepository.GetReservationRoom(appUser);
 
             foreach (var reservation in reservations)
             {
@@ -248,7 +248,6 @@ namespace HotelReservation.Areas.Customer.Controllers
                     if (room != null)
                     {
                         room.IsAvailable = false;
-                        
                     }
                 }
             }

@@ -23,7 +23,8 @@ namespace Models.Models
 
         public bool IsEdited { get; set; } = false;
         public int Likes { get; set; }  = 0;
-        public ICollection<string> ReactionUsersId { get; set; }
+        [ValidateNever]
+        public IList<string> ReactionUsersId { get; set; } = new List<string>();
         
     }
 }

@@ -155,9 +155,8 @@ namespace HotelReservation.Areas.Customer.Controllers
             {
                 return RedirectToAction("NotFound");
             }
-            var appUser = user as ApplicationUser;
 
-            Comment NewComment = new Comment()
+            Comment NewComment = new()
             {
                 CommentString = comment,
                 DateTime = DateTime.Now,
@@ -169,7 +168,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Details", new { id = hotelId });
         }
         [HttpPost]
-        public async Task<IActionResult> EditComment(int id, string commentString)
+        public IActionResult EditComment(int id, string commentString)
         {
             var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
             if (comment == null)
@@ -193,7 +192,8 @@ namespace HotelReservation.Areas.Customer.Controllers
             }
             var comment = unitOfWork.CommentRepository.GetOne(where: c => c.Id == commentId);
 
-            if (comment == null) {
+            if (comment == null)
+            {
                 return RedirectToAction("NotFound");
             }
             var isExist = comment.ReactionUsersId.Any(e => e.Equals(user.Id));
@@ -211,10 +211,10 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReportComment(int CommentId, string UserRequestString)
+        public async Task<IActionResult> ReportComment(int commentId, string UserRequestString)
         {
             var user = await userManager.GetUserAsync(User);
-            if (user == null) 
+            if (user == null)
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
@@ -223,13 +223,25 @@ namespace HotelReservation.Areas.Customer.Controllers
                 UserId = user.Id,
                 Name = user.Email,
                 Request = ContactUs.RequestType.Complaint,
-                UserRequestString =  $"Comment Report: \r\n{UserRequestString}",
-                HelperId = CommentId,
+                UserRequestString = $"Comment Report: \r\n{UserRequestString}",
+                HelperId = commentId,
             };
             unitOfWork.ContactUsRepository.Create(contactUs);
             unitOfWork.Complete();
             return RedirectToAction("Index");
 
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteComment(int commentId)
+        {
+            var toDelete = unitOfWork.CommentRepository.GetOne(where: e => e.Id == commentId);
+            if (toDelete != null)
+            {
+                unitOfWork.CommentRepository.Delete(toDelete);
+                unitOfWork.Complete();
+            }
+            return RedirectToAction("Index");
         }
 
         // Privacy page (static content)
