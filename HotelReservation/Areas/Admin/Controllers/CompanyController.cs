@@ -38,6 +38,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
             ModelState.Remove(nameof(ProfileImage));
@@ -86,6 +88,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             return View(company);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
             ModelState.Remove(nameof(ProfileImage));
@@ -95,9 +98,14 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == companyVM.Id, tracked: false);
+                if (company == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 var user = await userManager.FindByEmailAsync(company.Email);
                 var appUser = user as ApplicationUser;
 
+                if (appUser == null) 
+                {
+                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                }
                 appUser.Email = company.Email;
                 appUser.PhoneNumber = company.PhoneNumber;
                 appUser.City = company.Addres;
@@ -126,10 +134,14 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == id);
             if (company == null)
-                return NotFound();
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
             var user = await userManager.FindByEmailAsync(company.Email);
-            userManager.DeleteAsync(user);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            await userManager.DeleteAsync(user);
             Thread.Sleep(500);
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
             unitOfWork.CompanyRepository.Delete(company);

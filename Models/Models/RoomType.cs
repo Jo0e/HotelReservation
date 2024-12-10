@@ -1,4 +1,6 @@
-﻿namespace Models.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace Models.Models
 {
     public class RoomType
     {
@@ -10,7 +12,9 @@
         public int? MealPrice { get; set; }
 
         public int HotelId { get; set; }
+        [ValidateNever]
         public Hotel Hotel { get; set; }
+        [ValidateNever]
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
 
     }

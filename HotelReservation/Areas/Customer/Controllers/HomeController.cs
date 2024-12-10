@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Linq;
+using AutoMapper;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Utilities.Utility;
@@ -15,16 +17,21 @@ namespace HotelReservation.Areas.Customer.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork unitOfWork;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly IMapper mapper;
 
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork,
+            UserManager<IdentityUser> userManager, IMapper mapper)
         {
             _logger = logger;
             this.unitOfWork = unitOfWork;
+            this.userManager = userManager;
+            this.mapper = mapper;
         }
 
 
 
-        public IActionResult Index(string search = null)
+        public IActionResult Index(string? search = null)
         {
             var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms]);
             var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get([o => o.Amenity]);
@@ -61,7 +68,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
 
             var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms], where: c => c.City.Contains(city));
-                                         //.Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+            //.Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
 
             //var hotels = unitOfWork.HotelRepository.Get([h => h.HotelAmenities, h => h.Rooms])
             //                             .Where(h => h.City.Equals(city, StringComparison.OrdinalIgnoreCase));
@@ -125,16 +132,98 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Details(int id)
         {
             var hotel = unitOfWork.HotelRepository.GetOne(
-                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes],
+                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes, h => h.Comments],
                 where: h => h.Id == id
             );
 
             if (hotel != null)
             {
+                ViewBag.Comment = unitOfWork.CommentRepository.Get
+                    (where: h => h.HotelId == id, include: [u => u.User]);
                 return View(hotel);
             }
 
             return RedirectToAction("NotFound");
+        }
+
+
+
+        public async Task<IActionResult> AddComment(int hotelId, string comment)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound");
+            }
+            var appUser = user as ApplicationUser;
+
+            Comment NewComment = new Comment()
+            {
+                CommentString = comment,
+                DateTime = DateTime.Now,
+                HotelId = hotelId,
+                UserId = user.Id,
+            };
+            unitOfWork.CommentRepository.Create(NewComment);
+            unitOfWork.Complete();
+            return RedirectToAction("Details", new { id = hotelId });
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditComment(int id, string commentString)
+        {
+            var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
+            if (comment == null)
+            {
+                return RedirectToAction("NotFound");
+            }
+
+            comment.CommentString = commentString;
+            comment.IsEdited = true;
+            unitOfWork.Complete();
+
+            return RedirectToAction("Details", new { id = comment.HotelId });
+        }
+
+        public async Task<IActionResult> LikeComment(int commentId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound");
+            }
+            var comment = unitOfWork.CommentRepository.GetOne(where: c => c.Id == commentId);
+
+            if (comment == null) {
+                return RedirectToAction("NotFound");
+            }
+            var isExist = comment.ReactionUsersId.Any(e => e.Equals(user.Id));
+            if (isExist)
+            {
+                //comment.ReactionUsersId.Remove(user.Id);
+
+                return RedirectToAction("Details", new { id = comment.HotelId });
+
+            }
+            comment.Likes++;
+            comment.ReactionUsersId.Add(user.Id);
+            unitOfWork.Complete();
+            return RedirectToAction("Details", new { id = comment.HotelId });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ReportComment(int CommentId, string UserRequestString)
+        {
+            var contactUs = new ContactUs
+            {
+                Name = User.Identity.Name,
+                Request = ContactUs.RequestType.Complaint,
+                UserRequestString =  $"Comment Report: \r\n{UserRequestString}",
+                HelperId = CommentId,
+            };
+            unitOfWork.ContactUsRepository.Create(contactUs);
+            unitOfWork.Complete();
+            return RedirectToAction("Index");
+
         }
 
         // Privacy page (static content)

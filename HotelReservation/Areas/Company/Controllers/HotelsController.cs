@@ -159,10 +159,11 @@ namespace HotelReservation.Areas.Company.Controllers
                 if (ModelState.IsValid)
                 {
                     var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
+                    if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                     unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                     return RedirectToAction(nameof(Index));
                 }
-                return NotFound();
+                return View(hotel);
             }
             catch (Exception)
             {

@@ -15,11 +15,13 @@ namespace HotelReservation.Areas.Admin.Controllers
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly IUnitOfWork unitOfWork;
+        private readonly RoleManager<IdentityRole> roleManager;
 
-        public UserController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork)
+        public UserController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork,RoleManager<IdentityRole> roleManager  )
         {
             this.userManager = userManager;
             this.unitOfWork = unitOfWork;
+            this.roleManager = roleManager;
         }
 
         // GET: UserController
@@ -82,7 +84,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var user = await userManager.FindByIdAsync(id);
             var appUser = user as ApplicationUser;
-            var role = await userManager.GetRolesAsync(user);
+            var role =  roleManager.Roles.ToList();
             ViewBag.Role = role;
 
             return View(appUser);
@@ -91,7 +93,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         // POST: UserController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(ApplicationUser user, IFormFile ProfileImage)
+        public async Task<ActionResult> Edit(ApplicationUser user,string role, IFormFile ProfileImage)
         {
             try
             {
@@ -114,6 +116,9 @@ namespace HotelReservation.Areas.Admin.Controllers
                 var result = await userManager.UpdateAsync(appUser);
                 if (result.Succeeded)
                 {
+                    var oldRole =await userManager.GetRolesAsync(appUser);
+                   await userManager.RemoveFromRolesAsync(appUser,oldRole);
+                   await userManager.AddToRoleAsync(appUser, role);
                     return RedirectToAction(nameof(Index));
                 }
                 foreach (var error in result.Errors)
@@ -127,26 +132,19 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
-        // GET: UserController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(string id)
         {
-            return View();
-        }
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null) {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            var result=await userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = "Error";
+            }
+             return RedirectToAction(nameof(Index));
 
-        // POST: UserController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
         }
     }
 }

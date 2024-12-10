@@ -1,4 +1,5 @@
-﻿using Infrastructures.Repository.IRepository;
+﻿using AutoMapper;
+using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -9,10 +10,12 @@ namespace HotelReservation.Areas.Admin.Controllers
     public class RoomController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly IMapper mapper;
 
-        public RoomController(IUnitOfWork unitOfWork)
+        public RoomController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
+            this.mapper = mapper;
         }
 
         // GET: RoomController
@@ -44,36 +47,42 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             //var hotelId = int.Parse(Request.Cookies["HotelId"]);
             ViewBag.HotelId = hotelId;
-            ViewBag.Type = unitOfWork.RoomTypeRepository.Get(where: t=>t.HotelId==hotelId);
+            ViewBag.Type = unitOfWork.RoomTypeRepository.Get(where: t => t.HotelId == hotelId);
             return View();
         }
 
         // POST: RoomController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Room room)
+        public ActionResult Create(Room room, int count)
         {
-            //room.HotelId = hotelId;
-
-            unitOfWork.RoomRepository.Create(room);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                var rooms = new List<Room>();
+                for (int i = 0; i < count; i++)
+                {
+                    var newRoom = mapper.Map<Room>(room);
+                    rooms.Add(newRoom);
+                }
+                unitOfWork.RoomRepository.AddRange(rooms);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(room);
         }
 
-        
+
         // POST: RoomController/Edit/5
 
         public ActionResult Book(int id)
         {
             var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
-            if (room.IsAvailable == true)
+            if (room == null)
             {
-                room.IsAvailable = false;
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            else
-            {
-                room.IsAvailable = true;
-            }
+
+            room.IsAvailable = !room.IsAvailable;
             unitOfWork.RoomRepository.Update(room);
             unitOfWork.Complete();
             return RedirectToAction(nameof(Index));

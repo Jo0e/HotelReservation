@@ -145,11 +145,11 @@
                 let index = 0;
                 const target = document.querySelector(".animated-text");
                 function typeWriter() {
-                    if (index < text.length) {
-                        target.textContent += text[index];
-                        index++;
-                        setTimeout(typeWriter, 100);
-                    }
+                if (index < text.length) {
+                target.textContent += text[index];
+                index++;
+                setTimeout(typeWriter, 100);
+                }
                 }
                 typeWriter();
             </script>
@@ -182,7 +182,7 @@
 
                         <div class="form-group mb-4">
                             <label class="fw-bold">Filtring On Amenities:</label>
-                            
+
                             @foreach (var item in ViewBag.AllAmenities)
                             {
                                 <div class="form-check">
@@ -190,8 +190,8 @@
                                     <label class="form-check-label" for="@item.Name">@item.Name</label>
                                 </div>
                             }
-                            
-                           @*
+
+                            @*
                            <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="wifi" name="amenitiess" value="WiFi" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
                                 <label class="form-check-label" for="wifi">Wifi</label>
@@ -243,7 +243,7 @@
                                                 </a>
                                             </p>
                                             <p class="card-text">
-                                                @if (hotel.Rooms.Any(p=>p.IsAvailable==true))
+                                                @if (hotel.Rooms.Any(p => p.IsAvailable == true))
                                                 {
                                                     <span class="badge bg-success">Rooms Available </span>
                                                 }
@@ -354,7 +354,7 @@
             </ul>
         </nav>
     </div>
-
+   
     <style>
         .filter-sidebar {
             background-color: #ffffff;

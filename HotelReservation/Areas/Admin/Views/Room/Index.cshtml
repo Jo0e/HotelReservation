@@ -163,7 +163,6 @@
     <div class="justify-content-between">
         <a asp-action="Create" asp-route-hotelId="@ViewBag.HotelId">Create New</a>
         <a asp-controller="RoomType" asp-action="Index" asp-route-hotelId="@ViewBag.HotelId">Create Type</a>
-        <h3>@ViewBag.roomsCount</h3>
     </div>
 </p>
 <table class="table">
@@ -222,11 +221,11 @@
                     @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
                 </td>
                 <td>
-                    @if (!item.IsAvailable)
+                    @if (item.IsAvailable)
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">Book </a>
                     }
-                    @if (item.IsAvailable)
+                    else
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
                     }
@@ -263,11 +262,11 @@
                     @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
                 </td>
                 <td>
-                    @if (!item.IsAvailable)
+                    @if (item.IsAvailable)
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">Book </a>
                     }
-                    @if (item.IsAvailable)
+                    else
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
                     }
@@ -304,11 +303,11 @@
                     @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
                 </td>
                 <td>
-                    @if (!item.IsAvailable)
+                    @if (item.IsAvailable)
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">Book </a>
                     }
-                    @if (item.IsAvailable)
+                    else
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
                     }
@@ -345,11 +344,11 @@
                     @Html.DisplayFor(modelItem => item.RoomType.MealPrice)
                 </td>
                 <td>
-                    @if (!item.IsAvailable)
+                    @if (item.IsAvailable)
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">Book </a>
                     }
-                    @if (item.IsAvailable)
+                    else
                     {
                         <a asp-action="Book" asp-route-id="@item.Id">UnBook</a>
                     }

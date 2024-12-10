@@ -28,7 +28,8 @@ namespace Infrastructures.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<Reply> Replies { get; set; }
+        //public DbSet<Reply> Replies { get; set; }
+        public DbSet<ContactUs> ContactUs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -116,11 +117,11 @@ namespace Infrastructures.Data
            .HasForeignKey(r => r.HotelId)
            .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Comment>()
-           .HasMany(c => c.Replies)
-           .WithOne(r => r.Comment)
-           .HasForeignKey(r => r.CommentId)
-           .OnDelete(DeleteBehavior.NoAction); 
+           // modelBuilder.Entity<Comment>()
+           //.HasMany(c => c.Replies)
+           //.WithOne(r => r.Comment)
+           //.HasForeignKey(r => r.CommentId)
+           //.OnDelete(DeleteBehavior.NoAction); 
 
 
 
