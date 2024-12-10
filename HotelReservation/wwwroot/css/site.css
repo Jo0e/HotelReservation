@@ -71,24 +71,23 @@ label {
     box-sizing: border-box;
 }
 
-/*.custom-btn {
+.custom-btn {
     margin-top: 4px;
-    display: inline-flex;*/*/ /* Use inline-flex to keep the button inline and apply flexbox */
-    /*align-items: center;*/ /* Center items vertically */
-    /*justify-content: center;*/ /* Center items horizontally */
-    /*height: 1.9rem;*/ /* Set a suitable height for the button */
-    /*line-height: 0.6;*/ /* Ensure the line-height does not interfere with centering */
-    /*padding: 0rem;*/ /* Add padding for horizontal space */
-    /*text-align: center;*/ /* Center text */
-    /*border-width: 1px;*/ /* Optional: Set border width if needed */
-/*}*/
+    display: inline-flex; /* Use inline-flex to keep the button inline and apply flexbox */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    height: 1.9rem; /* Set a suitable height for the button */
+    line-height: 0.6; /* Ensure the line-height does not interfere with centering */
+    padding: 0rem; /* Add padding for horizontal space */
+    text-align: center; /* Center text */
+    border-width: 1px; /* Optional: Set border width if needed */
+}
 
-    /*.custom-btn .btn {
-        height: 90%;*/ /* Ensure the button fills its container */
-        /*width: 90%;*/ /* Optional: Set width if you want a full-width button */
-        /*padding: 0rem;*/ /* Add padding for horizontal space */
-    /*}*/
-
+    .custom-btn .btn {
+        height: 90%; /* Ensure the button fills its container */
+        width: 90%; /* Optional: Set width if you want a full-width button */
+        padding: 0rem; /* Add padding for horizontal space */
+    }
 /*
 .btn {
     display: inline-block;
@@ -104,7 +103,7 @@ label {
     border-radius: 4px;
     box-shadow: 0 4px #999;
 }
-
+*/
 .btn-primary:hover {
     background-color: #0056b3;
 }

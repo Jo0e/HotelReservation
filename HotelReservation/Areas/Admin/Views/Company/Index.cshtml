@@ -5,7 +5,14 @@
 }
 
 <h1 class="text-center my-4">Company List</h1>
-
+<form class="d-flex mb-4" method="get" asp-action="Index">
+    <input class="form-control me-sm-2"
+           type="search"
+           placeholder="Search "
+           value="@ViewBag.searchText"
+           name="search" />
+    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+</form>
 <p class="text-end">
     <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New</a>
 </p>
@@ -13,6 +20,7 @@
     <table class="table table-hover align-middle ">
         <thead class="table-dark text-center">
             <tr>
+                <th>@Html.DisplayNameFor(model => model.UserName)</th>
                 <th>@Html.DisplayNameFor(model => model.Email)</th>
                 <th>@Html.DisplayNameFor(model => model.PhoneNumber)</th>
                 <th>@Html.DisplayNameFor(model => model.Addres)</th>
@@ -24,6 +32,7 @@
             @foreach (var item in Model)
             {
                 <tr class="text-center">
+                    <td>@Html.DisplayFor(modelItem => item.UserName)</td>
                     <td>@Html.DisplayFor(modelItem => item.Email)</td>
                     <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
                     <td>@Html.DisplayFor(modelItem => item.Addres)</td>
@@ -41,6 +50,24 @@
         </tbody>
     </table>
 </div>
+<!-- Pagination -->
+<nav aria-label="Page navigation example" class="mt-5">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage - 1)">Previous</a>
+        </li>
+        @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.Search" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+            </li>
+        }
+        <li class="page-item @(ViewBag.CurrentPage == Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "disabled" : "")">
+            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
+
 
 <!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">

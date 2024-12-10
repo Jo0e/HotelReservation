@@ -167,6 +167,20 @@
     </div>
 </p>
 
+<form method="get" asp-action="Index">
+    <div class="form-group">
+        <label for="roomType">Filter by Room Type</label>
+        <select id="roomType" name="roomType" class="form-control" onchange="this.form.submit()" style=" font-size: 0.9rem; padding: 5px 10px;height: 30px;width: 200px; ">
+            <option value="#">Choose type</option>
+
+            <option value="@null">All Types</option>
+            <option value="@Models.Models.Type.Single">Single</option>
+            <option value="@Models.Models.Type.Double">Double</option>
+            <option value="@Models.Models.Type.Triple">Triple</option>
+            <option value="@Models.Models.Type.Quadruple">Quadruple</option>
+        </select>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>

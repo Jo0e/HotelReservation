@@ -19,21 +19,23 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
 
         // GET: RoomController
-        public ActionResult Index(int id)
+        public ActionResult Index(int id, Models.Models.Type? roomType)
         {
 
             IEnumerable<Room> rooms;
             if (id != 0)
             {
                 Response.Cookies.Append("HotelIdCookie", id.ToString());
-                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
+                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == id &&
+                    (roomType == null || e.RoomType.Type == roomType), include: [e => e.Hotel, w => w.RoomType]);
                 ViewBag.HotelId = id;
                 return View(rooms);
             }
             else if (id == 0)
             {
                 var hotelId = int.Parse(Request.Cookies["HotelIdCookie"]);
-                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
+                rooms = unitOfWork.RoomRepository.Get(where: e => e.HotelId == hotelId &&
+                    (roomType == null || e.RoomType.Type == roomType), include: [e => e.Hotel, w => w.RoomType]);
                 ViewBag.HotelId = hotelId;
                 return View(rooms);
             }

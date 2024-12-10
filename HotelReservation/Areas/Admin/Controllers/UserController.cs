@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using Models.ViewModels;
 using Stripe;
+using System.Drawing.Printing;
 using Utilities.Utility;
 
 namespace HotelReservation.Areas.Admin.Controllers
@@ -25,8 +26,9 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
 
         // GET: UserController
-        public async Task<ActionResult> Index()
+        public async Task<IActionResult> Index(string? search, int pageNumber = 1)
         {
+            const int pageSize = 5;
             var users = userManager.Users.ToList();
             var userViewModels = new List<UserViewModel>();
 
@@ -39,8 +41,28 @@ namespace HotelReservation.Areas.Admin.Controllers
                     Roles = roles
                 });
             }
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim().ToLower();
+                userViewModels = userViewModels.Where(u =>
+                    u.User.UserName.ToLower().Contains(search) ||
+                    u.User.Email.ToLower().Contains(search) ||
+                    (u.User.PhoneNumber != null && u.User.PhoneNumber.ToLower().Contains(search)) ||
+                    u.Roles.Any(role => role.ToLower().Contains(search))
+                ).ToList();
+            }
+            var totalItems = userViewModels.Count;
+            var pagedUsers = userViewModels
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            return View(userViewModels);
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.SearchText = search;
+
+            return View(pagedUsers);
         }
 
         // GET: UserController/Details/5
