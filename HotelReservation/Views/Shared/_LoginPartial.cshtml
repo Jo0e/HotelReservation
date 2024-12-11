@@ -17,10 +17,20 @@
              alt="@UserManager.GetUserName(User)"
              data-bs-toggle="tooltip"
              title="View your profile" />
+        <style>
+            .btn-primary {
+                background: linear-gradient(45deg, #007bff, #0056b3);
+                transition: 0.3s;
+            }
 
+                .btn-primary:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+                }
+        </style>
         <div class="profile-details ms-3">
             <h5 class="mb-0">Hello, @UserManager.GetUserName(User).Substring(0, user.Email.IndexOf('@')) !</h5>
-            <a id="manage" class="btn btn-primary btn-sm text-light custom-btn" style="box-shadow:none;padding:10px" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
+            <a id="manage" class="btn btn-sm text-light custom-btn btn-primary" style="box-shadow:none;padding:10px" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
         </div>
         <div>
             <a style="box-shadow:none;padding:0px 5px 0px 5px;margin:3px 0px 0px 10px;height: 1.5rem" class="btn btn-primary btn-sm text-light custom-btn" style="margin-right:15px;" asp-area="" asp-controller="ContactUs" asp-action="Create">

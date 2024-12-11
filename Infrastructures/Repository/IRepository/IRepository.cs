@@ -16,9 +16,7 @@ namespace Infrastructures.Repository.IRepository
 
         public T? GetOne(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true);
 
-        IQueryable<T> ThenInclude<TProperty, TThenProperty>(Expression<Func<T, TProperty>> includeExpression,
-                Expression<Func<TProperty, TThenProperty>> thenIncludeExpression);
-
+        
 
         void UpdateImage(T entity, IFormFile imageFile, string currentImagePath, string imageFolder, string imageUrlProperty);
         void CreateWithImage(T entity, IFormFile imageFile, string imageFolder, string imageUrlProperty);
