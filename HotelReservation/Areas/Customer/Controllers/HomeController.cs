@@ -101,10 +101,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         // Displays hotel details by ID
         public IActionResult Details(int id)
         {
-            var hotel = unitOfWork.HotelRepository.GetOne(
-                [h => h.Rooms, h => h.ImageLists, h => h.HotelAmenities, h => h.RoomTypes, h => h.Comments],
-                where: h => h.Id == id
-            );
+            var hotel = unitOfWork.HotelRepository.HotelDetails(id);
 
             if (hotel != null)
             {

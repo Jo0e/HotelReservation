@@ -41,5 +41,16 @@ namespace Infrastructures.Repository
                 return hotels;
             }
         }
+
+        public Hotel HotelDetails(int hotelId)
+        {
+               var hotel = dbSet
+                .Include(i => i.ImageLists)
+                .Include(r => r.Rooms)
+                .ThenInclude(e => e.RoomType)
+                .Include(h => h.HotelAmenities)
+                .ThenInclude(e => e.Amenity).FirstOrDefault(r=>r.Id==hotelId);
+            return hotel;
+        }
     }
 }

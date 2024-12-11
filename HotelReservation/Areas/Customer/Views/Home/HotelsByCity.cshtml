@@ -2,79 +2,98 @@
 <style>
     /* Home Page Styles */
     .container {
-    margin-top: 30px;
+        margin-top: 0px;
+        padding: 0px;
     }
 
     h1.text-center {
-    font-size: 2.5rem;
-    color: #343a40;
-    font-weight: bold;
-    margin-bottom: 20px;
+        font-size: 2.5rem;
+        color: #343a40;
+        font-weight: bold;
+        margin-bottom: 20px;
     }
 
     .card {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
     }
 
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .card-body .mt-auto {
+            margin-top: auto;
+        }
+
     .card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     }
 
     .card img {
-    height: 200px;
-    object-fit: cover;
+        height: 200px;
+        object-fit: cover;
     }
 
     .card-title {
-    font-size: 1.25rem;
-    color: #007bff;
-    font-weight: bold;
+        font-size: 1.25rem;
+        color: #007bff;
+        font-weight: bold;
     }
 
     .card .btn-primary {
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
     }
 
-    .card .btn-primary:hover {
-    background-color: #0056b3;
-    }
+        .card .btn-primary:hover {
+            background-color: #0056b3;
+        }
 
     .pagination {
-    justify-content: center;
-    margin-top: 20px;
+        justify-content: center;
+        margin-top: 20px;
     }
+
+        .pagination .page-item.active .page-link {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
 
 </style>
 <style>
     .search-header {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 15px;
-    color: #555;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 15px;
+        color: #555;
     }
 
     .rotator-text {
-    display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
-    animation: fadeInOut 4s linear infinite;
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        animation: fadeInOut 4s linear infinite;
     }
 
     keyframes fadeInOut {
-    0%, 100%
+        0%, 100%
 
     {
-    opacity: 0;
+        opacity: 0;
     }
 
     10%, 90% {
-    opacity: 1;
+        opacity: 1;
     }
 
     }
@@ -83,34 +102,72 @@
 
 <style>
     .badge {
-    font-size: 0.9rem;
-    margin: 2px;
-    padding: 5px 10px;
-    border-radius: 20px;
+        font-size: 0.8rem;
+        margin: 5px auto;
+        padding: 5px 10px;
+        border-radius: 20px;
     }
 </style>
 <style>
     .btn-primary {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    transition: 0.3s;
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        transition: 0.3s;
     }
 
-    .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
 </style>
 
 <style>
     body {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     }
 </style>
 <style>
     h1.text-center {
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
 </style>
+<style>
+    .filter-sidebar {
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .filter-title {
+        font-size: 1.5rem;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+
+    .form-group label {
+        font-size: 1rem;
+        color: #555;
+    }
+
+    input[type="checkbox"] + label {
+        margin-left: 10px;
+    }
+
+    #apply-filters {
+        margin-top: 15px;
+        background-color: #007bff;
+        border: none;
+        transition: 0.3s;
+    }
+
+        #apply-filters:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+</style>
+
 
 
 
@@ -119,12 +176,12 @@
         <div id="search-rotator" class="rotator-text"></div>
     </div>
     <div class="container mt-4">
-        <form class="d-flex" method="get" action="@Url.Action("HotelsByCity", "Home")">
+        <form class="d-flex mb-4" method="get" action="@Url.Action("HotelsByCity", "Home")">
             <input class="form-control me-sm-2"
-            type="search"
-            placeholder="Search by Name or Description or City or Address or Amenities"
-            value="@ViewBag.search"
-            name="search" />
+                   type="search"
+                   placeholder="Search by Name or Description or City or Address or Amenities"
+                   value="@ViewBag.search"
+                   name="search" />
             <input type="hidden" value="@ViewBag.City" name="city" />
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
         </form>
@@ -159,9 +216,9 @@
 
         <div class="container mt-4">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-3 justify-content-start">
                     <form method="get" action="/Customer/Home/HotelsByCity" class="bg-light p-4 shadow rounded">
-                        <h4 class="text-primary mb-4">Hotels Filter</h4>
+                        <h4 class="text-primary mb-4">Filter by:</h4>
                         <input type="hidden" name="city" value="@ViewBag.City" />
 
                         <div class="form-group mb-4">
@@ -173,15 +230,8 @@
                                     <label class="form-check-label" for="star @i">@i Stars</label>
                                 </div>
                             }
-                            @*  <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="stars4" name="stars" value="4" @(ViewBag.Stars == 4 ? "checked" : "")>
-                                <label class="form-check-label" for="stars4">4 Stars </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="stars5" name="stars" value="5" @(ViewBag.Stars == 5 ? "checked" : "")>
-                                <label class="form-check-label" for="stars5">5 Stars</label>
-                            </div>*@
-                        </div> 
+
+                        </div>
 
                         <div class="form-group mb-4">
                             <label class="fw-bold">Filtring On Amenities:</label>
@@ -193,24 +243,6 @@
                                     <label class="form-check-label" for="@item.Name">@item.Name</label>
                                 </div>
                             }
-
-                            @*
-                           <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="wifi" name="amenitiess" value="WiFi" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
-                                <label class="form-check-label" for="wifi">Wifi</label>
-                            </div>    
-                           <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="parking" name="amenitiess" value="Parking" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Parking") ? "checked" : "")>
-                                <label class="form-check-label" for="parking">Parking</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="pool" name="amenitiess" value="Pool" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Pool") ? "checked" : "")>
-                                <label class="form-check-label" for="pool">Pool</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="SPA" name="amenitiess" value="SPA" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("SPA") ? "checked" : "")>
-                                <label class="form-check-label" for="SPA">SPA</label>
-                            </div> *@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
@@ -219,18 +251,19 @@
 
 
 
-                <div class="col-md-9">
+                <div class="col-md-9 ">
                     <div class="row">
                         @if (Model.Any())
                         {
+                            <div class="row row-cols-1 row-cols-md-3 g-3 mt-0">
+
                             @foreach (var hotel in Model)
                             {
-                                <div class="col-md-4 mb-4">
-                                    <div data-aos="fade-up" class="card">
+                                <div class="col-md-4 mb-4 mt-0">
+                                    <div data-aos="fade-up" class="card h-100">
                                         <img src="~/images/homeImage/@hotel.CoverImg" loading="lazy" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
-                                        <div class="card-body">
+                                        <div class="card-body d-flex flex-column" style="">
                                             <h5 class="card-title"><strong>@hotel.Name</strong> </h5>
-                                            <br />
                                             <p>
                                                 @for (int i = 0; i < hotel.Stars; i++)
                                                 {
@@ -238,11 +271,7 @@
                                                 }
                                             </p>
                                             <p class="card-text">
-                                                <p
-                                                   class=""
-                                                   title="Open location of @hotel.Name in Google Maps">
-                                                    <i class="bi bi-geo-alt"></i>@hotel.City
-                                                </p>
+                                                <i class="bi bi-geo-alt"></i>@hotel.City
                                             </p>
                                             <p class="card-text">
                                                 @if (hotel.Rooms.Any(p => p.IsAvailable == true))
@@ -253,7 +282,6 @@
                                                 {
                                                     <span class="badge bg-danger">No Available Rooms</span>
                                                 }
-
                                             </p>
 
                                             <p class="card-text">
@@ -261,7 +289,7 @@
                                                 {
                                                     @foreach (var amenity in hotel.HotelAmenities)
                                                     {
-                                                        <span class="badge bg-info"><img src="~/images/amenities/@amenity.Amenity.Img" style="height:20px;" alt="Alternate Text" /> @amenity.Amenity.Name</span>
+                                                            <span class="badge text-dark" style="background: linear-gradient(135deg, #c3cfe2,#f5f7fa);"><img src="~/images/amenities/@amenity.Amenity.Img" style="height:20px;" alt="Alternate Text" />&ensp;@amenity.Amenity.Name</span>
                                                     }
                                                 }
                                                 else
@@ -270,11 +298,12 @@
                                                 }
                                             </p>
 
-                                            <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary">View Details</a>
+                                            <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary mt-auto">View Details</a>
                                         </div>
                                     </div>
                                 </div>
                             }
+                            </div>
                         }
                         else
                         {
@@ -282,55 +311,7 @@
                         }
                     </div>
                 </div>
-                @*         <div class="container">
-        <div class="row">
-        <form method="get" action="/Customer/Home/HotelsByCity" class="filter-sidebar p-3 shadow-sm">
-            <input type="hidden" name="city" value="@ViewBag.City" />
-              <div class="form-group mb-4">
-                <label class="fw-bold" >تصفية حسب عدد النجوم:</label><br>
-
-                <div class="form-check">
-                <input type="checkbox" id="stars3" name="stars" value="3" @(ViewBag.Stars == 3 ? "checked" : "")>
-                <label for="stars3">3 نجوم</label>
-                </div>
-
-                <div class="form-check">
-                <input type="checkbox" id="stars4" name="stars" value="4" @(ViewBag.Stars == 4 ? "checked" : "")>
-                <label for="stars4">4 نجوم</label>
-                </div>
-
-                <div class="form-check">
-                <input type="checkbox" id="stars5" name="stars" value="5" @(ViewBag.Stars == 5 ? "checked" : "")>
-                <label for="stars5">5 نجوم</label>
-                </div>
-
             </div>
-
-                <div class="form-group mb-4">
-                <label class="fw-bold">تصفية حسب الخدمات:</label><br>
-                <div class="form-check">
-                <input type="checkbox" id="wifi" name="amenitiess" value="WiFi" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
-                <label for="wifi">Wifi</label><br>
-                </div>
-                <div class="form-check">
-                <input type="checkbox" id="parking" name="amenitiess" value="Parking" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Parking") ? "checked" : "")>
-                <label for="parking">Parking</label><br>
-                </div>
-
-                <div class="form-check">
-                <input type="checkbox" id="pool" name="amenitiess" value="Pool" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("Pool") ? "checked" : "")>
-                <label for="pool">Pool</label>
-                </div>
-                <div class="form-check">
-                    <input type="checkbox" id="SPA" name="amenitiess" value="SPA" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains("WiFi") ? "checked" : "")>
-                    <label for="SPA">SPA</label><br>
-                    </div>
-        </div>
-
-            <button type="submit" class="btn btn-primary">Apply Filter</button>
-        </form>
-        </div>
- *@        </div>
         </div>
 
 
@@ -356,41 +337,6 @@
             </ul>
         </nav>
     </div>
-   
-    <style>
-        .filter-sidebar {
-            background-color: #ffffff;
-            border-radius: 10px;
-        }
-
-        .filter-title {
-            font-size: 1.5rem;
-            color: #007bff;
-            font-weight: bold;
-        }
-
-        .form-group label {
-            font-size: 1rem;
-            color: #555;
-        }
-
-        input[type="checkbox"] + label {
-            margin-left: 10px;
-        }
-
-        #apply-filters {
-            margin-top: 15px;
-            background-color: #007bff;
-            border: none;
-            transition: 0.3s;
-        }
-
-            #apply-filters:hover {
-                background-color: #0056b3;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            }
-    </style>
 
 
 
