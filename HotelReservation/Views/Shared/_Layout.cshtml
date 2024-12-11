@@ -58,14 +58,14 @@
                                 user = null;
                                 messages = 0;
                             }
-                            if (await UserManager.IsInRoleAsync(user, SD.AdminRole))
-                            {
-                                contactUsCount = Context.ContactUs.Where(e=>e.IsReadied==false).Count();
-                            }
-                            else
-                            {
-                                contactUsCount = 0;
-                            }
+                            // if (await UserManager.IsInRoleAsync(user, SD.AdminRole))
+                            // {
+                            //     contactUsCount = Context.ContactUs.Where(e=>e.IsReadied==false).Count();
+                            // }
+                            // else
+                            // {
+                            //     contactUsCount = 0;
+                            // }
                         }
                         @if (user != null && user.MessageString != null)
                         {
@@ -77,17 +77,9 @@
                         }
                         @if (User.IsInRole(SD.AdminRole))
                         {
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" style="box-shadow:none;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Dropdown button
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Company" asp-action="Index">Company</a></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Hotel" asp-action="Index">Hotels</a></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">Amenity</a></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="ContactUs" asp-action="Index">ContactUs: <i class="bi bi-chat-right-dots"></i> @contactUsCount </a></li>
-                                </ul>
-                            </div>
+                            <li class="nav-item">
+                                <a class="nav-link active " asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                            </li>
                         }
                         @if (User.IsInRole(SD.CompanyRole))
                         {
@@ -174,7 +166,7 @@
     <script>
         AOS.init();
     </script>
-
+    
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
