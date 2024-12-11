@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
     [Area("Company")]
+    [Authorize(Roles = SD.CompanyRole)]
     public class RoomsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

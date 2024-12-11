@@ -38,7 +38,7 @@ namespace HotelReservation.Areas.Customer.Controllers
            , include: [e => e.RoomType]);
 
 
-            //var roomsCount = rooms.Select(a => a.IsAvailable == true).Count();
+            var roomsCount = rooms.Select(a => a.IsAvailable == true).Count();
 
             return View(rooms);
         }
@@ -67,101 +67,88 @@ namespace HotelReservation.Areas.Customer.Controllers
 
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-
         public IActionResult Book(ReservationViewModel viewModel, TypeViewModel typeModel)
         {
-            if (viewModel.CheckInDate < DateTime.Now.Date)
-            {
-                ModelState.AddModelError("CheckInDate", "Check-In date cannot be in the past.");
-
-            }
-
-            if (viewModel.CheckOutDate <= viewModel.CheckInDate)
-            {
-                ModelState.AddModelError("CheckOutDate", "Check-Out date must be after the Check-In date.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                TempData["ErrorMessage"] = "Invalid dates selected. Please correct the errors and try again.";
-                return View(viewModel);
-            }
-
             var appUserId = userManager.GetUserId(User);
-            if (appUserId == null) return RedirectToAction("Login", "Account");
+            if (appUserId == null)
+                return RedirectToAction("Login", "Account");
 
-            var availableRooms = unitOfWork.RoomRepository.Get(
+            // Fetch available rooms
+            // Fetch rooms that will be available after the checkout date
+            var availableRoomsAfterCheckout = unitOfWork.RoomRepository.Get(
                 where: r => r.HotelId == typeModel.HotelId
-                         && r.IsAvailable
-                         && r.RoomType != null
                          && r.RoomType.Type == typeModel.RoomType
                          && r.RoomType.PricePN == typeModel.PricePN
-                          && (r.RoomType.MealPrice == typeModel.MealPrice || (r.RoomType.MealPrice == null && typeModel.MealPrice == null)),
-                           include: [r => r.RoomType]).ToList();
+                         && (!viewModel.IncludesMeal || r.RoomType.MealPrice == typeModel.MealPrice)
+                         && (r.ReservationRooms == null || !r.ReservationRooms.Any() ||
+                             r.ReservationRooms.All(rr =>
+                                 rr.Reservation.CheckOutDate < viewModel.CheckInDate ||
+                                 rr.Reservation.CheckInDate > viewModel.CheckOutDate
+                             )
+                         ),
+                include: [r => r.RoomType]
+            ).ToList();
 
-            if (availableRooms == null || availableRooms.Count < viewModel.RoomCount)
-            {
-                TempData["ErrorMessage"] = "Not enough rooms are available. Please adjust your selection.";
-                return RedirectToAction(nameof(Book), new { hotelId = viewModel.HotelId, roomType = viewModel.RoomType });
-            }
-            var selectedRoomType = availableRooms.First().RoomType;
-            var totalPrice = selectedRoomType.PricePN * viewModel.RoomCount;
+            // Fetch the next available rooms after CheckOutDate
+            var nextAvailableRooms = unitOfWork.RoomRepository.Get(
+                    where: r => r.HotelId == typeModel.HotelId
+                             && r.RoomType.Type == typeModel.RoomType
+                             && r.RoomType.PricePN == typeModel.PricePN
+                             && !r.IsAvailable,
+                    include: [r => r.ReservationRooms]).ToList();
 
-            if (viewModel.IncludesMeal && selectedRoomType.MealPrice.HasValue)
-            {
-                totalPrice += selectedRoomType.MealPrice.Value * viewModel.RoomCount;
-            }
-
-            if (!string.IsNullOrEmpty(viewModel.CouponCode))
-            {
-                var coupon = unitOfWork.CouponRepository.GetOne(where: c => c.Code == viewModel.CouponCode);
-                if (coupon != null && coupon.Limit > 0)
+               
+              
+                // Check if there are enough available rooms after checkout
+                if (availableRoomsAfterCheckout == null || availableRoomsAfterCheckout.Count < viewModel.RoomCount)
                 {
-                    totalPrice -= (int)coupon.Discount;
-                    coupon.Limit--;
-                    unitOfWork.CouponRepository.Update(coupon);
+                    TempData["ErrorMessage"] = "No rooms available for your selected dates or near future.";
+                    return RedirectToAction(nameof(Book), new { hotelId = viewModel.HotelId });
                 }
-                else
-                {
-                    TempData["ErrorMessage"] = "Invalid or expired coupon.";
-                    return View(viewModel);
-                }
-            }
-            var reservation = new Reservation
-            {
-                HotelId = viewModel.HotelId,
-                NAdult = viewModel.NAdult,
-                NChildren = viewModel.NChildren ?? 0,
-                CheckInDate = viewModel.CheckInDate,
-                CheckOutDate = viewModel.CheckOutDate,
-                RoomCount = viewModel.RoomCount,
-                TotalPrice = totalPrice,
-                UserId = appUserId
-            };
-            unitOfWork.ReservationRepository.Create(reservation);
-            unitOfWork.Complete();
 
-            for (int i = 0; i < viewModel.RoomCount; i++)
-            {
-                var room = availableRooms[i];
-                var reservationRoom = new ReservationRoom
+                // Calculate total price
+                var totalMealPrice = viewModel.IncludesMeal ? (typeModel.MealPrice ?? 0) : 0;
+                var totalPrice = (typeModel.PricePN + totalMealPrice) * viewModel.RoomCount *
+                                 (viewModel.CheckOutDate - viewModel.CheckInDate).Days;
+
+                // Create a reservation
+                var reservation = new Reservation
                 {
-                    RoomId = room.Id,
-                    ReservationID = reservation.Id
+                    HotelId = viewModel.HotelId,
+                    CheckInDate = viewModel.CheckInDate,
+                    CheckOutDate = viewModel.CheckOutDate,
+                    RoomCount = viewModel.RoomCount,
+                    NAdult = viewModel.NAdult,
+                    NChildren = viewModel.NChildren ?? 0,
+                    TotalPrice = totalPrice,
+                    UserId = appUserId,
+                    ReservationRooms = new List<ReservationRoom>()
                 };
-                // room.IsAvailable = false;
-                unitOfWork.ReservationRoomRepository.Create(reservationRoom);
-                unitOfWork.RoomRepository.Update(room);
-            }
 
-            unitOfWork.Complete();
+                // Associate rooms with the reservation (now from the available ones after checkout)
+                var allocatedRooms = availableRoomsAfterCheckout.Take(viewModel.RoomCount).ToList();
+                foreach (var room in allocatedRooms)
+                {
+                    reservation.ReservationRooms.Add(new ReservationRoom
+                    {
+                        RoomId = room.Id,
+                        Reservation = reservation
+                    });
+                }
 
-            TempData["SuccessMessage"] = "Booking successful!";
-            return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
+                // Save the reservation
+                unitOfWork.ReservationRepository.Create(reservation);
+                unitOfWork.Complete();
+
+                TempData["SuccessMessage"] = "Booking successful!";
+                return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
+
+            
         }
+
+
 
         public IActionResult Pay(int reservationId)
         {
@@ -202,7 +189,8 @@ namespace HotelReservation.Areas.Customer.Controllers
                     Currency = "egp",
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        Name = $"Hotel: {reservation.Hotel.Name}, Rooms: {reservation.RoomCount}"
+                        Name = $"Hotel: {reservation.Hotel.Name}, Rooms: {reservation.RoomCount}",
+                        Description=$"CheckInDate: {reservation.CheckInDate}  CheckOutDate: {reservation.CheckOutDate}"
                     },
                     UnitAmountDecimal = (decimal?)(reservation.TotalPrice * 100),
                 },
@@ -219,6 +207,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             return Redirect(session.Url);
         }
+       
         public IActionResult CheckOutSuccess()
         {
             var appUser = userManager.GetUserId(User);
@@ -229,38 +218,49 @@ namespace HotelReservation.Areas.Customer.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-
-            //var reservations = unitOfWork.ReservationRepository.Get(
-            //    include: [
-            //r => r.ReservationRooms,
-            //r => r.ReservationRooms.Select(rr => rr.Room)
-            //    ],
-            //    where: r => r.UserId == appUser
-            //).ToList();
-
-            var reservations = unitOfWork.ReservationRepository.GetReservationRoom(appUser);
+            var reservations = unitOfWork.ReservationRoomRepository.Get(
+                include: new Expression<Func<ReservationRoom, object>>[] { e => e.Reservation, e => e.Room },
+                where: e => e.Reservation.UserId == appUser
+            );
 
             foreach (var reservation in reservations)
             {
-                foreach (var reservationRoom in reservation.ReservationRooms)
+                
+                if (reservation != null && reservation.Reservation.CheckInDate.Date == DateTime.Now.Date)
                 {
-                    var room = reservationRoom.Room;
-                    if (room != null)
-                    {
-                        room.IsAvailable = false;
-                    }
+                    reservation.Room.IsAvailable = false;
+                    unitOfWork.RoomRepository.Update(reservation.Room);
                 }
             }
+
+            unitOfWork.Complete();
+
             TempData["Success"] = "Payment successful! Your reservations have been confirmed.";
             return View();
         }
 
 
-        public IActionResult CancelCheckout()
+        public IActionResult CancelCheckout(int reservationId)
         {
+            
+            var reservation = unitOfWork.ReservationRepository.GetOne(where:r => r.Id == reservationId);
+            var reservationRoom = unitOfWork.ReservationRoomRepository.GetOne(where:e=>e.ReservationID== reservationId);
+            if (reservationRoom != null)
+            {
+                unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
+                unitOfWork.Complete();
+            }
+
+            if (reservation != null)
+            {
+                unitOfWork.ReservationRepository.Delete(reservation);
+                unitOfWork.Complete();
+            }
+
             TempData["Error"] = "Your payment was canceled. Please try again if you'd like to complete your booking.";
             return View();
         }
+
 
 
     }

@@ -12,22 +12,26 @@ else
         <img src="~/images/homeImage/@Model.CoverImg" class="img-fluid" alt="Hotel Image">
     </div>
 }
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
 
-
-<br />
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Display Toastr notifications for TempData
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>toastr.error('@TempData["ErrorMessage"]');</text>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>toastr.success('@TempData["SuccessMessage"]');</text>
+    }
+    });
+</script>
 
 <form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
     <input type="hidden" name="HotelId" value="@Model.Id" />
     <input type="hidden" name="RoomType" value="@ViewBag.Type.RoomType" />
     <input type="hidden" name="PricePN" value="@ViewBag.Type.PricePN" />
     <input type="hidden" name="MealPrice" value="@ViewBag.Type.MealPrice" />
-
 
     <div class="form-group">
         <label for="adults">Number of Adults:</label>
@@ -39,22 +43,17 @@ else
         <input type="number" id="children" name="NChildren" value="0" min="0" class="form-control" onchange="updateChildAgeInputs()" />
     </div>
 
-    <div class="form-group" id="childAgesContainer">
-        <!-- Dynamic child age inputs will be appended here -->
-    </div>
+    <div class="form-group" id="childAgesContainer"></div>
 
     <div class="form-group">
         <label for="checkInDate">Check-In Date:</label>
         <input type="date" id="checkInDate" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
-       
     </div>
 
     <div class="form-group">
         <label for="checkOutDate">Check-Out Date:</label>
         <input type="date" id="checkOutDate" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
-        
     </div>
-
 
     <div class="form-group">
         <label for="meals">Include Meals:</label>
@@ -76,16 +75,13 @@ else
 
     <button type="submit" class="btn btn-primary">Confirm Booking</button>
 </form>
+
 <script>
     function updateChildAgeInputs() {
         const numberOfChildren = document.getElementById("children").value;
         const childAgesContainer = document.getElementById("childAgesContainer");
         childAgesContainer.innerHTML = "";
-        
-        // Initialize the counter for children above 6 years old
-        let childrenAboveSix = 0;
 
-        // Loop to generate inputs for each child
         for (let i = 0; i < numberOfChildren; i++) {
             const input = document.createElement("input");
             input.type = "number";
@@ -93,55 +89,10 @@ else
             input.placeholder = `Age of Child ${i + 1}`;
             input.className = "form-control mt-2";
             input.required = true;
-
-            // Listen for changes in the age input
-            input.addEventListener('input', function() {
-                const childAge = parseInt(input.value);
-                // Check if the child's age is above 6
-                if (childAge > 6) {
-                    childrenAboveSix++;
-                } else {
-                    childrenAboveSix = Math.max(childrenAboveSix - 1, 0); // Avoid negative count
-                }
-
-                // Update the number of adults based on the number of children above 6 years
-                const currentAdultCount = document.getElementById("adults").value;
-                const newAdultCount = 1 + childrenAboveSix;
-
-                if (newAdultCount !== parseInt(currentAdultCount)) {
-                    document.getElementById("adults").value = newAdultCount;
-
-                    // Display the notification message
-                    showNotification(`Number of adults has been updated to ${newAdultCount}`);
-                }
-            });
-
             childAgesContainer.appendChild(input);
         }
     }
 
-    function showNotification(message) {
-        const notification = document.createElement("div");
-        notification.className = "alert alert-info alert-dismissible fade show";
-        notification.role = "alert";
-        notification.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-        
-        // Append the notification to the form
-        const form = document.querySelector('.booking-form');
-        form.insertBefore(notification, form.firstChild);
-
-        // Remove the notification after 3 seconds
-        setTimeout(() => {
-            notification.classList.remove('show');
-
-            // Scroll the form back to the top after the notification disappears
-            form.scrollIntoView({ behavior: 'smooth' });
-        }, 3000);
-    }
-
-
-</script>
-<script>
     document.addEventListener("DOMContentLoaded", function () {
         const checkInInput = document.getElementById('checkInDate');
         const checkOutInput = document.getElementById('checkOutDate');
@@ -152,16 +103,14 @@ else
             const checkOutDate = new Date(checkOutInput.value);
             const now = new Date();
 
-            // Check if Check-In date is in the past
             if (checkInDate < now.setHours(0, 0, 0, 0)) {
-                alert("Check-In date cannot be in the past.");
+                toastr.error("Check-In date cannot be in the past.");
                 event.preventDefault();
                 return false;
             }
 
-            // Ensure Check-Out is after Check-In
             if (checkOutDate <= checkInDate) {
-                alert("Check-Out date must be after Check-In date.");
+                toastr.error("Check-Out date must be after Check-In date.");
                 event.preventDefault();
                 return false;
             }
@@ -169,6 +118,8 @@ else
     });
 </script>
 
- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
- 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.5.4/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>

@@ -1,15 +1,18 @@
 ﻿using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Utilities.Profles;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
     [Area("Company")]
+    [Authorize(Roles = SD.CompanyRole)]
     public class HotelsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
