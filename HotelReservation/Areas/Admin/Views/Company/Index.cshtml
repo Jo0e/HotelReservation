@@ -5,7 +5,7 @@
 }
 
 <h1 class="text-center my-4">Company List</h1>
-<form class="d-flex mb-4" method="get" asp-action="Index">
+<form class="d-flex mb-4" id="searchForm" method="get" asp-action="Index">
     <input class="form-control me-sm-2"
            type="search"
            placeholder="Search by UserName or Email or PhoneNumber or Address  "
@@ -54,18 +54,12 @@
 <!-- Pagination -->
 <nav aria-label="Page navigation example" class="mt-5">
     <ul class="pagination justify-content-center">
-        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage - 1)">Previous</a>
-        </li>
         @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
         {
             <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+                <a class="page-link pagination-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
             </li>
         }
-        <li class="page-item @(ViewBag.CurrentPage == Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "disabled" : "")">
-            <a class="page-link" href="?pageNumber=@(ViewBag.CurrentPage + 1)">Next</a>
-        </li>
     </ul>
 </nav>
 <!-- Delete Modal -->
