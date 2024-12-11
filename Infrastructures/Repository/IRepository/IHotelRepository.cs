@@ -6,5 +6,6 @@ namespace Infrastructures.Repository.IRepository
     {
         Hotel HotelsWithAmenities(int id);
         ICollection<Hotel> HotelsWithCity(string city);
+        Hotel HotelDetails(int hotelId);
     }
 }
