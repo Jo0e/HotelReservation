@@ -1,0 +1,47 @@
+﻿
+@model Models.Models.Reservation
+
+@{
+    ViewData["Title"] = "Edit Reservation";
+}
+
+<h2>Edit Reservation</h2>
+
+<form asp-action="Edit" method="post">
+    <div class="form-group">
+        <label asp-for="RoomCount" class="control-label"></label>
+        <input asp-for="RoomCount" class="form-control" />
+        <span asp-validation-for="RoomCount" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NAdult" class="control-label"></label>
+        <input asp-for="NAdult" class="form-control" />
+        <span asp-validation-for="NAdult" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NChildren" class="control-label"></label>
+        <input asp-for="NChildren" class="form-control" />
+        <span asp-validation-for="NChildren" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CheckInDate" class="control-label"></label>
+        <input asp-for="CheckInDate" type="date" class="form-control" />
+        <span asp-validation-for="CheckInDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CheckOutDate" class="control-label"></label>
+        <input asp-for="CheckOutDate" type="date" class="form-control" />
+        <span asp-validation-for="CheckOutDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TotalPrice" class="control-label"></label>
+        <input asp-for="TotalPrice" class="form-control" />
+        <span asp-validation-for="TotalPrice" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="HotelId" />
+        <button type="submit" class="btn btn-success">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

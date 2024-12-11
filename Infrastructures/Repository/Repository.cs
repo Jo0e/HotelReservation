@@ -49,6 +49,7 @@ namespace Infrastructures.Repository
         {
             return Get(include, where, tracked).FirstOrDefault();
         }
+        
 
         public IQueryable<T> ThenInclude<TProperty, TThenProperty>(Expression<Func<T, TProperty>> include,
             Expression<Func<TProperty, TThenProperty>> thenInclude)
