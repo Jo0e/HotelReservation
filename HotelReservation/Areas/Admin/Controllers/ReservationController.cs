@@ -53,15 +53,20 @@ namespace HotelReservation.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Delete(int reservationId) 
         {
-            var reservations = unitOfWork.ReservationRepository.GetOne(where: e => e.Id == reservationId);
-            if (reservations == null) 
+            var reservation = unitOfWork.ReservationRepository.GetOne(where: e => e.Id == reservationId, include: [e => e.Hotel, e => e.User]);
+            var reservationRoom = unitOfWork.ReservationRoomRepository.GetOne(include: [e => e.Room], where: e => e.ReservationID == reservationId);
+            if (reservation == null || reservationRoom == null)
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            unitOfWork.ReservationRepository.Delete(reservations);
-            unitOfWork.Complete();
-            return RedirectToAction("Index");
 
+            reservationRoom.Room.IsAvailable = true;
+            unitOfWork.RoomRepository.Update(reservationRoom.Room);
+            unitOfWork.Complete();
+            unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
+            unitOfWork.Complete();
+            unitOfWork.ReservationRepository.Delete(reservation);
+            return RedirectToAction("Index");
         }
     }
 }
