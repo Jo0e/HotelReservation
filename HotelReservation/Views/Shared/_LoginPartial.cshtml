@@ -18,9 +18,10 @@
              data-bs-toggle="tooltip"
              title="View your profile" />
         <style>
-            .btn-primary {
+            .btn-primary3 {
                 background: linear-gradient(45deg, #007bff, #0056b3);
                 transition: 0.3s;
+                padding: 0px 10px;
             }
 
                 .btn-primary:hover {
@@ -30,10 +31,10 @@
         </style>
         <div class="profile-details ms-3">
             <h5 class="mb-0">Hello, @UserManager.GetUserName(User).Substring(0, user.Email.IndexOf('@')) !</h5>
-            <a id="manage" class="btn btn-sm text-light custom-btn btn-primary" style="box-shadow:none;padding:10px" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
+            <a class="btn btn-sm text-light custom-btn btn-primary btn-primary3" style="box-shadow:none;" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
         </div>
         <div>
-            <a style="box-shadow:none;padding:0px 5px 0px 5px;margin:3px 0px 0px 10px;height: 1.5rem" class="btn btn-primary btn-sm text-light custom-btn" style="margin-right:15px;" asp-area="" asp-controller="ContactUs" asp-action="Create">
+            <a style="box-shadow:none;padding:0px 5px 0px 5px;margin:3px 0px 0px 10px;height: 1.5rem" class="btn btn-primary btn-primary3 btn-sm text-light custom-btn" style="margin-right:15px;" asp-area="" asp-controller="ContactUs" asp-action="Create">
                 Contact Us
             </a>
         
@@ -50,62 +51,7 @@ else
         <a class="btn btn-secondary" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
     </div>
 }
-<style>
-    /* Profile container styling */
-    .profile-container {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
 
-    /* Profile image styling */
-    .profile-image {
-        width: 55px;
-        height: 55px;
-        object-fit: cover;
-        border: 2px solid #007bff;
-    }
-
-    /* Profile details */
-    .profile-details {
-        margin-left: 15px;
-    }
-
-        .profile-details h5 {
-            margin: 0;
-            color: #333;
-        }
-
-    /* Buttons */
-    .btn-outline-primary {
-        color: #007bff;
-        border-color: #007bff;
-    }
-
-        .btn-outline-primary:hover {
-            background-color: #007bff;
-            color: #fff;
-        }
-
-    .btn-outline-danger {
-        color: #dc3545;
-        border-color: #dc3545;
-    }
-
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: #fff;
-        }
-
-    /* Auth links */
-    .auth-links .btn {
-        margin-right: 10px;
-    }
-
-</style>
 <script>
         // Initialize tooltips
     document.addEventListener("DOMContentLoaded", function () {

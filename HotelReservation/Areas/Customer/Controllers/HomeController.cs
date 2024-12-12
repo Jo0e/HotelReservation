@@ -102,9 +102,9 @@ namespace HotelReservation.Areas.Customer.Controllers
         public IActionResult Details(int id)
         {
             var hotel = unitOfWork.HotelRepository.HotelDetails(id);
-
             if (hotel != null)
             {
+                ViewBag.Rate = CalculateAverageRating(id);
                 ViewBag.Comment = unitOfWork.CommentRepository.Get
                     (where: h => h.HotelId == id, include: [u => u.User]);
                 return View(hotel);
@@ -213,6 +213,16 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Index");
         }
 
+
+        public double CalculateAverageRating(int hotelId)
+        {
+            var ratings = unitOfWork.RatingRepository.Get(where: r => r.HotelId == hotelId);
+            if (ratings.Any())
+            {
+                return ratings.Average(r => r.Value);
+            }
+            return 0.0;
+        }
         // Privacy page (static content)
         public IActionResult Privacy()
         {
