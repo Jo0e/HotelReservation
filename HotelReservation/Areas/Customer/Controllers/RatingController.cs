@@ -36,7 +36,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             unitOfWork.RatingRepository.Create(rating);
             unitOfWork.Complete();
-
+            TempData["success"] = "Thank you for your rating!";
             return RedirectToAction("Details", "Hotel", new { id = hotelId });
         }
 

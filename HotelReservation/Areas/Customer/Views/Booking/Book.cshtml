@@ -12,20 +12,21 @@ else
         <img src="~/images/homeImage/@Model.CoverImg" class="img-fluid" alt="Hotel Image">
     </div>
 }
+@section Scripts {
+        ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Display Toastr notifications for TempData
-    @if (TempData["ErrorMessage"] != null)
+    @if (TempData["Error"] != null)
     {
-        <text>toastr.error('@TempData["ErrorMessage"]');</text>
+        <script>
+            toastr.error('@TempData["Error"]');
+        </script>
     }
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <text>toastr.success('@TempData["SuccessMessage"]');</text>
-    }
-    });
-</script>
+}
 
 <form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
     <input type="hidden" name="HotelId" value="@Model.Id" />

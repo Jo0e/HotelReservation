@@ -50,6 +50,7 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 unitOfWork.CouponRepository.Create(coupon);
                 unitOfWork.Complete();
+                TempData["success"] = "Coupon created successfully.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -76,7 +77,7 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 unitOfWork.CouponRepository.Update(coupon);
                 unitOfWork.Complete();
-
+                TempData["success"] = "Coupon updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
             return View(coupon);
@@ -91,7 +92,7 @@ namespace HotelReservation.Areas.Company.Controllers
 
             unitOfWork.CouponRepository.Delete(coupon);
             unitOfWork.Complete();
-
+            TempData["success"] = "Company deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

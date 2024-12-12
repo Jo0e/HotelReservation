@@ -65,6 +65,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                     unitOfWork.HotelAmenitiesRepository.Create(amenity);
                 }
                 unitOfWork.Complete();
+                TempData["success"] = "Amenities successfully assigned to the hotel.";
                 return RedirectToAction(nameof(Index));
             }
             if (amenitiesId.Count == 0)
@@ -74,6 +75,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 {
                     unitOfWork.HotelAmenitiesRepository.DeleteRange(toDelete);
                     unitOfWork.Complete();
+                    TempData["success"] = "All amenities successfully removed from the hotel.";
                 }
             }
             return RedirectToAction(nameof(Index));
@@ -87,6 +89,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             var hotelAmenities = new HotelAmenities { AmenityId = amenityId, HotelId = hotelId };
             unitOfWork.HotelAmenitiesRepository.Delete(hotelAmenities);
             unitOfWork.Complete();
+            TempData["success"] = "Amenity successfully removed from the hotel.";
             return RedirectToAction(nameof(Index));
         }
     }

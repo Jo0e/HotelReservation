@@ -104,7 +104,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 // Check if there are enough available rooms after checkout
                 if (availableRoomsAfterCheckout == null || availableRoomsAfterCheckout.Count < viewModel.RoomCount)
                 {
-                    TempData["ErrorMessage"] = "No rooms available for your selected dates or near future.";
+                    TempData["Error"] = "No rooms available for your selected dates or near future.";
                     return RedirectToAction(nameof(Book), new { hotelId = viewModel.HotelId });
                 }
 
@@ -141,8 +141,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 // Save the reservation
                 unitOfWork.ReservationRepository.Create(reservation);
                 unitOfWork.Complete();
-
-                TempData["SuccessMessage"] = "Booking successful!";
+                TempData["Success"] = "Booking successful!";
                 return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
 
             

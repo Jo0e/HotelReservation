@@ -4,6 +4,15 @@
     ViewData["Title"] = "Amenities";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts {
+        ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+}
+
 <br />
 <h1>Amenities</h1>
 @* <p class="text-center mt-3"> *@
