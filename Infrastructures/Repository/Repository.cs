@@ -49,6 +49,7 @@ namespace Infrastructures.Repository
         {
             return Get(include, where, tracked).FirstOrDefault();
         }
+        
 
         public IQueryable<T> ThenInclude<TProperty, TThenProperty>(Expression<Func<T, TProperty>> include,
             Expression<Func<TProperty, TThenProperty>> thenInclude)
@@ -78,6 +79,12 @@ namespace Infrastructures.Repository
             dbSet.Remove(entity);
         }
 
+        public void DeleteRange(IEnumerable<T> entity)
+        {
+            dbSet.RemoveRange(entity);
+        }
+
+
         public void Commit()
         {
             context.SaveChanges();
@@ -91,10 +98,18 @@ namespace Infrastructures.Repository
         {
             if (imageFile != null && imageFile.Length > 0)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\{imageFolder}", fileName);
 
-                using (var stream = File.Create(filePath))
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\{imageFolder}");
+
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                var filePath = Path.Combine(directoryPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     imageFile.CopyTo(stream);
                 }

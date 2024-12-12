@@ -1,0 +1,85 @@
+﻿@using Models.Models
+@model Hotel
+
+@{
+    ViewData["Title"] = "Edit Hotel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var companyId = ViewBag.CompanyId;
+}
+
+<style>
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #ffc107;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+        background-color: #ffc107;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #e0a800;
+        }
+</style>
+
+<h1>Edit Hotel</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Stars" class="control-label"></label>
+                <input asp-for="Stars" class="form-control" min="1" max="5" />
+                <span asp-validation-for="Stars" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CoverImg" class="control-label"></label>
+                <input type="file" name="ImgFile" class="form-control" />
+                <small class="form-text text-muted">Leave empty to keep the current image.</small>
+            </div>
+            <div class="form-group">
+                <input asp-for="CompanyId" class="form-control" type="hidden" value="@ViewData["CompanyId"]" />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

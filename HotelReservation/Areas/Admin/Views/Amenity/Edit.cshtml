@@ -1,0 +1,37 @@
+﻿@model Models.Models.Amenity
+
+@{
+    ViewData["Title"] = "Edit Amenity";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h1 class="text-center text-primary mb-4">@ViewData["Title"]</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 bg-light p-4 rounded shadow">
+            <form asp-action="Edit" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Name" class="form-control" placeholder="Amenity Name" required />
+                    <label asp-for="Name">Amenity Name</label>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Img" class="form-label">Upload Image</label>
+                    <input asp-for="Img" type="file" class="form-control" />
+                    <span asp-validation-for="Img" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

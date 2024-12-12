@@ -6,22 +6,19 @@ namespace Models.Models
     public class Company
     {
         public int Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Please enter name")]
         public string UserName { get; set; }
         [Required]
-        [DataType(DataType.EmailAddress)]
+        [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; }
         [Required]
-        [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
         [Required]
-        [DataType(DataType.Password)]
-        public string Passwords { get; set; }
+        public string Addres { get; set; }
+        [ValidateNever]
+        public string? ProfileImage { get; set; }
         [Required]
-        [DataType(DataType.Password)]
-        [Compare(nameof(Passwords))]
-        public string ConfirmPassword { get; set; }
-
+        public string Passwords { get; set; }
         [ValidateNever]
         public ICollection<Hotel> Hotels { get; set; }
     }

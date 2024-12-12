@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models.Models
 {
@@ -7,7 +8,9 @@ namespace Models.Models
     {
         public int HotelId { get; set; }
         public int AmenityId { get; set; }
+        [ValidateNever]
         public Amenity Amenity { get; set; }
+        [ValidateNever]
         public Hotel Hotel { get; set; }
 
     }

@@ -1,4 +1,6 @@
-﻿using Infrastructures.Repository.IRepository;
+﻿using AutoMapper;
+using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 
@@ -7,101 +9,108 @@ namespace HotelReservation.Areas.Admin.Controllers
     [Area("Admin")]
     public class RoomController : Controller
     {
-        private readonly IRoomRepository roomRepository;
-        private readonly IHotelRepository hotelRepository;
-        private readonly IRepository<RoomType> typeRepository;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IMapper mapper;
 
-        public RoomController(IRoomRepository roomRepository, IHotelRepository hotelRepository, IRepository<RoomType> TypeRepository)
+        public RoomController(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            this.roomRepository = roomRepository;
-            this.hotelRepository = hotelRepository;
-            typeRepository = TypeRepository;
+            this.unitOfWork = unitOfWork;
+            this.mapper = mapper;
         }
 
         // GET: RoomController
-        public ActionResult Index(int id)
+        public ActionResult Index(int id, string roomType = "All")
         {
-
-            IEnumerable<Room> rooms;
             if (id != 0)
             {
-                Response.Cookies.Append("HotelId", id.ToString());
-                rooms = roomRepository.Get(where: e => e.HotelId == id, include: [e => e.Hotel, w => w.RoomType]);
-                return View(rooms);
+                Response.Cookies.Append("HotelIdCookie", id.ToString());
             }
-            else if (id == 0)
+            else
             {
-                var hotelId = int.Parse(Request.Cookies["HotelId"]);
-                rooms = roomRepository.Get(where: e => e.HotelId == hotelId, include: [e => e.Hotel, w => w.RoomType]);
-                return View(rooms);
+                id = int.Parse(Request.Cookies["HotelIdCookie"]);
             }
-            return NotFound();
 
+            var rooms = unitOfWork.RoomRepository.Get(
+                where: e => e.HotelId == id && (roomType == "All" || e.RoomType.Type.ToString() == roomType),
+                include: [e => e.Hotel, w => w.RoomType]
+            );
+
+            ViewBag.HotelId = id;
+            ViewBag.RoomType = roomType;
+            return View(rooms);
         }
 
-
         // GET: RoomController/Create
-        public ActionResult Create()
+        public ActionResult Create(int hotelId)
         {
-            var hotelId = int.Parse(Request.Cookies["HotelId"]);
+            //var hotelId = int.Parse(Request.Cookies["HotelId"]);
             ViewBag.HotelId = hotelId;
-            ViewBag.Type = typeRepository.Get();
+            ViewBag.Type = unitOfWork.RoomTypeRepository.Get(where: t => t.HotelId == hotelId);
             return View();
         }
 
         // POST: RoomController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Room room)
+        public ActionResult Create(Room room, int count)
         {
-            //room.HotelId = hotelId;
-
-            roomRepository.Create(room);
-            roomRepository.Commit();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                var rooms = new List<Room>();
+                for (int i = 0; i < count; i++)
+                {
+                    var newRoom = mapper.Map<Room>(room);
+                    rooms.Add(newRoom);
+                }
+                unitOfWork.RoomRepository.AddRange(rooms);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(room);
         }
 
-        // GET: RoomController/Edit/5
-        //public ActionResult Book(int id)
-        //{
-        //    var room = roomRepository.GetOne(where: r => r.Id == id);
-        //    roomRepository.Update(room);
-        //    return View();
-        //}
 
         // POST: RoomController/Edit/5
 
         public ActionResult Book(int id)
         {
-            var room = roomRepository.GetOne(where: r => r.Id == id);
-            if (room.IsAvailable == true)
+            var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
+            if (room == null)
             {
-                room.IsAvailable = false;
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            else
-            {
-                room.IsAvailable = true;
-            }
-            roomRepository.Update(room);
-            roomRepository.Commit();
+
+            room.IsAvailable = !room.IsAvailable;
+            unitOfWork.RoomRepository.Update(room);
+            unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
 
         // GET: RoomController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            var room = roomRepository.GetOne(where: a => a.Id == id, include: [e => e.Hotel, w => w.RoomType]);
-            return View(room);
-        }
+        //public ActionResult Delete(int id)
+        //{
+        //    var room = unitOfWork.RoomRepository.GetOne(where: a => a.Id == id,
+        //        include: [e => e.Hotel, w => w.RoomType]);
+        //    if (room == null)
+        //    {
+        //        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+        //    }
+        //    return View(room);
+        //}
 
         // POST: RoomController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(Room room)
         {
-            roomRepository.Delete(room);
-            roomRepository.Commit();
-            return RedirectToAction(nameof(Index));
+            if (unitOfWork.RoomRepository.GetOne(where: e => e.Id == room.Id) != null)
+            {
+                unitOfWork.RoomRepository.Delete(room);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+
         }
     }
 }

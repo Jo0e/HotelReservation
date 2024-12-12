@@ -1,0 +1,59 @@
+﻿@using Models.Models
+@model ImageList
+
+@{
+    ViewData["Title"] = "CreateImgList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<style>
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #007bff;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+</style>
+
+<h1>Add Images</h1>
+<h4>Image List</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="CreateImgList" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ImgUrl" class="control-label"></label>
+                <input asp-for="ImgUrl" type="file" class="form-control" multiple />
+                <span asp-validation-for="ImgUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="HotelId" type="hidden" name="HotelId" value="@ViewBag.HotelId" />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Upload</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
