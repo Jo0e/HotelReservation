@@ -1,4 +1,9 @@
 ﻿@model ICollection<Coupon>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 <br />
 <form class="d-flex mb-4" id="searchForm" method="get" asp-action="Index">
     <input class="form-control me-sm-2"

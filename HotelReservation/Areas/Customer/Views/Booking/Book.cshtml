@@ -40,7 +40,7 @@ else
 
     <div class="form-group">
         <label for="children">Number of Children:</label>
-        <input type="number" id="children" name="NChildren" value="0" min="0" class="form-control" onchange="updateChildAgeInputs()" />
+        <input type="number" id="children" name="NChildren" value="0" min="0" max="10" class="form-control" onchange="updateChildAgeInputs()" />
     </div>
 
     <div class="form-group" id="childAgesContainer"></div>
@@ -65,7 +65,7 @@ else
 
     <div class="form-group">
         <label for="rooms">Number of Rooms:</label>
-        <input type="number" id="rooms" name="RoomCount" value="1" min="1" required class="form-control" />
+        <input type="number" id="rooms" name="RoomCount" value="1" min="1"  required class="form-control" />
     </div>
 
     <div class="form-group">
@@ -89,6 +89,8 @@ else
             input.placeholder = `Age of Child ${i + 1}`;
             input.className = "form-control mt-2";
             input.required = true;
+            input.max =18;
+            input.min=1;
             childAgesContainer.appendChild(input);
         }
     }

@@ -29,7 +29,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 hotelId = int.Parse(Request.Cookies["HotelId"]);
             }
-            var types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
+            var types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId, include: [h=>h.Hotel]);
             ViewBag.HotelId = hotelId;
             return View(types);
         }

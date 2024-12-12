@@ -4,7 +4,7 @@
     ViewData["Title"] = "Available Rooms";
 }
 
-<h1 class="my-4">Available Rooms</h1>
+<h1 class="my-4 text-center">Available Rooms</h1>
 
 @if (Model.Any())
 {
@@ -13,31 +13,37 @@
         .GroupBy(room => room.RoomType.Type)
         .SelectMany(group => group.GroupBy(r => new { r.RoomType.PricePN, r.RoomType.MealPrice })
                                   .Select(g => g.First()));
+    <div class="container">
+        <div class="row">
+            @foreach (var room in distinctRooms)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Room Type: @room.RoomType.Type <i class="fa-sharp-duotone fa-solid fa-bed"></i></h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Price per night: <strong>@room.RoomType.PricePN EGP</strong></p>
+                            <p class="card-text">Max Persons: <strong>@room.RoomType.MaxPersons</strong></p>
+                            <p class="card-text">
+                                Meal Price: <strong>@(room.RoomType.MealPrice?.ToString("C") ?? "Not available")</strong>
+                            </p>
+                            <p class="card-text">Available rooms count: <strong>@room.RoomType.Rooms.Count(e => e.IsAvailable)</strong></p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <form asp-controller="Booking" asp-action="Book" method="get">
+                                <input type="hidden" name="HotelId" value="@room.HotelId" />
+                                <input type="hidden" name="RoomType" value="@room.RoomType.Type" />
+                                <input type="hidden" name="PricePN" value="@room.RoomType.PricePN" />
+                                <input type="hidden" name="MealPrice" value="@room.RoomType.MealPrice" />
 
-    <div class="row">
-        @foreach (var room in distinctRooms)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Room Type: @room.RoomType.Type</h5>
-                        <p class="card-text">Price per night: <strong>@room.RoomType.PricePN EGP</strong></p>
-                        <p class="card-text">
-                            Meal Price: <strong>@(room.RoomType.MealPrice?.ToString() ?? "Not available")</strong>
-                        </p>
-
-                        <form asp-controller="Booking" asp-action="Book" method="get">
-                            <input type="hidden" name="HotelId" value="@room.HotelId" />
-                            <input type="hidden" name="RoomType" value="@room.RoomType.Type" />
-                            <input type="hidden" name="PricePN" value="@room.RoomType.PricePN" />
-                            <input type="hidden" name="MealPrice" value="@room.RoomType.MealPrice" />
-
-                            <button type="submit" class="btn btn-primary">Book Now</button>
-                        </form>
+                                <button type="submit" class="btn btn-success btn-block">Book Now</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 }
 else

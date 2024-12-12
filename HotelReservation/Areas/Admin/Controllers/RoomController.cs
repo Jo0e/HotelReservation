@@ -87,25 +87,30 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
 
         // GET: RoomController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            var room = unitOfWork.RoomRepository.GetOne(where: a => a.Id == id,
-                include: [e => e.Hotel, w => w.RoomType]);
-            if (room == null)
-            {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-            }
-            return View(room);
-        }
+        //public ActionResult Delete(int id)
+        //{
+        //    var room = unitOfWork.RoomRepository.GetOne(where: a => a.Id == id,
+        //        include: [e => e.Hotel, w => w.RoomType]);
+        //    if (room == null)
+        //    {
+        //        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+        //    }
+        //    return View(room);
+        //}
 
         // POST: RoomController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(Room room)
         {
-            unitOfWork.RoomRepository.Delete(room);
-            unitOfWork.Complete();
-            return RedirectToAction(nameof(Index));
+            if (unitOfWork.RoomRepository.GetOne(where: e => e.Id == room.Id) != null)
+            {
+                unitOfWork.RoomRepository.Delete(room);
+                unitOfWork.Complete();
+                return RedirectToAction(nameof(Index));
+            }
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+
         }
     }
 }
