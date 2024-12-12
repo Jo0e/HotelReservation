@@ -42,7 +42,6 @@ namespace HotelReservation.Areas.Customer.Controllers
                     Date = DateTime.Now
                 };
                 unitOfWork.RatingRepository.Create(rating);
-                TempData["success"] = "Thank you for your rating!";
             }
             else
             {
@@ -51,7 +50,6 @@ namespace HotelReservation.Areas.Customer.Controllers
                 unitOfWork.RatingRepository.Update(existingRating);
             }
                 unitOfWork.Complete();
-            TempData["success"] = "Your rating has been updated!";
 
             return Json(new { success = true, message = "Thank you for your rating!" });
 
