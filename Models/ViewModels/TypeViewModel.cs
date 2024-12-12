@@ -12,5 +12,6 @@ namespace Models.ViewModels
         public Models.Type RoomType { get; set; }
         public int PricePN { get; set; }
         public int? MealPrice { get; set; }
+        public int? MaxPersons { get; set; }
     }
 }

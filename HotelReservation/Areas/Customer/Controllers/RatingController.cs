@@ -1,10 +1,12 @@
 ﻿using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Models.Models;
 
 namespace HotelReservation.Areas.Customer.Controllers
 {
+    [Area("Customer")]
     public class RatingController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -17,27 +19,40 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddRating(int hotelId, double value)
         {
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
+            var userId =  userManager.GetUserId(User);
+            if (userId == null)
             {
                 return RedirectToAction("NotFound");
             }
-
-            var rating = new Rating
+            var hasReservation = unitOfWork.ReservationRepository.Get(where: h => h.HotelId == hotelId && h.UserId == userId);
+            if (!hasReservation.Any())
             {
-                Value = value,
-                HotelId = hotelId,
-                UserId = user.Id,
-                Date = DateTime.Now
-            };
+                return Json(new { success = false, message = "You can only rate hotels you've stayed at." });
+            }
+            var existingRating = unitOfWork.RatingRepository.GetOne(where: r => r.HotelId == hotelId && r.UserId == userId);
+            if (existingRating == null)
+            {
+                var rating = new Rating
+                {
+                    Value = value,
+                    HotelId = hotelId,
+                    UserId = userId,
+                    Date = DateTime.Now
+                };
+                unitOfWork.RatingRepository.Create(rating);
+            }
+            else
+            {
+                existingRating.Value = value;
+                existingRating.Date = DateTime.Now;
+                unitOfWork.RatingRepository.Update(existingRating);
+            }
+                unitOfWork.Complete();
 
-            unitOfWork.RatingRepository.Create(rating);
-            unitOfWork.Complete();
-            TempData["success"] = "Thank you for your rating!";
-            return RedirectToAction("Details", "Hotel", new { id = hotelId });
+            return Json(new { success = true, message = "Thank you for your rating!" });
+
         }
 
         // Method to calculate average rating
