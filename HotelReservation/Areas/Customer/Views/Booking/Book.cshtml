@@ -1,83 +1,130 @@
 ﻿@model Hotel
+@{
+    ViewData["Title"] = "Book";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
+<style>
+
+    .hotel-section h1 {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .hotel-section p {
+        font-size: 1rem;
+        margin-top: 15px;
+    }
+</style>
 @if (Model == null)
 {
-    <p class="text-danger">Hotel details could not be loaded.</p>
+    <div class="alert alert-danger text-center" role="alert">
+        Hotel details could not be loaded.
+    </div>
 }
 else
 {
-    <div class="hotel-details">
-        <h1>@Model.Name</h1>
-        <p>@Model.Description</p>
-        <img src="~/images/homeImage/@Model.CoverImg" class="img-fluid" alt="Hotel Image">
+    <div class="container my-5">
+        <div class="row">
+            <!-- Hotel Details Section -->
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="hotel-details card shadow-sm">
+                        <img src="~/images/homeImage/@Model.CoverImg" class="card-img-top" alt="Hotel Image">
+                        <div class="card-body hotel-section">
+                            <h1 class="card-title text-center">@Model.Name</h1>
+                            <p class="card-text text-muted">@Model.Description</p>
+                            <p>
+                                Stars:
+                                @for (int i = 0; i < Model.Stars; i++)
+                                {
+                                    <i class="bi bi-star-fill" style="color: gold;"></i>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-0 mt-3">
+
+                        <div class="card h-100 w-100 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">Room Type: @ViewBag.Type.RoomType <i class="fa-sharp-duotone fa-solid fa-bed"></i></h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Price per night: <strong>@ViewBag.Type.PricePN EGP</strong></p>
+                                <p class="card-text">Max Persons: <strong>@ViewBag.Type.MaxPersons</strong></p>
+                                <p class="card-text">
+                                    Meal Price: <strong>@(ViewBag.Type.MealPrice?.ToString("C") ?? "Not available")</strong>
+                                </p>
+                                <p class="card-text">Available rooms count: <strong>@ViewBag.availableRooms</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Booking Form Section -->
+            <div class="col-md-9">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Booking Form</h3>
+                        <form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
+                            <input type="hidden" name="HotelId" value="@Model.Id" />
+                            <input type="hidden" name="RoomType" value="@ViewBag.Type.RoomType" />
+                            <input type="hidden" name="PricePN" value="@ViewBag.Type.PricePN" />
+                            <input type="hidden" name="MealPrice" value="@ViewBag.Type.MealPrice" />
+
+                            <div class="mb-3">
+                                <label for="adults" class="form-label">Number of Adults</label>
+                                <input type="number" id="adults" name="NAdult" value="1" min="1" required class="form-control" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="children" class="form-label">Number of Children</label>
+                                <input type="number" id="children" name="NChildren" value="0" min="0" max="10" class="form-control" onchange="updateChildAgeInputs()" />
+                            </div>
+
+                            <div class="mb-3" id="childAgesContainer"></div>
+
+                            <div class="mb-3">
+                                <label for="checkInDate" class="form-label">Check-In Date</label>
+                                <input type="date" id="checkInDate" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="checkOutDate" class="form-label">Check-Out Date</label>
+                                <input type="date" id="checkOutDate" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="meals" class="form-label">Include Meals</label>
+                                <select id="meals" name="IncludesMeal" class="form-select">
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="rooms" class="form-label">Number of Rooms</label>
+                                <input type="number" id="rooms" name="RoomCount" value="1" min="1" required class="form-control" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="coupon" class="form-label">Have a Coupon?</label>
+                                <input type="text" id="coupon" name="CouponCode" placeholder="Optional" class="form-control" />
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 }
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Display Toastr notifications for TempData
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <text>toastr.error('@TempData["ErrorMessage"]');</text>
-    }
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <text>toastr.success('@TempData["SuccessMessage"]');</text>
-    }
-    });
-</script>
-
-<form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
-    <input type="hidden" name="HotelId" value="@Model.Id" />
-    <input type="hidden" name="RoomType" value="@ViewBag.Type.RoomType" />
-    <input type="hidden" name="PricePN" value="@ViewBag.Type.PricePN" />
-    <input type="hidden" name="MealPrice" value="@ViewBag.Type.MealPrice" />
-
-    <div class="form-group">
-        <label for="adults">Number of Adults:</label>
-        <input type="number" id="adults" name="NAdult" value="1" min="1" required class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="children">Number of Children:</label>
-        <input type="number" id="children" name="NChildren" value="0" min="0" max="10" class="form-control" onchange="updateChildAgeInputs()" />
-    </div>
-
-    <div class="form-group" id="childAgesContainer"></div>
-
-    <div class="form-group">
-        <label for="checkInDate">Check-In Date:</label>
-        <input type="date" id="checkInDate" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="checkOutDate">Check-Out Date:</label>
-        <input type="date" id="checkOutDate" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="meals">Include Meals:</label>
-        <select id="meals" name="IncludesMeal" class="form-control">
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="rooms">Number of Rooms:</label>
-        <input type="number" id="rooms" name="RoomCount" value="1" min="1"  required class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="coupon">Have a Coupon?</label>
-        <input type="text" id="coupon" name="CouponCode" placeholder="Optional" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Confirm Booking</button>
-</form>
-
-<script>
-    function updateChildAgeInputs() {
+            function updateChildAgeInputs() {
         const numberOfChildren = document.getElementById("children").value;
         const childAgesContainer = document.getElementById("childAgesContainer");
         childAgesContainer.innerHTML = "";
@@ -94,7 +141,6 @@ else
             childAgesContainer.appendChild(input);
         }
     }
-
     document.addEventListener("DOMContentLoaded", function () {
         const checkInInput = document.getElementById('checkInDate');
         const checkOutInput = document.getElementById('checkOutDate');
@@ -120,7 +166,9 @@ else
     });
 </script>
 
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.5.4/umd/popper.min.js"></script>

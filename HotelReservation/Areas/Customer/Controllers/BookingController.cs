@@ -39,7 +39,6 @@ namespace HotelReservation.Areas.Customer.Controllers
 
 
             var roomsCount = rooms.Select(a => a.IsAvailable == true).Count();
-
             return View(rooms);
         }
 

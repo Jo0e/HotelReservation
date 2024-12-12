@@ -216,12 +216,103 @@ label {
     font-size: 0.9em;
 }
 
-.replies {
-    margin-top: 10px;
-    padding-left: 20px;
-    border-left: 2px solid #eee;
+/* Navbar Styling */
+.navbar {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.reply {
-    margin-bottom: 10px;
+.navbar-brand {
+    font-size: 1.5rem;
+    color: #fff !important;
+}
+
+    .navbar-brand i {
+        margin-right: 8px;
+    }
+
+.navbar-nav .nav-link {
+    color: #ffffffd9;
+    font-weight: 500;
+    padding: 10px 15px;
+    transition: all 0.3s;
+}
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+    }
+
+.navbar-toggler-icon {
+    filter: brightness(0) invert(1);
+}
+
+/* Profile container styling */
+.profile-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile image styling */
+.profile-image {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border: 2px solid #007bff;
+}
+
+/* Profile details */
+.profile-details {
+    margin-left: 15px;
+}
+
+    .profile-details h5 {
+        margin: 0;
+        color: #333;
+    }
+
+
+
+/* Auth links */
+.auth-links .btn {
+    margin-right: 10px;
+}
+
+
+
+.toast {
+    background-color: #343a40; /* Default dark background */
+    color: #fff; /* Default white text */
+    border-radius: 4px;
+}
+
+.toast-success {
+    background-color: #28a745 !important; /* Success color */
+}
+
+.toast-error {
+    background-color: #dc3545 !important; /* Error color */
+}
+
+.toast-warning {
+    background-color: #ffc107 !important; /* Warning color */
+    color: #212529; /* Dark text for contrast */
+}
+
+.toast-info {
+    background-color: #17a2b8 !important; /* Info color */
+}
+
+.toast-close-button {
+    color: #fff; /* White close button */
+}
+
+.toast-progress {
+    background-color: rgba(255, 255, 255, 0.7); /* White progress bar */
 }
