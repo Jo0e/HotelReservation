@@ -4,6 +4,21 @@
     ViewData["Title"] = "Amenities List";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts{
+    ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            toastr.error('@TempData["Error"]');
+        </script>
+    }
+}
 
 <div class="container mt-5">
     <h1 class="text-center text-primary mb-4">@ViewData["Title"]</h1>

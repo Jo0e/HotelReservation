@@ -4,7 +4,15 @@
 @{
     ViewData["Title"] = "Reservations";
 }
+@section Scripts {
+            ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
 
+}
 <h2>Reservations</h2>
 
 <table class="table">

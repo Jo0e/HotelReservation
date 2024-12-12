@@ -5,6 +5,14 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 
 }
+@section Scripts{
+    ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+}
 
 <h1 class="text-center my-4">Company List</h1>
 <form class="d-flex mb-4" id="searchForm" method="get" asp-action="Index">

@@ -4,6 +4,14 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts {
+            ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+}
 <br />
 <form class="d-flex mb-4" id="searchForm" method="get" asp-action="Index">
     <input class="form-control me-sm-2"
@@ -86,7 +94,7 @@
     </div>
 </div>
 
-@section Scripts {
+
     <script>
         var deleteModal = document.getElementById('deleteModal');
         deleteModal.addEventListener('show.bs.modal', function (event) {
@@ -102,4 +110,4 @@
             confirmDelete.href = '/Admin/Coupon/Delete?couponId=' + couponId;
         });
     </script>
-}
+

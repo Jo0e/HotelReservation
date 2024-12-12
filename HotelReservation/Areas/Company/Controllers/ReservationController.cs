@@ -54,6 +54,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 {
                     unitOfWork.ReservationRepository.Update(reservation);
                     unitOfWork.Complete();
+                    TempData["success"] = "Reservation Updated successfully.";
                     return RedirectToAction(nameof(Index), new { id = reservation.HotelId });
                 }
                 catch
@@ -92,6 +93,7 @@ namespace HotelReservation.Areas.Company.Controllers
             unitOfWork.Complete();
             unitOfWork.ReservationRepository.Delete(reservation);
             unitOfWork.Complete();
+            TempData["success"] = "Reservation deleted successfully.";
             return RedirectToAction(nameof(Index), new { id = reservation.HotelId });
         }
     }

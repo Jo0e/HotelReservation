@@ -39,6 +39,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
+                TempData["success"] = "Amenity created successfully!";
                 return RedirectToAction(nameof(Index));
             } 
             return View(amenity);
@@ -62,6 +63,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 var oldAmenity = unitOfWork.AmenityRepository.GetOne(where: a => a.Id == amenity.Id);
                 if (oldAmenity == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
+                TempData["success"] = "Amenity updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(amenity);
@@ -82,6 +84,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             unitOfWork.AmenityRepository.DeleteWithImage(amenity, "amenities",amenity.Img);
             unitOfWork.Complete();
+            TempData["success"] = "Amenity deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
     }

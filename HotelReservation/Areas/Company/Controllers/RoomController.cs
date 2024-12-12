@@ -85,6 +85,8 @@ namespace HotelReservation.Areas.Company.Controllers
                 }
                 unitOfWork.RoomRepository.AddRange(rooms);
                 unitOfWork.Complete();
+                TempData["success"] = $"Successfully created {count} room(s).";
+
                 return RedirectToAction(nameof(Index));
             }
             return View(room);
@@ -102,6 +104,7 @@ namespace HotelReservation.Areas.Company.Controllers
 
             unitOfWork.RoomRepository.Update(room);
             unitOfWork.Complete();
+            TempData["success"] = room.IsAvailable ? "Room is now available." : "Room is now unavailable.";
 
             return RedirectToAction(nameof(Index), new { id = room.HotelId });
         }
@@ -132,6 +135,7 @@ namespace HotelReservation.Areas.Company.Controllers
             }
             unitOfWork.RoomRepository.Delete(room);
             unitOfWork.Complete();
+            TempData["success"] = "Room deleted successfully.";
 
             return RedirectToAction(nameof(Index), new { id = room.HotelId });
         }

@@ -1,5 +1,21 @@
 ﻿@model ICollection<Hotel>
 
+@section Scripts {
+        ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            toastr.error('@TempData["Error"]');
+        </script>
+    }
+}
+
 <style>
     .container {
         margin-top: 30px;

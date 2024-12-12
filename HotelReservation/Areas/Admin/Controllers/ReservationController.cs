@@ -60,6 +60,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             }
             unitOfWork.ReservationRepository.Delete(reservations);
             unitOfWork.Complete();
+            TempData["success"] = "Reservation deleted successfully.";
             return RedirectToAction("Index");
 
         }

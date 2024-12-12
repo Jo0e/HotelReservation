@@ -81,6 +81,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                             ModelState.AddModelError(string.Empty, error.Description);
                         }
                     }
+                    TempData["success"] = "User unlocked successfully.";
                 }
                 else
                 {
@@ -93,6 +94,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                             ModelState.AddModelError(string.Empty, error.Description);
                         }
                     }
+                    TempData["success"] = "User locked successfully.";
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -145,6 +147,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                     var oldRole =await userManager.GetRolesAsync(appUser);
                    await userManager.RemoveFromRolesAsync(appUser,oldRole);
                    await userManager.AddToRoleAsync(appUser, role);
+                    TempData["success"] = "User updated successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 foreach (var error in result.Errors)
@@ -169,7 +172,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 TempData["Error"] = "Error";
             }
-             return RedirectToAction(nameof(Index));
+            TempData["success"] = "User deleted successfully.";
+            return RedirectToAction(nameof(Index));
 
         }
     }

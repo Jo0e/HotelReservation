@@ -6,6 +6,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     string folderName = ViewBag.HotelName;
 }
+@section Scripts {
+            ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+
+}
 <div class="row mt-5">
     <div class="col-9 mb-3">
         <h1>ImageList</h1>

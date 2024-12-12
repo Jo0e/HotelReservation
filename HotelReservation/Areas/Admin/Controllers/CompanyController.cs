@@ -88,6 +88,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                     company.Passwords = newUser.PasswordHash;
                     unitOfWork.CompanyRepository.Create(company);
                     unitOfWork.Complete();
+                    TempData["success"] = "Company created successfully.";
 
                     return RedirectToAction(nameof(Index));
                 }
@@ -146,7 +147,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 company.ProfileImage = appUser.ProfileImage;
                 unitOfWork.CompanyRepository.Update(company);
                 unitOfWork.Complete();
-
+                TempData["success"] = "Company updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -168,7 +169,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
             unitOfWork.CompanyRepository.Delete(company);
             unitOfWork.Complete();
-
+            TempData["success"] = "Company deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 
