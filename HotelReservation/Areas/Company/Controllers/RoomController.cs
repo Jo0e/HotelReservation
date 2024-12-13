@@ -101,13 +101,8 @@ namespace HotelReservation.Areas.Company.Controllers
            }
 
            room.IsAvailable = !room.IsAvailable;
-
-
           unitOfWork.RoomRepository.Update(room);
            unitOfWork.Complete();
-
-            unitOfWork.RoomRepository.Update(room);
-            unitOfWork.Complete();
             TempData["success"] = room.IsAvailable ? "Room is now available." : "Room is now unavailable.";
 
 
