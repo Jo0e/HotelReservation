@@ -84,11 +84,14 @@ namespace HotelReservation.Areas.Company.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             var reservation = unitOfWork.ReservationRepository.GetOne(where: e => e.Id == id, include: [e=>e.Hotel,e=>e.User]);
-            var reservationRoom = unitOfWork.ReservationRoomRepository.GetOne(where: e => e.ReservationID == id);
+            var reservationRoom = unitOfWork.ReservationRoomRepository.GetOne(include : [e=>e.Room],where: e => e.ReservationID == id);
             if (reservation == null || reservationRoom == null)
             {
                 return NotFound();
             }
+            reservationRoom.Room.IsAvailable= true;
+            unitOfWork.RoomRepository.Update(reservationRoom.Room);
+            unitOfWork.Complete();
             unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
             unitOfWork.Complete();
             unitOfWork.ReservationRepository.Delete(reservation);

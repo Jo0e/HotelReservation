@@ -96,15 +96,15 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
             if (room == null)
-            {
+           {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-            }
+           }
 
-            room.IsAvailable = !room.IsAvailable;
-
-            unitOfWork.RoomRepository.Update(room);
-            unitOfWork.Complete();
+           room.IsAvailable = !room.IsAvailable;
+          unitOfWork.RoomRepository.Update(room);
+           unitOfWork.Complete();
             TempData["success"] = room.IsAvailable ? "Room is now available." : "Room is now unavailable.";
+
 
             return RedirectToAction(nameof(Index), new { id = room.HotelId });
         }

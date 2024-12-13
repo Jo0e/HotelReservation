@@ -57,10 +57,10 @@
                     </a>
                 </li>
             }
-            else
+            @if(User.IsInRole(SD.CompanyRole))
             {
                 <li class="nav-item">
-                    <a asp-area="Company" asp-controller="Hotel" asp-action="Index" class="nav-link btn btn-primary" id="btnHotels">
+                    <a asp-area="Company" asp-controller="Hotels" asp-action="Index" class="nav-link btn btn-primary" id="btnHotels">
                         <i class="fa-solid fa-hotel"></i> Manage Hotels
                     </a>
                 </li>

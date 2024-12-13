@@ -25,9 +25,8 @@ namespace Models.Models
         public Hotel Hotel { get; set; }
         [ValidateNever]
         public ICollection<ReservationRoom> ReservationRooms { get; set; }
-
-
-
+        public string Status { get; set; } = "Pending";  // Default status is "Pending"
+        public DateTime CreatedAt { get; set; } = DateTime.Now;  // Track when the reservation was created
 
         public static ValidationResult ValidateCheckInOutDate(DateTime checkOutDate, ValidationContext context)
         {
