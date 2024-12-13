@@ -109,6 +109,17 @@
     <script>
         AOS.init();
     </script>
+    <style>
+        
+        .toast-top-right {
+            top: 83px; 
+        }
+    </style>
+    <script>
+        toastr.options = {
+            "positionClass": "toast-top-right", 
+        };
+    </script>
 
 
     @await RenderSectionAsync("Scripts", required: false)

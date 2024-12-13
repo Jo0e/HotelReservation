@@ -4,6 +4,14 @@
     ViewData["Title"] = "Hotel Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts {
+            ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+}
 <br />
 <div class="row">
     <div class="col-9 mb-3">

@@ -51,6 +51,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.RoomTypeRepository.Create(roomType);
                 unitOfWork.Complete();
+                TempData["success"] = "Room type created successfully.";
                 return RedirectToAction(nameof(Index));
             }
             return View(roomType);
@@ -73,6 +74,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.RoomTypeRepository.Update(roomType);
                 unitOfWork.Complete();
+                TempData["success"] = "Room type updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
             return View(roomType);
@@ -85,6 +87,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (type == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.RoomTypeRepository.Delete(type);
             unitOfWork.Complete();
+            TempData["success"] = "Room type deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

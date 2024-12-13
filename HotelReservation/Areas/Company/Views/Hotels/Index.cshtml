@@ -5,6 +5,14 @@
     ViewData["Title"] = "Hotel List";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts {
+        ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+}
 
 <style>
     /* General Styling */

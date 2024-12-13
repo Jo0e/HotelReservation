@@ -50,6 +50,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 var message = ConfirmationMessage(user.Id);
                 unitOfWork.MessageRepository.Create(message);
                 unitOfWork.Complete();
+                TempData["Success"] = "Your message has been submitted successfully.";
                 return RedirectToAction("Index","Home");
             }
             return View(model: contactUs);

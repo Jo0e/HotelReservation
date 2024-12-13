@@ -130,6 +130,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 UserId = user.Id,
             };
             unitOfWork.CommentRepository.Create(NewComment);
+            TempData["success"] = "Comment added successfully!";
             unitOfWork.Complete();
             return RedirectToAction("Details", new { id = hotelId });
         }
@@ -146,7 +147,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             comment.CommentString = commentString;
             comment.IsEdited = true;
             unitOfWork.Complete();
-
+            TempData["success"] = "Comment edited successfully!";
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
 
@@ -196,6 +197,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             };
             unitOfWork.ContactUsRepository.Create(contactUs);
             unitOfWork.Complete();
+            TempData["success"] = "Your comment report has been submitted successfully.";
             return RedirectToAction("Index");
 
         }
@@ -209,6 +211,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             {
                 unitOfWork.CommentRepository.Delete(toDelete);
                 unitOfWork.Complete();
+                TempData["success"] = "Comment deleted successfully!";
             }
             return RedirectToAction("Index");
         }
@@ -320,11 +323,11 @@ namespace HotelReservation.Areas.Customer.Controllers
                     }
                 }
 
-                TempData["SuccessMessage"] = "Logo deleted successfully!";
+                TempData["success"] = "Logo deleted successfully!";
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error occurred while deleting the logo: " + ex.Message;
+                TempData["Error"] = "Error occurred while deleting the logo: " + ex.Message;
             }
 
             return RedirectToAction("AddLogo");

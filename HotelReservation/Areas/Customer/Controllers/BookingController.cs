@@ -89,6 +89,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 include: [r => r.RoomType]
             ).ToList();
 
+
             // Fetch rooms near checkout
             var nearCheckoutRooms = unitOfWork.RoomRepository.Get(
                 where: r => r.HotelId == typeModel.HotelId
@@ -97,6 +98,24 @@ namespace HotelReservation.Areas.Customer.Controllers
                                                        && rr.Reservation.CheckOutDate <= viewModel.CheckInDate),
                 include: [r => r.ReservationRooms, r => r.RoomType]
             ).ToList();
+
+            // Fetch the next available rooms after CheckOutDate
+            var nextAvailableRooms = unitOfWork.RoomRepository.Get(
+                    where: r => r.HotelId == typeModel.HotelId
+                             && r.RoomType.Type == typeModel.RoomType
+                             && r.RoomType.PricePN == typeModel.PricePN
+                             && !r.IsAvailable,
+                    include: [r => r.ReservationRooms]).ToList();
+
+               
+              
+                // Check if there are enough available rooms after checkout
+                if (availableRoomsAfterCheckout == null || availableRoomsAfterCheckout.Count < viewModel.RoomCount)
+                {
+                    TempData["Error"] = "No rooms available for your selected dates or near future.";
+                    return RedirectToAction(nameof(Book), new { hotelId = viewModel.HotelId });
+                }
+
 
             // Check if there are enough available rooms after checkout
             if (availableRoomsAfterCheckout == null || availableRoomsAfterCheckout.Count < viewModel.RoomCount)
@@ -119,6 +138,13 @@ namespace HotelReservation.Areas.Customer.Controllers
             var totalMealPrice = viewModel.IncludesMeal ? (typeModel.MealPrice ?? 0) : 0;
             var totalPrice = (typeModel.PricePN + totalMealPrice) * viewModel.RoomCount *
                              (viewModel.CheckOutDate - viewModel.CheckInDate).Days;
+
+                // Save the reservation
+                unitOfWork.ReservationRepository.Create(reservation);
+                unitOfWork.Complete();
+                TempData["Success"] = "Booking successful!";
+                return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
+
 
             // Create a reservation
             var reservation = new Reservation

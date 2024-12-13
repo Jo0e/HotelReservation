@@ -3,6 +3,21 @@
     ViewData["Title"] = "Book";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts {
+            ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            toastr.error('@TempData["Error"]');
+        </script>
+    }
+}
 
 <style>
 

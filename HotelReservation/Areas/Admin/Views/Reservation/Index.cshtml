@@ -3,6 +3,14 @@
 @{
     ViewData["Title"] = "Reservations";
 }
+@section Scripts {
+            ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+}
 <h2>@Model.Select(z=>z.Hotel.Name).FirstOrDefault()</h2>
 <h2>Reservations</h2>
 

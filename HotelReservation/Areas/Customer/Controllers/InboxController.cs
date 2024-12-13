@@ -39,6 +39,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 message.IsReadied = true;
                 unitOfWork.MessageRepository.Update(message);
                 unitOfWork.Complete();
+                TempData["success"] = "Message marked as read.";
             }
             return RedirectToAction("Index");
         }
@@ -49,6 +50,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             {
                 unitOfWork.MessageRepository.Delete(toDelete);
                 unitOfWork.Complete();
+                TempData["success"] = "Message deleted successfully.";
             }
             return RedirectToAction("Index");
         }

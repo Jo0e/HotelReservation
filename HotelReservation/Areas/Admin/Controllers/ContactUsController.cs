@@ -45,6 +45,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.MessageRepository.Create(message);
                 unitOfWork.Complete();
+                TempData["success"] = "Response sent successfully.";
                 return RedirectToAction("Index");
             }
 
@@ -70,6 +71,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.ContactUsRepository.DeleteWithImage(toDelete, "ContactUsImages",toDelete.UserImgRequest);
                 unitOfWork.Complete();
+                TempData["success"] = "Message deleted successfully.";
             }
             return RedirectToAction("Index");
         }
