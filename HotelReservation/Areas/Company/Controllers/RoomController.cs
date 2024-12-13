@@ -92,27 +92,27 @@ namespace HotelReservation.Areas.Company.Controllers
             return View(room);
         }
         // POST: RoomsController/Book/5
-        //public ActionResult Book(int id)
-        //{
-        //    var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
-        //    if (room == null)
-        //    {
-        //        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-        //    }
+        public ActionResult Book(int id)
+        {
+            var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
+            if (room == null)
+           {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+           }
 
-        //    room.IsAvailable = !room.IsAvailable;
+           room.IsAvailable = !room.IsAvailable;
 
 
-        //    unitOfWork.RoomRepository.Update(room);
-        //    unitOfWork.Complete();
+          unitOfWork.RoomRepository.Update(room);
+           unitOfWork.Complete();
 
             unitOfWork.RoomRepository.Update(room);
             unitOfWork.Complete();
             TempData["success"] = room.IsAvailable ? "Room is now available." : "Room is now unavailable.";
 
 
-        //    return RedirectToAction(nameof(Index), new { id = room.HotelId });
-        //}
+            return RedirectToAction(nameof(Index), new { id = room.HotelId });
+        }
 
         public ActionResult Delete(int id)
         {
