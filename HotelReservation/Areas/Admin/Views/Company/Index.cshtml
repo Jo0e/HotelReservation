@@ -3,10 +3,10 @@
 @{
     ViewData["Title"] = "Company List";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
-@section Scripts{
-    ﻿﻿@if (TempData["success"] != null)
+
+@section Scripts {
+    @if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
@@ -18,7 +18,7 @@
 <form class="d-flex mb-4" id="searchForm" method="get" asp-action="Index">
     <input class="form-control me-sm-2"
            type="search"
-           placeholder="Search by UserName or Email or PhoneNumber or Address  "
+           placeholder="Search by UserName, Email, PhoneNumber, or Address"
            value="@ViewBag.searchText"
            name="search" />
     <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
@@ -28,7 +28,7 @@
     <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New</a>
 </p>
 <div class="table-responsive">
-    <table class="table table-hover align-middle ">
+    <table class="table table-hover align-middle table-bordered">
         <thead class="table-dark text-center">
             <tr>
                 <th>@Html.DisplayNameFor(model => model.UserName)</th>
@@ -51,16 +51,21 @@
                         <img src="~/images/profile/@item.Email/@item.ProfileImage" class="img-thumbnail rounded-circle" style="width: 50px; height: 50px; object-fit: cover;" alt="Profile Image" />
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm"><i class="bi-pencil-square "></i> Edit</a>
-                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id">
-                            <i class="bi bi-trash"></i> Delete
-                        </button>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
 <!-- Pagination -->
 <nav aria-label="Page navigation example" class="mt-5">
     <ul class="pagination justify-content-center">
@@ -72,6 +77,7 @@
         }
     </ul>
 </nav>
+
 <!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">

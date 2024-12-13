@@ -4,87 +4,90 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 @section Scripts {
-            ﻿﻿@if (TempData["success"] != null)
+    @if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
         </script>
     }
 }
+
 <br />
-<form class="d-flex mb-4" id="searchForm" method="get" asp-action="Index">
-    <input class="form-control me-sm-2"
-           type="search"
-           placeholder="Search by Code or Discount or ExpireDate "
-           value="@ViewBag.searchText"
-           name="search" />
-    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+<form class="d-flex mb-4 shadow-sm p-3 bg-white rounded" id="searchForm" method="get" asp-action="Index">
+    <input class="form-control me-sm-2 border-primary" type="search" placeholder="Search by Code, Discount, or Expire Date" value="@ViewBag.searchText" name="search" />
+    <button class="btn btn-primary my-2 my-sm-0" type="submit">Search</button>
 </form>
-<div class="row mt-3" >
-    <div class="col-9 mb-3">
-        <h2>
-            All Coupons
-        </h2>
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-9">
+        <h2 class="text-primary">All Coupons</h2>
     </div>
-    <div class="col-3">
-        <a href="/Admin/Coupon/Create" type="button" class="btn btn-warning">Create New Coupon</a>
+    <div class="col-md-3 text-end">
+        <a href="/Admin/Coupon/Create" type="button" class="btn btn-success shadow-sm"><i class="bi bi-plus-circle"></i> Create New Coupon</a>
     </div>
 </div>
 
-<table class="table table-hover">
-    <thead>
-        <tr class="table-primary">
-            <th scope="col">#</th>
-            <th scope="col">Code</th>
-            <th scope="col">Limit</th>
-            <th scope="col">Discount</th>
-            <th scope="col">Expire Date</th>
-            <th scope="col">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-hover align-middle table-bordered shadow-sm">
+        <thead class="table-primary text-center">
             <tr>
-                <th scope="row">@item.Id</th>
-                <td>@item.Code</td>
-                <td>@item.Limit</td>
-                <td>@item.Discount</td>
-                <td>@item.ExpireDate</td>
-                <td>
-                    <a href="/Admin/Coupon/Edit?couponId=@item.Id" class="btn btn-dark">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </a>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" data-code="@item.Code">
-                        <i class="bi bi-trash3-fill"></i> Delete
-                    </button>
-                </td>
+                <th scope="col">#</th>
+                <th scope="col">Code</th>
+                <th scope="col">Limit</th>
+                <th scope="col">Discount</th>
+                <th scope="col">Expire Date</th>
+                <th scope="col">Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="row" class="text-center">@item.Id</th>
+                    <td>@item.Code</td>
+                    <td class="text-center">@item.Limit</td>
+                    <td class="text-center">@item.Discount</td>
+                    <td class="text-center">@item.ExpireDate.ToString("yyyy-MM-dd")</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="/Admin/Coupon/Edit?couponId=@item.Id" class="btn btn-warning btn-sm shadow-sm">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" data-code="@item.Code">
+                                <i class="bi bi-trash3-fill"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
 <!-- Pagination -->
-<nav aria-label="Page navigation example" class="mt-5">
+<nav aria-label="Page navigation example" class="mt-4">
     <ul class="pagination justify-content-center">
         @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
         {
             <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                <a class="page-link pagination-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+                <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
             </li>
         }
     </ul>
 </nav>
+
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete the coupon <strong id="couponCode"></strong>?
+                Are you sure you want to delete the coupon <strong id="couponCode" class="text-danger"></strong>?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -94,20 +97,18 @@
     </div>
 </div>
 
+<script>
+    var deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var couponId = button.getAttribute('data-id');
+        var couponCode = button.getAttribute('data-code');
 
-    <script>
-        var deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var couponId = button.getAttribute('data-id');
-            var couponCode = button.getAttribute('data-code');
+        // Set the coupon code in the modal
+        document.getElementById('couponCode').textContent = couponCode;
 
-            // Set the coupon code in the modal
-            document.getElementById('couponCode').textContent = couponCode;
-
-            // Set the delete link
-            var confirmDelete = document.getElementById('confirmDelete');
-            confirmDelete.href = '/Admin/Coupon/Delete?couponId=' + couponId;
-        });
-    </script>
-
+        // Set the delete link
+        var confirmDelete = document.getElementById('confirmDelete');
+        confirmDelete.href = '/Admin/Coupon/Delete?couponId=' + couponId;
+    });
+</script>

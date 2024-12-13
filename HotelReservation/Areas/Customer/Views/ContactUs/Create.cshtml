@@ -1,4 +1,4 @@
-﻿﻿@using Models.Models
+﻿@using Models.Models
 @model ContactUs
 
 @{
@@ -6,54 +6,55 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
-
-<h4>ContactUs</h4>
+<h1 class="text-center text-primary mb-4">Create ContactUs</h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            @*  <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div> *@
-            <div class="form-group">
-                <label asp-for="Request" class="control-label"></label>
-                <select asp-for="Request" class="form-control" required>
-                    <option selected disabled hidden>Open this select menu</option>
-                    <option value="Complaint">Complaint</option>
-                    <option value="Suggestion">Suggestion</option>
-                    <option value="Company_Request">Company Request</option>
 
-                </select>
-                <span asp-validation-for="Request" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserRequestString" class="control-label">Your Request</label>
-                <textarea asp-for="UserRequestString" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="UserRequestString" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" placeholder="Optional For contact " class="form-control" type="number" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserImgRequest" class="control-label">Img <small>(Optional)</small></label>
-                <input asp-for="UserImgRequest" class="form-control" type="file" name="ImgFile" />
-                <span asp-validation-for="UserImgRequest" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form asp-action="Create" enctype="multipart/form-data" class="p-4 shadow-lg rounded bg-light">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Request" class="form-label fw-bold">Request Type</label>
+                    <select asp-for="Request" class="form-select" required>
+                        <option selected disabled hidden>Open this select menu</option>
+                        <option value="Complaint">Complaint</option>
+                        <option value="Suggestion">Suggestion</option>
+                        <option value="Company_Request">Company Request</option>
+                    </select>
+                    <span asp-validation-for="Request" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="UserRequestString" class="form-label fw-bold">Your Request</label>
+                    <textarea asp-for="UserRequestString" class="form-control" rows="4" placeholder="Enter your request here..."></textarea>
+                    <span asp-validation-for="UserRequestString" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number (Optional)</label>
+                    <input asp-for="PhoneNumber" class="form-control" type="number" placeholder="Enter your phone number for contact (optional)" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="UserImgRequest" class="form-label fw-bold">Upload Image (Optional)</label>
+                    <input asp-for="UserImgRequest" class="form-control" type="file" name="ImgFile" />
+                    <span asp-validation-for="UserImgRequest" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Home
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Create
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-controller="Home" asp-action="Index">Back to Home</a>
 </div>
 
 @section Scripts {
@@ -61,3 +62,33 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .form-label {
+        color: #212529;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+    .shadow-lg {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+</style>
