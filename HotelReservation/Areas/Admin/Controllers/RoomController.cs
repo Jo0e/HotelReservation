@@ -105,9 +105,10 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(Room room)
         {
-            if (unitOfWork.RoomRepository.GetOne(where: e => e.Id == room.Id) != null)
+            var toDelete = unitOfWork.RoomRepository.GetOne(where: e => e.Id == room.Id);
+            if ( toDelete!= null )
             {
-                unitOfWork.RoomRepository.Delete(room);
+                unitOfWork.RoomRepository.Delete(toDelete);
                 unitOfWork.Complete();
                 TempData["success"] = "Room deleted successfully.";
                 return RedirectToAction(nameof(Index));
