@@ -3,21 +3,28 @@
 @{
     ViewData["Title"] = "Index";
 }
-@section Scripts {
+@* @section Scripts {
         ﻿﻿@if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
         </script>
     }
-}
-<div class="container mt-5">
-    <div class="row align-items-center mb-4">
+} *@
+<div class="row container mt-5">
+<div class="col-md-9 d-flex align-items-center mt-3 mb-4">
+    <a asp-controller="Room" asp-action="Index" class="btn btn-outline-primary me-3">
+        <i class="bi bi-arrow-left-circle-fill"></i> Back to List
+    </a>
+    <h1 class=" m-0 justify-content-md-start">@Model.Select(e => e.Hotel.Name).FirstOrDefault() Room Types</h1>
+</div>
+
+    @* <div class="row align-items-center mb-4">
         <div class="col-md-9">
             <h2 class="text-primary">@Model.Select(z => z.Hotel.Name).FirstOrDefault()</h2>
             <h1 class="fw-bold">Room Types</h1>
-        </div>
-        <div class="col-md-3 text-end">
+        </div> *@
+        <div class="col-md-3 text-center">
             <a asp-action="Create" asp-route-hotelId="@ViewBag.HotelId" class="btn btn-success">Create New</a>
         </div>
     </div>
@@ -40,7 +47,10 @@
                         <td>@Html.DisplayFor(modelItem => item.Type)</td>
                         <td>@Html.DisplayFor(modelItem => item.MaxPersons)</td>
                         <td>@Html.DisplayFor(modelItem => item.PricePN)</td>
-                        <td>@Html.DisplayFor(modelItem => item.MealPrice)</td>
+                        <td>
+                        @(item.MealPrice.HasValue ? item.MealPrice.Value.ToString("C") : "No Meal Available")
+
+                        </td>
                         <td>
                             <a asp-action="Edit" class="btn btn-primary btn-sm" asp-route-id="@item.Id">Edit</a>
                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" data-code="@item.Type">

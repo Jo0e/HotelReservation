@@ -33,7 +33,7 @@
 
             <div class="form-group mb-3">
                 <label asp-for="PricePN" class="form-label">Price Per Night</label>
-                <input asp-for="PricePN" class="form-control" required />
+                <input asp-for="PricePN" class="form-control" min="1" required />
                 <span asp-validation-for="PricePN" class="text-danger"></span>
             </div>
 
