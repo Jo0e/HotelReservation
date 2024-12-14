@@ -140,11 +140,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                              (viewModel.CheckOutDate - viewModel.CheckInDate).Days;
 
                 // Save the reservation
-                unitOfWork.ReservationRepository.Create(reservation);
-                unitOfWork.Complete();
-                TempData["Success"] = "Booking successful!";
-                return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
-
+              
 
             // Create a reservation
             var reservation = new Reservation
@@ -171,11 +167,9 @@ namespace HotelReservation.Areas.Customer.Controllers
                 });
             }
 
-            // Save the reservation
             unitOfWork.ReservationRepository.Create(reservation);
             unitOfWork.Complete();
-
-            TempData["SuccessMessage"] = "Booking successful!";
+            TempData["Success"] = "Booking successful!";
             return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
         }
 
