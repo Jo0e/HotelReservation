@@ -62,11 +62,10 @@ namespace HotelReservation.Areas.Admin.Controllers
 
             reservationRoom.Room.IsAvailable = true;
             unitOfWork.RoomRepository.Update(reservationRoom.Room);
-            unitOfWork.Complete();
             unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
-            unitOfWork.Complete();
 
             unitOfWork.ReservationRepository.Delete(reservation);
+            unitOfWork.Complete();
 
             TempData["success"] = "Reservation deleted successfully.";
 
