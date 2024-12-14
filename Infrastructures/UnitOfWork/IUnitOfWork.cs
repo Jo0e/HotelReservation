@@ -22,5 +22,6 @@ namespace Infrastructures.UnitOfWork
         IContactUsRepository ContactUsRepository { get; }
         IMessageRepository MessageRepository { get; }
         int Complete();
+        Task CompleteAsync();
     }
 }

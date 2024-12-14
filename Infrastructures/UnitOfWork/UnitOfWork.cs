@@ -53,6 +53,10 @@ namespace Infrastructures.UnitOfWork
             return _context.SaveChanges();
         }
 
+        public Task CompleteAsync()
+        {
+            return _context.SaveChangesAsync();
+        }
         public void Dispose()
         {
             _context.Dispose();

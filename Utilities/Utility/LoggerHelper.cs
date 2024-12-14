@@ -6,8 +6,10 @@ namespace Utilities.Utility
 {
     public static class LoggerHelper
     {
-        private static readonly string LogDirectory = "Utility/Logs";
+        private static readonly string ProjectRootDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName;
+        private static readonly string LogDirectory = Path.Combine(ProjectRootDirectory, "Utilities", "Logs");
         private static readonly string LogFilePath = Path.Combine(LogDirectory, "AdminActions.json");
+
         public static void LogAdminAction(ILogger logger,string adminId, string adminName, string action, string entityName)
         {
             if (!Directory.Exists(LogDirectory))

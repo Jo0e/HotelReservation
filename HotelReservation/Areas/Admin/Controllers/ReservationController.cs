@@ -1,6 +1,7 @@
 ﻿using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Utilities.Utility;
@@ -12,10 +13,14 @@ namespace HotelReservation.Areas.Admin.Controllers
     public class ReservationController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<ReservationController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public ReservationController(IUnitOfWork unitOfWork)
+        public ReservationController(IUnitOfWork unitOfWork, ILogger<ReservationController> logger,UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
+            this.userManager = userManager;
         }
 
         // GET: ReservationController/Index
@@ -63,13 +68,19 @@ namespace HotelReservation.Areas.Admin.Controllers
             reservationRoom.Room.IsAvailable = true;
             unitOfWork.RoomRepository.Update(reservationRoom.Room);
             unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
-
+            Log("Cancel Reservation",nameof(reservation)+" "+ $"{reservation.Hotel.Name}");
             unitOfWork.ReservationRepository.Delete(reservation);
             unitOfWork.Complete();
 
             TempData["success"] = "Reservation deleted successfully.";
 
             return RedirectToAction("Index");
+        }
+
+        public async void Log(string action, string entity)
+        {
+            var user = await userManager.GetUserAsync(User);
+            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
         }
     }
 }
