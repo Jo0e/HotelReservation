@@ -5,58 +5,75 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts {
-        ﻿﻿@if (TempData["success"] != null)
-        {
-            <script>
-                toastr.success('@TempData["success"]')
-            </script>   
-        }
+    @if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]');
+        </script>
+    }
 }
 
+<h1 class="text-center text-primary mb-4">Contact Requests</h1>
+<hr />
 
-<h1>Index</h1>
-
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.Name)</th>
-            <th>@Html.DisplayNameFor(model => model.Request)</th>
-            <th>@Html.DisplayNameFor(model => model.UserRequestString)</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.Request)</td>
-                <td>
-                    @{
-                        var userRequestString = item.UserRequestString;
-                        var displayString = userRequestString.Length > 20 ? userRequestString.Substring(0, 18) + "..." : userRequestString;
+<div class="container">
+    <div class="table-responsive shadow-lg rounded bg-white p-4">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Request Type</th>
+                    <th>Message Preview</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No records available.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Request)</td>
+                            <td>
+                                @{
+                                    var userRequestString = item.UserRequestString;
+                                    var displayString = userRequestString.Length > 20 ? userRequestString.Substring(0, 18) + "..." : userRequestString;
+                                }
+                                @displayString
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a asp-action="Details" asp-route-reqId="@item.Id" class="btn btn-info btn-sm" title="View Details">
+                                        <i class="bi bi-eye"></i> Details
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm delete-contact" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" title="Delete">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                    <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm read-status @(item.IsReadied ? "is-read" : "")" title="Mark as Read">
+                                        <i class="@(item.IsReadied ? "bi bi-check-circle-fill text-success" : "bi bi-check2-all")"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                    @displayString
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <a asp-action="Details" asp-route-reqId="@item.Id" class="btn btn-info btn-sm"><i class="bi bi-eye"></i> Details</a> |
-                        <button type="button" class="btn btn-danger btn-sm delete-contact" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id"><i class="bi bi-trash"></i> Delete</button> |
-                        <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm  read-status @(item.IsReadied ? "is-read" : "")">
-                            <i class="@(item.IsReadied ? "bi bi-check-circle-fill text-success" : "bi bi-check2-all")"></i>
-                        </a>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -86,125 +103,40 @@
 </script>
 
 <style>
-    .container {
-        max-width: 900px;
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+    }
+
+    .btn-group .btn {
+        margin-right: 5px;
     }
 
     .table-hover tbody tr:hover {
         background-color: #f1f1f1;
     }
 
-    .btn-info {
-        margin-right: 5px;
-    }
-</style>
-<style>
-
-    /* Button Component Styles */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .btn {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: var(--border-radius);
-        font-weight: 500;
-        transition: all 0.2s ease;
+    .table-dark th {
+        color: #fff;
+        text-transform: uppercase;
     }
 
     .btn-sm {
-        padding: 0.25rem 0.75rem;
         font-size: 0.875rem;
     }
 
-    .btn i {
-        font-size: 1em;
-    }
-
-    .read-status {
-        width: 2.5rem;
-        padding: 0.25rem;
-        justify-content: center;
-    }
-
-        .read-status.is-read i {
-            color: var(--success);
-        }
-
-    /* Modal Component Styles */
     .modal-content {
-        border: none;
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-lg);
+        border-radius: 10px;
     }
 
     .modal-header {
-        padding: 1.25rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .modal-title {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-    }
-
-    .modal-body {
-        padding: 1.5rem;
+        border-bottom: none;
     }
 
     .modal-footer {
-        padding: 1.25rem;
-        border-top: 1px solid var(--border-color);
+        border-top: none;
     }
-
-        .modal-footer form {
-            display: flex;
-            gap: 0.5rem;
-            margin-left: auto;
-        }
-
-    /* Table Component Styles */
-    .table-container {
-        background: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-sm);
-        overflow: hidden;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-        .table th {
-            background: var(--gray-50);
-            padding: 1rem;
-            font-weight: 600;
-            text-align: left;
-            color: var(--text-dark);
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
-        }
-
-        .table tbody tr:hover {
-            background-color: var(--gray-50);
-        }
-
-    .truncated-text {
-        cursor: help;
-    }
-
 </style>
