@@ -69,10 +69,10 @@ namespace HotelReservation.Areas.Admin.Controllers
                     var newRoom = mapper.Map<Room>(room);
                     rooms.Add(newRoom);
                 }
-                Log(nameof(Create), nameof(room) + " " + $"count: {count}");
                 unitOfWork.RoomRepository.AddRange(rooms);
                 unitOfWork.Complete();
                 TempData["success"] = $"Successfully created {count} room(s).";
+                Log(nameof(Create), nameof(room) + " " + $"count: {count}");
                 return RedirectToAction(nameof(Index));
             }
             return View(room);
@@ -90,10 +90,10 @@ namespace HotelReservation.Areas.Admin.Controllers
             }
 
             room.IsAvailable = !room.IsAvailable;
-            Log(nameof(Book), nameof(room) + " " + $"Book: {room.IsAvailable}");
             unitOfWork.RoomRepository.Update(room);
             unitOfWork.Complete();
             TempData["success"] = room.IsAvailable ? "Room is now available." : "Room is now unavailable.";
+            Log(nameof(Book), nameof(room) + " " + $"Book: {room.IsAvailable}");
             return RedirectToAction(nameof(Index));
         }
 
@@ -119,7 +119,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.RoomRepository.Delete(toDelete);
                 Log(nameof(Delete), nameof(room) + " " + $"Id: {room.Id}");
-                unitOfWork.Complete();
+                unitOfWork.CompleteAsync();
                 TempData["success"] = "Room deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }

@@ -41,6 +41,11 @@ namespace HotelReservation.Areas.Company.Controllers
                 id = int.Parse(Request.Cookies["HotelIdCookie"]);
             }
 
+            var accesses = CheckAccesses(id);
+            if (!accesses)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             rooms = unitOfWork.RoomRepository.Get(
                 where: e => e.HotelId == id && (roomType == "All" || e.RoomType.Type.ToString() == roomType),
                 include: [e => e.Hotel, w => w.RoomType]
@@ -70,7 +75,11 @@ namespace HotelReservation.Areas.Company.Controllers
         // GET: RoomsController/Create
         public ActionResult Create(int hotelId)
         {
-
+            var accesses = CheckAccesses(hotelId);
+            if (!accesses)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             ViewBag.HotelId = hotelId;
             ViewBag.Type = unitOfWork.RoomTypeRepository.Get(where: t => t.HotelId == hotelId);
             return View();
@@ -99,51 +108,54 @@ namespace HotelReservation.Areas.Company.Controllers
             return View(room);
         }
         // POST: RoomsController/Book/5
-        public ActionResult Book(int id)
+        [HttpPost]
+        public ActionResult Book(int roomId)
         {
-            var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == id);
+            var room = unitOfWork.RoomRepository.GetOne(where: r => r.Id == roomId);
             if (room == null)
-           {
+            {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-           }
+            }
 
-           room.IsAvailable = !room.IsAvailable;
-            Log(nameof(Book), nameof(room) + " " + $"Book: {room.IsAvailable}");
+            room.IsAvailable = !room.IsAvailable;
             unitOfWork.RoomRepository.Update(room);
-           unitOfWork.Complete();
+            unitOfWork.Complete();
+            Log(nameof(Book), nameof(room));
             TempData["success"] = room.IsAvailable ? "Room is now available." : "Room is now unavailable.";
 
 
             return RedirectToAction(nameof(Index), new { id = room.HotelId });
         }
 
-        public ActionResult Delete(int id)
-        {
-            var room = unitOfWork.RoomRepository.GetOne(
-               [e => e.Hotel, w => w.RoomType],
-                where: a => a.Id == id
-            );
+        //public ActionResult Delete(int id)
+        //{
+        //    var room = unitOfWork.RoomRepository.GetOne(
+        //       [e => e.Hotel, w => w.RoomType],
+        //        where: a => a.Id == id
+        //    );
 
-            if (room == null)
-            {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-            }
+        //    if (room == null)
+        //    {
+        //        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+        //    }
 
-            return View(room);
-        }
+        //    return View(room);
+        //}
 
         // POST: RoomsController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(Room room)
+        public ActionResult Delete(int id)
         {
+            var room = unitOfWork.RoomRepository.GetOne(
+               where: a => a.Id == id );
             if (room == null)
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            Log(nameof(Delete), nameof(room) + " " + $"Id: {room.Id}");
             unitOfWork.RoomRepository.Delete(room);
             unitOfWork.Complete();
+            Log(nameof(Delete), $"room Id: {room.Id}");
             TempData["success"] = "Room deleted successfully.";
 
             return RedirectToAction(nameof(Index), new { id = room.HotelId });
@@ -152,6 +164,14 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             var user = await userManager.GetUserAsync(User);
             LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+        }
+
+        private bool CheckAccesses(int hotelId)
+        {
+            var user = userManager.GetUserName(User);
+            var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked: false);
+            var hotel = unitOfWork.HotelRepository.GetOne(where: a => a.CompanyId == company.Id && a.Id == hotelId, tracked: false);
+            return !(hotel == null);
         }
     }
 }

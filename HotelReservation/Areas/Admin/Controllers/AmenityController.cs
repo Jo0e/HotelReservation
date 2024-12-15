@@ -45,8 +45,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
-                Log(nameof(Create), nameof(amenity)+" "+$"{amenity.Name}");
                 TempData["success"] = "Amenity created successfully!";
+                Log(nameof(Create), nameof(amenity)+" "+$"{amenity.Name}");
                 return RedirectToAction(nameof(Index));
             } 
             return View(amenity);
@@ -88,11 +88,11 @@ namespace HotelReservation.Areas.Admin.Controllers
         // POST: AmenityController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(Amenity amenity)
+        public async Task<ActionResult> Delete(Amenity amenity)
         {
             unitOfWork.AmenityRepository.DeleteWithImage(amenity, "amenities",amenity.Img);
             Log(nameof(Delete), nameof(amenity) + " " + $"{amenity.Name}");
-            unitOfWork.Complete();
+            await unitOfWork.CompleteAsync();
             TempData["success"] = "Amenity deleted successfully!";
             return RedirectToAction(nameof(Index));
         }

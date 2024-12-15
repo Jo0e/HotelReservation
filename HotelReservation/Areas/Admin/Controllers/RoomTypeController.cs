@@ -55,9 +55,9 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                Log(nameof(Create),nameof(RoomType)+" " +$"{roomType.Type - roomType.PricePN}");
                 unitOfWork.RoomTypeRepository.Create(roomType);
                 unitOfWork.Complete();
+                Log(nameof(Create),nameof(RoomType)+" " +$"{roomType.Type - roomType.PricePN}");
                 TempData["success"] = "Room type created successfully.";
                 return RedirectToAction(nameof(Index));
             }
@@ -79,10 +79,10 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                Log(nameof(Edit), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
                 unitOfWork.RoomTypeRepository.Update(roomType);
                 unitOfWork.Complete();
                 TempData["success"] = "Room type updated successfully.";
+                Log(nameof(Edit), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
                 return RedirectToAction(nameof(Index));
             }
             return View(roomType);
@@ -95,7 +95,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (type == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.RoomTypeRepository.Delete(type);
             Log(nameof(Delete), nameof(RoomType) + " " + $"{type.Type - type.PricePN}");
-            unitOfWork.Complete();
+            unitOfWork.CompleteAsync();
             TempData["success"] = "Room type deleted successfully.";
             return RedirectToAction(nameof(Index));
         }

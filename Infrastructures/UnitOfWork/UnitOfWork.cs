@@ -2,6 +2,7 @@
 using Infrastructures.Repository.IRepository;
 using Infrastructures.Repository;
 using System;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructures.UnitOfWork
 {
@@ -51,6 +52,10 @@ namespace Infrastructures.UnitOfWork
         public int Complete()
         {
             return _context.SaveChanges();
+        }
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
 
         public Task CompleteAsync()

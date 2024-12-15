@@ -54,9 +54,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.MessageRepository.Create(message);
                 unitOfWork.Complete();
-                TempData["success"] = "Response sent successfully.";
                 Log(nameof(Respond), nameof(message) + " " + $"{message.Title}");
-
+                TempData["success"] = "Response sent successfully.";
                 return RedirectToAction("Index");
             }
 

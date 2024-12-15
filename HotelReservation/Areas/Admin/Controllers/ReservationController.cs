@@ -68,9 +68,9 @@ namespace HotelReservation.Areas.Admin.Controllers
             reservationRoom.Room.IsAvailable = true;
             unitOfWork.RoomRepository.Update(reservationRoom.Room);
             unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
-            Log("Cancel Reservation",nameof(reservation)+" "+ $"{reservation.Hotel.Name}");
             unitOfWork.ReservationRepository.Delete(reservation);
-            unitOfWork.Complete();
+            Log("Cancel Reservation",nameof(reservation)+" "+ $"{reservation.Hotel.Name}");
+            unitOfWork.CompleteAsync();
 
             TempData["success"] = "Reservation deleted successfully.";
 

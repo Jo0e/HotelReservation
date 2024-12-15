@@ -4,7 +4,7 @@
     ViewData["Title"] = "Room Types";
 }
 @section Scripts {
-        ﻿﻿@if (TempData["success"] != null)
+            ﻿﻿@if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
@@ -29,6 +29,7 @@
             <th>@Html.DisplayNameFor(model => model.MealPrice)</th>
             <th>@Html.DisplayNameFor(model => model.PricePN)</th>
             <th>Actions</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -45,6 +46,9 @@
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
+                </td>
+                <td width="20%">
+                    <p class="text-muted text-wrap">If the room type connected to exciting rooms it wont delete</p>
                 </td>
             </tr>
         }
