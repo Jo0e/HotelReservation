@@ -18,9 +18,10 @@ namespace Utilities.Profiles
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
             .ForMember(dest => dest.CouponId, opt => opt.Ignore())       
             .ForMember(dest => dest.Status, opt => opt.Ignore())         
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.NChildren, opt => opt.MapFrom(src => src.NChildren ?? 0));
 
-           
+
         }
     }
 }
