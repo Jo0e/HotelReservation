@@ -5,8 +5,9 @@
     ViewData["Title"] = "Hotels";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 @section Scripts {
-            ﻿﻿@if (TempData["success"] != null)
+    @if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
@@ -14,206 +15,31 @@
     }
 }
 
-<style>
-    body {  
-        font-family: 'Arial', sans-serif;
-        background-color: #f4f7fa;
-        margin: 0;
-        padding: 0;
-    }
-
-    h1 {
-        color: #17a2b8;
-        font-size: 2.5rem;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0px;
-    }
-
-    /* Button Styling */
-    .btn {
-        margin-right: 10px;
-        padding: 10px 15px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-    .btn-info {
-        background-color: #17a2b8;
-        color: white;
-    }
-
-        .btn-info:hover {
-            background-color: #138496;
-        }
-
-    .btn-warning {
-        background-color: #ffc107;
-        color: white;
-    }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-
-    .btn-sm {
-        font-size: 0.875rem;
-        padding: 5px 10px;
-    }
-
-    .btn i {
-        margin-right: 5px;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    th {
-        background-color: #f8f9fa;
-        color: #495057;
-        font-size: 1rem;
-        text-transform: uppercase;
-    }
-
-    td {
-        font-size: 1rem;
-        color: #6c757d;
-    }
-
-    .table-container {
-        margin-top: 20px;
-        padding: 20px;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .img-thumbnail {
-        max-width: 100px;
-        height: auto;
-        border-radius: 5px;
-    }
-
-    .hotel-actions {
-        text-align: center;
-    }
-
-        .hotel-actions a {
-            display: inline-block;
-            margin: 5px;
-            padding: 8px 15px;
-            font-size: 0.9rem;
-        }
-
-            .hotel-actions a:hover {
-                text-decoration: underline;
-            }
-
-    media (max-width: 768px) {
-        .table
-
-    {
-        width: 100%;
-        font-size: 0.9rem;
-    }
-
-    th, td {
-        padding: 10px;
-    }
-
-    .img-thumbnail {
-        max-width: 80px;
-    }
-
-    .hotel-actions {
-        text-align: left;
-        margin-top: 10px;
-    }
-
-    .btn {
-        padding: 6px 12px;
-        font-size: 0.9rem;
-    }
-
-    }
-
-    .dropdown-menu {
-        min-width: 150px;
-    }
-
-    .dropdown-item i {
-        margin-right: 8px;
-    }
-
-    .dropdown-item.text-danger {
-        color: #dc3545;
-    }
-
-        .dropdown-item.text-danger:hover {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-</style>
-    
-    <div class="container">
-    <h1>@ViewData["Title"]</h1>
-
+<div class="container mt-5">
+    <h1 class="text-center text-primary mb-4">@ViewData["Title"]</h1>
     <form class="d-flex mb-4" id="searchForm" method="get" asp-action="Index">
-        <input class="form-control me-sm-2"
+        <input class="form-control me-2"
                type="search"
-               placeholder="Search by Name or City or Address or Company "
+               placeholder="Search by Name, City, Address, or Company"
                value="@ViewBag.searchText"
                name="search" />
-        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+        <button class="btn btn-primary" type="submit">
+            <i class="fas fa-search"></i> Search
+        </button>
     </form>
 
-        <div class="mb-3 d-flex justify-content-between">
-            <a asp-action="Create" class="btn btn-success">
-                <i class="fas fa-plus"></i> Create New
-            </a>
-            <a asp-action="Index" asp-controller="Coupon" class="btn btn-success">
-                <i class="fas fa-tags"></i> Manage Coupons
-            </a>
-        </div>
+    <div class="mb-3 d-flex justify-content-between">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus"></i> Create New
+        </a>
+        <a asp-action="Index" asp-controller="Coupon" class="btn btn-success">
+            <i class="fas fa-tags"></i> Manage Coupons
+        </a>
+    </div>
 
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class=" text-center">
+        <table class="table table-striped align-middle">
+            <thead class="text-center bg-primary text-white">
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.Name)</th>
                     <th>@Html.DisplayNameFor(model => model.Description)</th>
@@ -227,18 +53,26 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Address)</td>
-                        <td>@Html.DisplayFor(modelItem => item.City)</td>
-                        <td>
-                                <img src="~/images/homeImage/@item.CoverImg" class="img-thumbnail" style="max-width: 100px; height: auto;border-radius: 5px;object-fit: cover;" alt="Image"/>
+                    <tr class="text-center">
+                        <td class="border-bottom">@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td class="border-bottom">@Html.DisplayFor(modelItem => item.Description)</td>
+                        <td class="border-bottom">@Html.DisplayFor(modelItem => item.Address)</td>
+                        <td class="border-bottom">@Html.DisplayFor(modelItem => item.City)</td>
+                        <td class="border-bottom">
+                            @if (!string.IsNullOrEmpty(item.CoverImg))
+                            {
+                                <img src="~/images/homeImage/@item.CoverImg"
+                                     class="img-thumbnail"
+                                     style="max-width: 100px; height: auto; border-radius: 5px; object-fit: cover;"
+                                     alt="Hotel Image" />
+                            }
+                            else
+                            {
+                                <span class="text-muted">No Image</span>
+                            }
                         </td>
-                        <td>@Html.DisplayFor(modelItem => item.company.Email)</td>
-
-
-                        <td class="hotel-actions">
+                        <td class="border-bottom">@Html.DisplayFor(modelItem => item.company.Email)</td>
+                        <td class="border-bottom text-center">
                             <div class="dropdown">
                                 <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@item.Id" data-bs-toggle="dropdown" aria-expanded="false">
                                     Actions
@@ -266,7 +100,7 @@
                                     </li>
                                     <li>
                                         <a asp-controller="Reservation" asp-action="Index" asp-route-id="@item.Id" class="dropdown-item">
-                                            <i class="fas fa-cogs"></i> All Reservation
+                                            <i class="fas fa-calendar-alt"></i> All Reservations
                                         </a>
                                     </li>
                                     <li>
@@ -277,24 +111,46 @@
                                 </ul>
                             </div>
                         </td>
-
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-</div>
-<!-- Pagination -->
-<nav aria-label="Page navigation example" class="mt-5">
-    <ul class="pagination justify-content-center">
-        @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
-        {
-            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                <a class="page-link pagination-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
-            </li>
-        }
-    </ul>
-</nav>
-@* <nav aria-label="Page navigation example" class="mt-5">
-</nav> *@
 
+    <!-- Pagination -->
+    <nav aria-label="Page navigation example" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (var i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.searchText" asp-route-pageNumber="@i" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+<style>
+    .dropdown-item i {
+        margin-right: 5px;
+    }
+
+    .table thead th {
+        vertical-align: middle;
+    }
+
+    .table td, .table th {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .pagination .active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .border-bottom {
+        border-bottom: 1px solid #ddd !important;
+    }
+</style>

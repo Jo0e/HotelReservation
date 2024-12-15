@@ -4,69 +4,67 @@
     ViewData["Title"] = "Request Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
     Comment comment = ViewBag.Comment;
-
 }
 
 <div class="container mt-5">
-    <h1 class="mb-4">@ViewData["Title"]</h1>
+    <h1 class="text-center text-primary mb-4">@ViewData["Title"]</h1>
+    <hr />
 
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">User Request Details</h4>
         </div>
         <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">User ID</dt>
-                <dd class="col-sm-9">@Html.DisplayFor(model => model.UserId)</dd>
+            <dl class="row">
+                <dt class="col-sm-4">User ID:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.UserId)</dd>
 
-                <dt class="col-sm-3">Name</dt>
-                <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+                <dt class="col-sm-4">Name:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
 
-                <dt class="col-sm-3">Request Type</dt>
-                <dd class="col-sm-9">@Html.DisplayFor(model => model.Request)</dd>
+                <dt class="col-sm-4">Request Type:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Request)</dd>
 
-                <dt class="col-sm-3">Request</dt>
-                <dd class="col-sm-9">@Html.DisplayFor(model => model.UserRequestString)</dd>
+                <dt class="col-sm-4">Request:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.UserRequestString)</dd>
 
-                <dt class="col-sm-3">Phone Number</dt>
-                @if (Model.PhoneNumber != null)
-                {
-                    <dd class="col-sm-9">@Html.DisplayFor(model => model.PhoneNumber)</dd>
-                }
-                else
-                {
-                    <dd class="col-sm-9 text-muted">No PhoneNumber available.</dd>
-                }
-                <dt class="col-sm-3">Image Request</dt>
-                <dd class="col-sm-9">
-                    @if (Model.UserImgRequest != null)
+                <dt class="col-sm-4">Phone Number:</dt>
+                <dd class="col-sm-8">
+                    @if (Model.PhoneNumber != null)
                     {
-                        <img class="img-fluid rounded" style="max-height: 200px;" src="~/images/ContactUsImages/@Model.UserImgRequest" alt="Request Image" />
+                        @Html.DisplayFor(model => model.PhoneNumber)
                     }
                     else
                     {
-                        <p class="text-muted">No Img available.</p>
+                        <span class="text-muted">No Phone Number available.</span>
                     }
                 </dd>
 
-                <dt class="col-sm-3">Helper </dt>
-                <dd class="col-sm-9">
-                    <dl>
-                        @if (comment != null)
-                        {
-                            <div class="comments-section">
-                                <partial>
-                                    @Html.Partial("_CommentPartial", comment)
-                                </partial>
-                            </div>
-                        }
-                        else
-                        {
-                            <p class="text-muted">No comments available.</p>
-                        }
-                    </dl>
+                <dt class="col-sm-4">Image Request:</dt>
+                <dd class="col-sm-8">
+                    @if (Model.UserImgRequest != null)
+                    {
+                        <img class="img-fluid rounded shadow" style="max-height: 200px;" src="~/images/ContactUsImages/@Model.UserImgRequest" alt="Request Image" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">No Image available.</span>
+                    }
                 </dd>
 
+                <dt class="col-sm-4">Helper:</dt>
+                <dd class="col-sm-8">
+                    @if (comment != null)
+                    {
+                        <div class="bg-light p-3 rounded shadow-sm">
+                            @Html.Partial("_CommentPartial", comment)
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No comments available.</span>
+                    }
+                </dd>
             </dl>
         </div>
     </div>
@@ -76,7 +74,7 @@
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#respondModal">
                 <i class="bi bi-pencil-square"></i> Respond
             </button>
-            <a asp-action="Delete" asp-route-reqId="@Model?.Id" class="btn btn-warning">
+            <a asp-action="Delete" asp-route-reqId="@Model?.Id" class="btn btn-danger">
                 <i class="bi bi-trash"></i> Delete
             </a>
         </div>
@@ -85,11 +83,12 @@
         </a>
     </div>
 </div>
+
 <!-- Respond Modal -->
 <div class="modal fade" id="respondModal" tabindex="-1" aria-labelledby="respondModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="respondModalLabel">Respond to Request</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -108,7 +107,7 @@
                         <label for="messageDescription" class="form-label">Description</label>
                         <textarea class="form-control" id="messageDescription" name="Description" rows="2"></textarea>
                     </div>
-                    <div class="d-grid gap-2">
+                    <div class="d-grid">
                         <button type="submit" class="btn btn-success">Send Message</button>
                     </div>
                 </form>
@@ -118,17 +117,29 @@
 </div>
 
 <style>
-    .container {
-        max-width: 800px;
+    body {
+        background-color: #f9f9f9;
     }
 
     .card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        font-weight: bold;
     }
 
-    .card-body dl {
-        row-gap: 1rem;
+    .btn {
+        margin-right: 5px;
+    }
+
+    img {
+        max-width: 100%;
+        border: 1px solid #ddd;
+        margin-top: 10px;
+    }
+
+    .modal-header {
+        border-bottom: none;
+    }
+
+    .modal-footer {
+        border-top: none;
     }
 </style>
