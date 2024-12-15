@@ -1,4 +1,5 @@
-﻿using Infrastructures.Repository.IRepository;
+﻿using AutoMapper;
+using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +21,14 @@ namespace HotelReservation.Areas.Customer.Controllers
     public class BookingController : Controller
     {
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IMapper mapper;
         private readonly IUnitOfWork unitOfWork;
 
 
-        public BookingController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        public BookingController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager,IMapper mapper)
         {
             this.userManager = userManager;
+            this.mapper = mapper;
             this.unitOfWork = unitOfWork;
 
         }
@@ -132,11 +135,11 @@ namespace HotelReservation.Areas.Customer.Controllers
 
                 if (nearCheckoutRooms != null && nearCheckoutRooms.Any())
                 {
-                    TempData["ErrorMessage"] = "No rooms available for your selected dates. Rooms near checkout are available.";
+                    TempData["Error"] = "No rooms available for your selected dates. Rooms near checkout are available.";
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "No rooms available for your selected dates or near checkout.";
+                    TempData["Error"] = "No rooms available for your selected dates or near checkout.";
                 }
 
                 return RedirectToAction(nameof(Book), new { hotelId = viewModel.HotelId });
@@ -147,21 +150,24 @@ namespace HotelReservation.Areas.Customer.Controllers
             var totalPrice = (typeModel.PricePN + totalMealPrice) * viewModel.RoomCount *
                              (viewModel.CheckOutDate - viewModel.CheckInDate).Days;
 
-          
 
-            // Create a reservation
-            var reservation = new Reservation
-            {
-                HotelId = viewModel.HotelId,
-                CheckInDate = viewModel.CheckInDate,
-                CheckOutDate = viewModel.CheckOutDate,
-                RoomCount = viewModel.RoomCount,
-                NAdult = viewModel.NAdult,
-                NChildren = viewModel.NChildren ?? 0,
-                TotalPrice = totalPrice,
-                UserId = appUserId,
-                ReservationRooms = new List<ReservationRoom>(),
-            };
+            var reservation = mapper.Map<Reservation>(viewModel);
+            reservation.TotalPrice = totalPrice;
+            reservation.UserId = appUserId;
+            reservation.ReservationRooms = new List<ReservationRoom>();
+            //// Create a reservation
+            //var reservation = new Reservation
+            //{
+            //    HotelId = viewModel.HotelId,
+            //    CheckInDate = viewModel.CheckInDate,
+            //    CheckOutDate = viewModel.CheckOutDate,
+            //    RoomCount = viewModel.RoomCount,
+            //    NAdult = viewModel.NAdult,
+            //    NChildren = viewModel.NChildren ?? 0,
+            //    TotalPrice = totalPrice,
+            //    UserId = appUserId,
+            //    ReservationRooms = new List<ReservationRoom>(),
+            //};
             if (viewModel.CouponCode != null)
             {
                 var coupon = unitOfWork.CouponRepository.GetOne(where: c => c.Code == viewModel.CouponCode);
