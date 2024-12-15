@@ -19,7 +19,7 @@ namespace HotelReservation.Areas.Company.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly ILogger<HotelsController> logger;
 
-        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager,ILogger<HotelsController>logger)
+        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ILogger<HotelsController> logger)
         {
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
@@ -167,8 +167,13 @@ namespace HotelReservation.Areas.Company.Controllers
 
                 ViewData["CompanyId"] = company?.Id;
 
-                var Hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == id);
-                return View(Hotel);
+                var Hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == id && e.CompanyId == company.Id);
+                if (Hotel != null)
+                {
+                    return View(Hotel);
+                }
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+
             }
             catch (Exception)
             {
@@ -200,7 +205,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
+        [HttpPost]
         public ActionResult Delete(int id)
         {
             try
@@ -235,9 +240,15 @@ namespace HotelReservation.Areas.Company.Controllers
                     hotelId = int.Parse(Request.Cookies["HotelId"]);
                 }
                 ViewBag.HotelId = hotelId;
-                ViewBag.HotelName = unitOfWork.HotelRepository.GetOne(where: n => n.Id == hotelId)?.Name;
-                var imgs = unitOfWork.ImageListRepository.Get(where: p => p.HotelId == hotelId);
-                return View(imgs);
+                var user = userManager.GetUserName(User);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user);
+                ViewBag.HotelName = unitOfWork.HotelRepository.GetOne(where: n => n.Id == hotelId && n.CompanyId == company.Id)?.Name;
+                if (ViewBag.HotelName != null)
+                {
+                    var imgs = unitOfWork.ImageListRepository.Get(where: p => p.HotelId == hotelId);
+                    return View(imgs);
+                }
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             catch (Exception)
             {
@@ -264,7 +275,9 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId, tracked: false);
+                var user = userManager.GetUserName(User);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked:false);
+                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId &&e.CompanyId==company.Id, tracked: false);
                 if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 Log(nameof(CreateImgList), nameof(imageList) + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
@@ -277,7 +290,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
+        [HttpPost]
         public ActionResult DeleteImgList(int id)
         {
             try
@@ -295,7 +308,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
+        [HttpPost]
         public ActionResult DeleteAllImgList(int id)
         {
             try

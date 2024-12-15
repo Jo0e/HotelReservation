@@ -18,7 +18,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         private readonly ILogger<HotelAmenityController> logger;
         private readonly UserManager<IdentityUser> userManager;
 
-        public HotelAmenityController(IUnitOfWork unitOfWork,ILogger<HotelAmenityController> logger,UserManager<IdentityUser> userManager)
+        public HotelAmenityController(IUnitOfWork unitOfWork, ILogger<HotelAmenityController> logger, UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
             this.logger = logger;
@@ -36,7 +36,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 id = int.Parse(Request.Cookies["HotelIdCookie"]);
             }
-           var amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
+            var amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
             return View(amenities);
         }
 
@@ -70,10 +70,10 @@ namespace HotelReservation.Areas.Admin.Controllers
                         AmenityId = item,
                     };
                     unitOfWork.HotelAmenitiesRepository.Create(amenity);
-                    Log(nameof(Create), "Assign Amenity to hotel");
 
                 }
                 unitOfWork.Complete();
+                Log(nameof(Create), "Assign Amenity to hotel");
                 TempData["success"] = "Amenities successfully assigned to the hotel.";
                 return RedirectToAction(nameof(Index));
             }
@@ -83,8 +83,8 @@ namespace HotelReservation.Areas.Admin.Controllers
                 if (toDelete.Any())
                 {
                     unitOfWork.HotelAmenitiesRepository.DeleteRange(toDelete);
-                    Log(nameof(Create), "Clear Amenity from hotel");
                     unitOfWork.Complete();
+                    Log(nameof(Create), "Clear Amenity from hotel");
                     TempData["success"] = "All amenities successfully removed from the hotel.";
                 }
             }
@@ -99,7 +99,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             var hotelAmenities = new HotelAmenities { AmenityId = amenityId, HotelId = hotelId };
             unitOfWork.HotelAmenitiesRepository.Delete(hotelAmenities);
             Log(nameof(Delete), "Clear Amenity from hotel");
-            unitOfWork.Complete();
+            unitOfWork.CompleteAsync();
             TempData["success"] = "Amenity successfully removed from the hotel.";
             return RedirectToAction(nameof(Index));
         }

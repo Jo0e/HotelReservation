@@ -22,7 +22,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
-        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper,ILogger<CompanyController> logger)
+        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper, ILogger<CompanyController> logger)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -87,6 +87,7 @@ namespace HotelReservation.Areas.Admin.Controllers
 
                     var company = mapper.Map<Models.Models.Company>(companyVM);
                     company.UserName = newUser.UserName;
+                    company.Addres = companyVM.Addres;
                     company.ProfileImage = newUser.ProfileImage;
                     company.Passwords = newUser.PasswordHash;
                     unitOfWork.CompanyRepository.Create(company);
@@ -128,7 +129,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 var user = await userManager.FindByEmailAsync(company.Email);
                 var appUser = user as ApplicationUser;
 
-                if (appUser == null) 
+                if (appUser == null)
                 {
                     return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 }
@@ -172,7 +173,6 @@ namespace HotelReservation.Areas.Admin.Controllers
             Thread.Sleep(500);
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
             unitOfWork.CompanyRepository.Delete(company);
-            Log(nameof(Delete), nameof(company) + " " + $"{company.Email}");
             unitOfWork.Complete();
             TempData["success"] = "Company deleted successfully.";
 

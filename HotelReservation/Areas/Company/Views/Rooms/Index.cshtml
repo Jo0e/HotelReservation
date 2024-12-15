@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts {
-            ﻿﻿@if (TempData["success"] != null)
+                    ﻿﻿@if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
@@ -142,6 +142,7 @@
             .justify-content-between a:hover {
                 background-color: #0056b3;
             }
+
     media (max-width: 768px) {
         table
 
@@ -207,14 +208,24 @@
                 <td>
                     @if (!item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-book">Book</a>
+                        <form asp-action="Book" method="post" class="btn-book btn-sm">
+                            <input type="hidden" name="roomId" value="@item.Id" />
+                            <button type="submit" class="btn-book">Book</button>
+                        </form>
                     }
                     @if (item.IsAvailable)
                     {
-                        <a asp-action="Book" asp-route-id="@item.Id" class="btn-unbook">UnBook</a>
+                        <form asp-action="Book" method="post" class="btn btn-unbook btn-sm">
+                            <input type="hidden" name="roomId" value="@item.Id" />
+                            <button type="submit" class="btn-unbook">UnBook</button>
+                        </form>
                     }
                     |
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Delete</a>
+                    <form asp-action="Delete" method="post" class="btn btn-delete btn-sm">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                    @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Delete</a> *@
                 </td>
             </tr>
         }

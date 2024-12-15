@@ -58,11 +58,11 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
 
                 unitOfWork.CouponRepository.Create(coupon);
                 await unitOfWork.CompleteAsync();
                 TempData["success"] = "Coupon created successfully.";
+                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -88,10 +88,10 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 unitOfWork.CouponRepository.Update(coupon);
                 unitOfWork.Complete();
                 TempData["success"] = "Coupon updated successfully.";
+                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
             return View(coupon);
@@ -106,7 +106,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             else
             unitOfWork.CouponRepository.Delete(coupon);
             Log(nameof(Delete), nameof(coupon) + " " + $"{coupon.Code}");
-            unitOfWork.Complete();
+            unitOfWork.CompleteAsync();
             TempData["success"] = "Company deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
