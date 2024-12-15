@@ -1,6 +1,8 @@
-﻿using Infrastructures.Repository.IRepository;
+﻿using HotelReservation.Areas.Admin.Controllers;
+using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Models;
@@ -14,10 +16,14 @@ namespace HotelReservation.Areas.Company.Controllers
     public class RoomTypeController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<RoomTypeController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public RoomTypeController(IUnitOfWork unitOfWork)
+        public RoomTypeController(IUnitOfWork unitOfWork, ILogger<RoomTypeController> logger, UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
+            this.userManager = userManager;
         }
 
         // GET: RoomType/Index
@@ -53,6 +59,7 @@ namespace HotelReservation.Areas.Company.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.RoomTypeRepository.Create(roomType);
+                Log(nameof(Create), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
                 unitOfWork.Complete();
                 TempData["success"] = "Room type created successfully.";
 
@@ -82,6 +89,7 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             if (ModelState.IsValid)
             {
+                Log(nameof(Edit), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
                 unitOfWork.RoomTypeRepository.Update(roomType);
                 unitOfWork.Complete();
                 TempData["success"] = "Room type updated successfully.";
@@ -105,6 +113,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 }
 
                 unitOfWork.RoomTypeRepository.Delete(roomType);
+                Log(nameof(Delete), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
                 unitOfWork.Complete();
                 TempData["success"] = "Room type deleted successfully.";
 
@@ -115,5 +124,12 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+        public async void Log(string action, string entity)
+        {
+            var user = await userManager.GetUserAsync(User);
+            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+        }
+
+
     }
 }

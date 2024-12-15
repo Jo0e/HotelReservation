@@ -4,6 +4,7 @@ using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Models.Models;
 using Models.ViewModels;
 using Utilities.Utility;
@@ -17,13 +18,15 @@ namespace HotelReservation.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly ILogger<CompanyController> logger;
         private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
-        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper)
+        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper,ILogger<CompanyController> logger)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.logger = logger;
             this.userManager = userManager;
             this.roleManager = roleManager;
         }
@@ -89,7 +92,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                     unitOfWork.CompanyRepository.Create(company);
                     unitOfWork.Complete();
                     TempData["success"] = "Company created successfully.";
-
+                    Log(nameof(Create), nameof(company) + " " + $"{company.Email}");
                     return RedirectToAction(nameof(Index));
                 }
                 else
@@ -148,6 +151,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 unitOfWork.CompanyRepository.Update(company);
                 unitOfWork.Complete();
                 TempData["success"] = "Company updated successfully.";
+                Log(nameof(Edit), nameof(company) + " " + $"{company.Email}");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -168,11 +172,18 @@ namespace HotelReservation.Areas.Admin.Controllers
             Thread.Sleep(500);
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
             unitOfWork.CompanyRepository.Delete(company);
+            Log(nameof(Delete), nameof(company) + " " + $"{company.Email}");
             unitOfWork.Complete();
             TempData["success"] = "Company deleted successfully.";
+
             return RedirectToAction(nameof(Index));
         }
 
 
+        public async void Log(string action, string entity)
+        {
+            var user = await userManager.GetUserAsync(User);
+            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+        }
     }
 }

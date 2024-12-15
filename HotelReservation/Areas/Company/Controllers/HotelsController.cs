@@ -17,10 +17,13 @@ namespace HotelReservation.Areas.Company.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
-        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        private readonly ILogger<HotelsController> logger;
+
+        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager,ILogger<HotelsController>logger)
         {
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
+            this.logger = logger;
         }
 
         // GET: HotelsController
@@ -137,6 +140,7 @@ namespace HotelReservation.Areas.Company.Controllers
                     hotel.CompanyId = company.Id;
 
                     unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
+                    Log(nameof(Create), nameof(hotel) + " " + $"{hotel.Name}");
                     TempData["success"] = "Hotel created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -185,6 +189,7 @@ namespace HotelReservation.Areas.Company.Controllers
                     var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
                     if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                     unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
+                    Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
                     TempData["success"] = "Hotel updated successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -206,7 +211,7 @@ namespace HotelReservation.Areas.Company.Controllers
                     unitOfWork.ImageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
                 }
                 unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
-
+                Log(nameof(Delete), "hotel" + " " + $"{oldHotel.Name}");
                 unitOfWork.Complete();
                 TempData["success"] = "Hotel deleted successfully.";
                 return RedirectToAction(nameof(Index));
@@ -260,6 +265,8 @@ namespace HotelReservation.Areas.Company.Controllers
             try
             {
                 var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId, tracked: false);
+                if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                Log(nameof(CreateImgList), nameof(imageList) + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
                 TempData["success"] = "Images added successfully.";
 
@@ -276,7 +283,10 @@ namespace HotelReservation.Areas.Company.Controllers
             try
             {
                 var img = unitOfWork.ImageListRepository.GetOne(where: e => e.Id == id, tracked: false);
+                if (img == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
+                if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                Log(nameof(DeleteImgList), "imageList" + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.DeleteImageList(id, hotel.Name);
                 return RedirectToAction(nameof(ImageList));
             }
@@ -291,6 +301,8 @@ namespace HotelReservation.Areas.Company.Controllers
             try
             {
                 var hotel = unitOfWork.HotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == id, tracked: false);
+                if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                Log(nameof(DeleteAllImgList), "imageList" + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
                 TempData["success"] = "All images deleted successfully.";
                 return RedirectToAction(nameof(ImageList));
@@ -299,6 +311,11 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
+        }
+        public async void Log(string action, string entity)
+        {
+            var user = await userManager.GetUserAsync(User);
+            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
         }
     }
 }

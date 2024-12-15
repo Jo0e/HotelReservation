@@ -1,6 +1,7 @@
 ﻿using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using System.Linq;
@@ -13,10 +14,14 @@ namespace HotelReservation.Areas.Company.Controllers
     public class ReservationController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<ReservationController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public ReservationController(IUnitOfWork unitOfWork)
+        public ReservationController(IUnitOfWork unitOfWork, ILogger<ReservationController> logger, UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
+            this.userManager = userManager;
         }
         
         // GET: ReservationController/Index
@@ -53,6 +58,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 try
                 {
                     unitOfWork.ReservationRepository.Update(reservation);
+                    Log(nameof(Edit), nameof(reservation) + " " + $"{reservation.Hotel.Name}");
                     unitOfWork.Complete();
                     TempData["success"] = "Reservation Updated successfully.";
                     return RedirectToAction(nameof(Index), new { id = reservation.HotelId });
@@ -84,17 +90,26 @@ namespace HotelReservation.Areas.Company.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             var reservation = unitOfWork.ReservationRepository.GetOne(where: e => e.Id == id, include: [e=>e.Hotel,e=>e.User]);
-            var reservationRoom = unitOfWork.ReservationRoomRepository.GetOne(where: e => e.ReservationID == id);
+            var reservationRoom = unitOfWork.ReservationRoomRepository.GetOne(include : [e=>e.Room],where: e => e.ReservationID == id);
             if (reservation == null || reservationRoom == null)
             {
                 return NotFound();
             }
+            reservationRoom.Room.IsAvailable= true;
+            unitOfWork.RoomRepository.Update(reservationRoom.Room);
+            unitOfWork.Complete();
             unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
             unitOfWork.Complete();
+            Log("Cancel Reservation", nameof(reservation) + " " + $"{reservation.Hotel.Name}");
             unitOfWork.ReservationRepository.Delete(reservation);
             unitOfWork.Complete();
             TempData["success"] = "Reservation deleted successfully.";
             return RedirectToAction(nameof(Index), new { id = reservation.HotelId });
+        }
+        public async void Log(string action, string entity)
+        {
+            var user = await userManager.GetUserAsync(User);
+            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
         }
     }
 }

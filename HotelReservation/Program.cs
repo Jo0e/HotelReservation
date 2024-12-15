@@ -76,8 +76,9 @@ namespace HotelReservation
             builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork >();
+     
 
-            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+          builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             builder.Services.AddTransient<IEmailSender, EmailSender>();

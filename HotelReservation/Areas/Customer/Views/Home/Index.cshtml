@@ -46,8 +46,8 @@
         }
 
     .card-title {
-        font-size: 1.25rem;
-        color: #007bff;
+        font-size: 1.5rem;
+        color: #343a40;
         font-weight: bold;
     }
 
@@ -157,8 +157,7 @@
                     <div class="card">
                         <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
-                            <h5 class="card-title"><strong>@hotel.City</strong> </h5>
-                            
+                            <h5 class="card-title "><strong>@hotel.City</strong> </h5>
                             <a href="@Url.Action("HotelsByCity", "Home", new { city = hotel.City })" class="btn btn-primary">
                                 View All Hotels in @hotel.City
                             </a>

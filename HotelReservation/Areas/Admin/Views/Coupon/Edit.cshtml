@@ -30,7 +30,7 @@
 
                 <div class="form-group mb-3">
                     <label asp-for="Discount" class="form-label fw-bold">Discount</label>
-                    <input asp-for="Discount" class="form-control" placeholder="Update discount value" />
+                    <input asp-for="Discount" class="form-control" min="1" max="99" placeholder="Update discount value" />
                     <span asp-validation-for="Discount" class="text-danger"></span>
                 </div>
 
