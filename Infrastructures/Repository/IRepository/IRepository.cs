@@ -12,6 +12,10 @@ namespace Infrastructures.Repository.IRepository
         void DeleteRange(IEnumerable<T> entity);
         void Commit();
 
+        Task<List<T>> GetAsync(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true);
+
+        Task<T?> GetOneAsync(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true);
+
         IEnumerable<T> Get(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true);
 
         public T? GetOne(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true);

@@ -60,9 +60,9 @@
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="CompanyId" class="form-label">Company</label>
-                <select class="form-select" name="CompanyId">
-                    <option selected disabled hidden>Open this select menu</option>
+                <label asp-for="CompanyId" class="form-label" >Company</label>
+                <select class="form-select" name="CompanyId" required>
+                    <option selected hidden value="@companies.FirstOrDefault(e=>e.Id==Model.CompanyId).Id">@companies.FirstOrDefault(e=>e.Id==Model.CompanyId).Email</option>
                     @foreach (var item in companies)
                     {
                         <option value="@item.Id">@item.Email</option>

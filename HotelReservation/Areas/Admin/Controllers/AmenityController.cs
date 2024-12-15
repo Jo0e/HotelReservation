@@ -1,9 +1,11 @@
 ﻿using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using System.CodeDom;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
@@ -11,10 +13,14 @@ namespace HotelReservation.Areas.Admin.Controllers
     public class AmenityController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly ILogger<AmenityController> logger;
 
-        public AmenityController(IUnitOfWork unitOfWork)
+        public AmenityController(IUnitOfWork unitOfWork,UserManager<IdentityUser> userManager,ILogger<AmenityController> logger)
         {
             this.unitOfWork = unitOfWork;
+            this.userManager = userManager;
+            this.logger = logger;
         }
 
         // GET: AmenityController
@@ -40,6 +46,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.AmenityRepository.CreateWithImage(amenity, Img, "amenities", nameof(amenity.Img));
                 TempData["success"] = "Amenity created successfully!";
+                Log(nameof(Create), nameof(amenity)+" "+$"{amenity.Name}");
                 return RedirectToAction(nameof(Index));
             } 
             return View(amenity);
@@ -64,6 +71,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 if (oldAmenity == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 unitOfWork.AmenityRepository.UpdateImage(amenity, Img, oldAmenity.Img, "amenities", nameof(amenity.Img));
                 TempData["success"] = "Amenity updated successfully!";
+                Log(nameof(Edit), nameof(amenity) + " " + $"{amenity.Name}");
                 return RedirectToAction(nameof(Index));
             }
             return View(amenity);
@@ -80,12 +88,19 @@ namespace HotelReservation.Areas.Admin.Controllers
         // POST: AmenityController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(Amenity amenity)
+        public async Task<ActionResult> Delete(Amenity amenity)
         {
             unitOfWork.AmenityRepository.DeleteWithImage(amenity, "amenities",amenity.Img);
-            unitOfWork.Complete();
+            Log(nameof(Delete), nameof(amenity) + " " + $"{amenity.Name}");
+            await unitOfWork.CompleteAsync();
             TempData["success"] = "Amenity deleted successfully!";
             return RedirectToAction(nameof(Index));
+        }
+
+        public async void Log(string action, string entity)
+        {
+            var user = await userManager.GetUserAsync(User);
+            LoggerHelper.LogAdminAction(logger, user.Id,user.Email, action, entity);
         }
     }
 }
