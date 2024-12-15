@@ -16,11 +16,11 @@ namespace Utilities.Profiles
             .ForMember(dest => dest.TotalPrice, opt => opt.Ignore()) 
             .ForMember(dest => dest.ReservationRooms, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
-            .ForMember(dest => dest.CouponId, opt => opt.Ignore())        // Handled explicitly
-            .ForMember(dest => dest.Status, opt => opt.Ignore())          // Default "Pending"
+            .ForMember(dest => dest.CouponId, opt => opt.Ignore())       
+            .ForMember(dest => dest.Status, opt => opt.Ignore())         
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
-            //CreateMap<TypeViewModel, RoomType>();
+           
         }
     }
 }
