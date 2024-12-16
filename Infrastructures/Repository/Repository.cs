@@ -49,7 +49,55 @@ namespace Infrastructures.Repository
         {
             return Get(include, where, tracked).FirstOrDefault();
         }
-        
+
+
+        public async Task<List<T>> GetAsync(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true)
+        {
+            IQueryable<T> query = dbSet;
+
+            if (!tracked)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (include != null)
+            {
+                query = include.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+            }
+
+            if (where != null)
+            {
+                query = query.Where(where);
+            }
+
+            return await query.ToListAsync();
+        }
+
+
+        public async Task<T?> GetOneAsync(Expression<Func<T, object>>[]? include = null, Expression<Func<T, bool>>? where = null, bool tracked = true)
+        {
+            IQueryable<T> query = dbSet;
+
+            if (!tracked)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (include != null)
+            {
+                query = include.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+            }
+
+            if (where != null)
+            {
+                query = query.Where(where);
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+
+
 
         public IQueryable<T> ThenInclude<TProperty, TThenProperty>(Expression<Func<T, TProperty>> include,
             Expression<Func<TProperty, TThenProperty>> thenInclude)

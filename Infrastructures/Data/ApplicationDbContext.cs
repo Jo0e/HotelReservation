@@ -125,6 +125,8 @@ namespace Infrastructures.Data
             //.OnDelete(DeleteBehavior.NoAction); 
 
             modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomAvailableOnCheckOuts"));
+            modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomUnavailableOnCheckIns"));
+            modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("RemovePendingReservations"));
 
 
 

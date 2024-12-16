@@ -4,6 +4,7 @@ using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Models.Models;
 using Models.ViewModels;
 using Utilities.Utility;
@@ -17,13 +18,15 @@ namespace HotelReservation.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly ILogger<CompanyController> logger;
         private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
-        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper)
+        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper, ILogger<CompanyController> logger)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.logger = logger;
             this.userManager = userManager;
             this.roleManager = roleManager;
         }
@@ -84,11 +87,13 @@ namespace HotelReservation.Areas.Admin.Controllers
 
                     var company = mapper.Map<Models.Models.Company>(companyVM);
                     company.UserName = newUser.UserName;
+                    company.Addres = companyVM.Addres;
                     company.ProfileImage = newUser.ProfileImage;
                     company.Passwords = newUser.PasswordHash;
                     unitOfWork.CompanyRepository.Create(company);
                     unitOfWork.Complete();
-
+                    TempData["success"] = "Company created successfully.";
+                    Log(nameof(Create), nameof(company) + " " + $"{company.Email}");
                     return RedirectToAction(nameof(Index));
                 }
                 else
@@ -124,7 +129,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 var user = await userManager.FindByEmailAsync(company.Email);
                 var appUser = user as ApplicationUser;
 
-                if (appUser == null) 
+                if (appUser == null)
                 {
                     return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 }
@@ -146,7 +151,8 @@ namespace HotelReservation.Areas.Admin.Controllers
                 company.ProfileImage = appUser.ProfileImage;
                 unitOfWork.CompanyRepository.Update(company);
                 unitOfWork.Complete();
-
+                TempData["success"] = "Company updated successfully.";
+                Log(nameof(Edit), nameof(company) + " " + $"{company.Email}");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -168,10 +174,16 @@ namespace HotelReservation.Areas.Admin.Controllers
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
             unitOfWork.CompanyRepository.Delete(company);
             unitOfWork.Complete();
+            TempData["success"] = "Company deleted successfully.";
 
             return RedirectToAction(nameof(Index));
         }
 
 
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
+        }
     }
 }

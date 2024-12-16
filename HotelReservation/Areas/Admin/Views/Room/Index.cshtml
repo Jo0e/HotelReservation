@@ -4,6 +4,14 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts {
+            ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+}
 
 <style>
     body {
@@ -134,9 +142,14 @@
 
    
 </style>
+<div class="d-flex align-items-center mt-3 mb-4">
+    <a asp-controller="Hotel" asp-action="Index" class="btn btn-outline-primary me-3">
+        <i class="bi bi-arrow-left-circle-fill"></i> Back to List
+    </a>
+    <h1 class=" m-0 justify-content-md-start">@Model.Select(e => e.Hotel.Name).FirstOrDefault() Rooms</h1>
+</div>
 
-<h1>@Model.Select(e=>e.Hotel.Name).FirstOrDefault()</h1>
-<h1>Rooms</h1>
+
 
 <p>
     <div class="justify-content-between">

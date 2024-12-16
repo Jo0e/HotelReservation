@@ -6,31 +6,85 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Book</h1>
+<h1 class="text-center mb-4">Book a Room</h1>
 
-<h4>Room</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card mx-auto" style="max-width: 500px;">
+    <div class="card-body">
+        <h4 class="card-title text-center">Room Booking Details</h4>
+        <hr />
         <form asp-action="Book">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
             <input type="hidden" asp-for="Id" />
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsAvailable" /> @Html.DisplayNameFor(model => model.IsAvailable)
+
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" asp-for="IsAvailable" id="isAvailable">
+                <label class="form-check-label" for="isAvailable">
+                    @Html.DisplayNameFor(model => model.IsAvailable)
                 </label>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="text-center mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+
+    h1 {
+        color: #343a40;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-secondary:hover {
+            background-color: #565e64;
+            border-color: #565e64;
+        }
+
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    .form-check-label {
+        font-size: 1rem;
+        margin-left: 0.5rem;
+    }
+</style>

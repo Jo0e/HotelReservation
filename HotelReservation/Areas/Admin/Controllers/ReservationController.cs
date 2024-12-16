@@ -1,6 +1,7 @@
 ﻿using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using Utilities.Utility;
@@ -12,10 +13,14 @@ namespace HotelReservation.Areas.Admin.Controllers
     public class ReservationController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<ReservationController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public ReservationController(IUnitOfWork unitOfWork)
+        public ReservationController(IUnitOfWork unitOfWork, ILogger<ReservationController> logger,UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
+            this.userManager = userManager;
         }
 
         // GET: ReservationController/Index
@@ -53,14 +58,28 @@ namespace HotelReservation.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Delete(int reservationId) 
         {
-            var reservations = unitOfWork.ReservationRepository.GetOne(where: e => e.Id == reservationId);
-            if (reservations == null) 
+            var reservation = unitOfWork.ReservationRepository.GetOne(where: e => e.Id == reservationId, include: [e => e.Hotel, e => e.User]);
+            var reservationRoom = unitOfWork.ReservationRoomRepository.GetOne(include: [e => e.Room], where: e => e.ReservationID == reservationId);
+            if (reservation == null || reservationRoom == null)
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            unitOfWork.ReservationRepository.Delete(reservations);
-            unitOfWork.Complete();
+
+            reservationRoom.Room.IsAvailable = true;
+            unitOfWork.RoomRepository.Update(reservationRoom.Room);
+            unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
+            unitOfWork.ReservationRepository.Delete(reservation);
+            unitOfWork.CompleteAsync();
+
+            Log("Cancel Reservation",nameof(reservation)+" "+ $"{reservation.Hotel.Name}");
+            TempData["success"] = "Reservation deleted successfully.";
+
             return RedirectToAction("Index");
+        }
+
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
 
         }
     }

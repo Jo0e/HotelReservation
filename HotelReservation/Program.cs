@@ -1,3 +1,4 @@
+using HotelReservation.Hubs;
 using Infrastructures.Data;
 using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
@@ -19,10 +20,10 @@ namespace HotelReservation
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
-
             builder.Services.AddDbContext<ApplicationDbContext>(options => options
            .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddSignalR();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //Other service registrations...
@@ -76,8 +77,9 @@ namespace HotelReservation
             builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork >();
+     
 
-            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+          builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -102,12 +104,12 @@ namespace HotelReservation
             //app.MapStaticAssets();
 
             app.MapRazorPages();
-
+            
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
-
+            app.MapHub<NotificationHub>("/notificationHub");
             app.Run();
         }
     }

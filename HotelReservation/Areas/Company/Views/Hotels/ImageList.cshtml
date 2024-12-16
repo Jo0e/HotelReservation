@@ -6,6 +6,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     string folderName = ViewBag.HotelName;
 }
+@section Scripts {
+                    ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+
+}
 <div class="row mt-5">
     <div class="col-9 mb-3">
         <h1>ImageList</h1>
@@ -21,8 +30,11 @@
                 @Html.DisplayNameFor(model => model.ImgUrl)
             </th>
             <th>
-                <a asp-action="DeleteAllImgList" asp-route-id="@ViewBag.HotelId" class="btn btn-danger">Delete All</a>
-                 </th>
+                <form action="DeleteAllImgList" method="post">
+                    <input type="hidden" name="id" value="@ViewBag.HotelId" />
+                    <button class="btn btn-danger">Delete All</button>
+                </form>
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -33,7 +45,10 @@
                     <img src="~/images/subImage/@folderName/@item.ImgUrl" style="max-width: 200px; height: auto;border-radius: 5px;object-fit: contain;" alt="Alternate Text" />
                 </td>
                 <td class="justify-content-center gap-2">
-                    <a asp-action="DeleteImgList" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                    <form action="DeleteImgList" method="post">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
                 </td>
             </tr>
         }

@@ -3,6 +3,21 @@
     ViewData["Title"] = "Book";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts {
+                ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            toastr.error('@TempData["Error"]');
+        </script>
+    }
+}
 
 <style>
 
@@ -65,8 +80,8 @@ else
             <div class="col-md-9">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h3 class="card-title text-center mb-4">Booking Form</h3>
-                        <form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
+                        @*                         <h3 class="card-title text-center mb-4">Booking Form</h3>
+ *@                        <form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
                             <input type="hidden" name="HotelId" value="@Model.Id" />
                             <input type="hidden" name="RoomType" value="@ViewBag.Type.RoomType" />
                             <input type="hidden" name="PricePN" value="@ViewBag.Type.PricePN" />
@@ -74,11 +89,11 @@ else
 
                             <div class="mb-3">
                                 <label for="adults" class="form-label">Number of Adults</label>
-                                <input type="number" id="adults" name="NAdult" value="1" min="1" required class="form-control" />
+                                <input type="number" id="adults" name="NAdult" value="1" min="1" max="@ViewBag.Type.MaxPersons" required class="form-control" />
                             </div>
 
                             <div class="mb-3">
-                                <label for="children" class="form-label">Number of Children</label>
+                                <label for="children" class="form-label">Number of Children <small class="text-muted">(Any child above 5 years charged as an adult)</small></label>
                                 <input type="number" id="children" name="NChildren" value="0" min="0" max="10" class="form-control" onchange="updateChildAgeInputs()" />
                             </div>
 
@@ -86,25 +101,34 @@ else
 
                             <div class="mb-3">
                                 <label for="checkInDate" class="form-label">Check-In Date</label>
-                                <input type="date" id="checkInDate" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
+                                <input type="date" id="checkInDate" min="@DateTime.Now.ToString("yyyy-MM-dd")" name="CheckInDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required class="form-control" />
                             </div>
 
                             <div class="mb-3">
                                 <label for="checkOutDate" class="form-label">Check-Out Date</label>
-                                <input type="date" id="checkOutDate" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
+                                <input type="date" id="checkOutDate" min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" name="CheckOutDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required class="form-control" />
                             </div>
 
                             <div class="mb-3">
                                 <label for="meals" class="form-label">Include Meals</label>
-                                <select id="meals" name="IncludesMeal" class="form-select">
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
-                                </select>
+                                @if (ViewBag.Type.MealPrice != null)
+                                {
+                                    <select id="meals" name="IncludesMeal" class="form-select">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                }
+                                else{
+                                    <select id="meals" name="IncludesMeal" class="form-select">
+                                        <option value="false">No</option>
+                                        <option disabled value="true">Yes</option>
+                                    </select>
+                                }
                             </div>
 
                             <div class="mb-3">
                                 <label for="rooms" class="form-label">Number of Rooms</label>
-                                <input type="number" id="rooms" name="RoomCount" value="1" min="1" required class="form-control" />
+                                <input type="number" id="rooms" name="RoomCount" value="1" min="1" max="@ViewBag.availableRooms" required class="form-control" />
                             </div>
 
                             <div class="mb-3">
@@ -119,52 +143,71 @@ else
                     </div>
                 </div>
             </div>
+
+            <script>
+                function updateChildAgeInputs() {
+                    const numberOfChildren = document.getElementById("children").value;
+                    const childAgesContainer = document.getElementById("childAgesContainer");
+                    childAgesContainer.innerHTML = "";
+
+                    for (let i = 0; i < numberOfChildren; i++) {
+                        const input = document.createElement("input");
+                        input.type = "number";
+                        input.name = `ChildrenAge[${i}]`;
+                        input.placeholder = `Age of Child ${i + 1}`;
+                        input.className = "form-control mt-2";
+                        input.required = true;
+                        input.max = 18;
+                        input.min = 1;
+                        childAgesContainer.appendChild(input);
+                    }
+                }
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    const checkInInput = document.getElementById('checkInDate');
+                    const checkOutInput = document.getElementById('checkOutDate');
+                    const form = document.querySelector(".booking-form");
+
+                    form.addEventListener("submit", function (event) {
+                        const checkInDate = new Date(checkInInput.value);
+                        const checkOutDate = new Date(checkOutInput.value);
+                        const now = new Date();
+
+                        if (checkInDate < now.setHours(0, 0, 0, 0)) {
+                            toastr.error("Check-In date cannot be in the past.");
+                            event.preventDefault();
+                            return false;
+                        }
+
+                        if (checkOutDate <= checkInDate) {
+                            toastr.error("Check-Out date must be after Check-In date.");
+                            event.preventDefault();
+                            return false;
+                        }
+                    });
+                });
+            </script>
+
         </div>
     </div>
+
+    @if (ViewBag.NearCheckoutRooms != null && ((List<Room>)ViewBag.NearCheckoutRooms).Any())
+    {
+        <h3>Rooms near checkout:</h3>
+        <ul>
+            @foreach (var room in (List<Room>)ViewBag.NearCheckoutRooms)
+            {
+                <li>Room ID: @room.Id - Type: @room.RoomType.Type</li>
+            }
+        </ul>
+    }
+    else if (TempData["ErrorMessage"] != null)
+    {
+        <p class="text-danger">@TempData["ErrorMessage"]</p>
+    }
 }
 
-<script>
-            function updateChildAgeInputs() {
-        const numberOfChildren = document.getElementById("children").value;
-        const childAgesContainer = document.getElementById("childAgesContainer");
-        childAgesContainer.innerHTML = "";
 
-        for (let i = 0; i < numberOfChildren; i++) {
-            const input = document.createElement("input");
-            input.type = "number";
-            input.name = `ChildrenAge[${i}]`;
-            input.placeholder = `Age of Child ${i + 1}`;
-            input.className = "form-control mt-2";
-            input.required = true;
-            input.max =18;
-            input.min=1;
-            childAgesContainer.appendChild(input);
-        }
-    }
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkInInput = document.getElementById('checkInDate');
-        const checkOutInput = document.getElementById('checkOutDate');
-        const form = document.querySelector(".booking-form");
-
-        form.addEventListener("submit", function (event) {
-            const checkInDate = new Date(checkInInput.value);
-            const checkOutDate = new Date(checkOutInput.value);
-            const now = new Date();
-
-            if (checkInDate < now.setHours(0, 0, 0, 0)) {
-                toastr.error("Check-In date cannot be in the past.");
-                event.preventDefault();
-                return false;
-            }
-
-            if (checkOutDate <= checkInDate) {
-                toastr.error("Check-Out date must be after Check-In date.");
-                event.preventDefault();
-                return false;
-            }
-        });
-    });
-</script>
 
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />

@@ -6,66 +6,127 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ICollection<Company> companies = ViewBag.CompanyId;
 }
+<div class="d-flex align-items-center mt-3 mb-3">
+    <a asp-action="Index" class="btn btn-outline-dark me-3">
+        <i class="bi bi-arrow-left-circle-fill"></i> Back to List
+    </a>
+    <h1 class="flex-grow-1 m-0">Edit @Model.Name</h1>
+</div>
 
-<h1>Edit</h1>
 
-<h4>Hotel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-body">
+        <h4 class="card-title text-center">Hotel Details</h4>
+        <hr />
         <form asp-action="Edit" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="form-label">Hotel Name</label>
+                <input asp-for="Name" class="form-control" required />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="form-label">Description</label>
+                <input asp-for="Description" class="form-control" required />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Address" class="form-label">Address</label>
+                <input asp-for="Address" class="form-control" required />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="City" class="control-label"></label>
-                <input asp-for="City" class="form-control" />
+
+            <div class="form-group mb-3">
+                <label asp-for="City" class="form-label">City</label>
+                <input asp-for="City" class="form-control" required />
                 <span asp-validation-for="City" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Stars" class="control-label"></label>
-                <input asp-for="Stars" class="form-control" min="1" max="5" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Stars" class="form-label">Stars</label>
+                <input asp-for="Stars" class="form-control" type="number" min="1" max="5" required />
                 <span asp-validation-for="Stars" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="CoverImg" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="CoverImg" class="form-label">Cover Image</label>
                 <input asp-for="CoverImg" class="form-control" type="file" name="ImgFile" data-val="false" />
                 <span asp-validation-for="CoverImg" class="text-danger"></span>
             </div>
 
-            <label asp-for="CompanyId" class="control-label"></label>
-            <select class="form-select" name="CompanyId">
-                <option selected disabled hidden>Open this select menu</option>
-                @foreach (var item in companies)
-                {
-                    <option value="@item.Id">@item.Email</option>
-                }
-            </select>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            <div class="form-group mb-3">
+                <label asp-for="CompanyId" class="form-label" >Company</label>
+                <select class="form-select" name="CompanyId" required>
+                    <option selected hidden value="@companies.FirstOrDefault(e=>e.Id==Model.CompanyId).Id">@companies.FirstOrDefault(e=>e.Id==Model.CompanyId).Email</option>
+                    @foreach (var item in companies)
+                    {
+                        <option value="@item.Id">@item.Email</option>
+                    }
+                </select>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+
+    h1 {
+        color: #343a40;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-secondary:hover {
+            background-color: #565e64;
+            border-color: #565e64;
+        }
+
+    .form-select, .form-control {
+        border-radius: 5px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+</style>

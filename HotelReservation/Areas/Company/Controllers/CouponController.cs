@@ -1,18 +1,26 @@
 ﻿using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Company.Controllers
 {
     [Area("Company")]
+    [Authorize(SD.CompanyRole)]
     public class CouponController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<CouponController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public CouponController(IUnitOfWork unitOfWork)
+        public CouponController(IUnitOfWork unitOfWork,ILogger<CouponController> logger,UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
+            this.userManager = userManager;
         }
         public IActionResult Index(string? search, int pageNumber = 1)
         {
@@ -44,12 +52,14 @@ namespace HotelReservation.Areas.Company.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Create(Coupon coupon)
+        public async Task<IActionResult> CreateAsync(Coupon coupon)
         {
             if (ModelState.IsValid)
             {
                 unitOfWork.CouponRepository.Create(coupon);
-                unitOfWork.Complete();
+                await unitOfWork.CompleteAsync();
+                TempData["success"] = "Coupon created successfully.";
+                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -70,19 +80,20 @@ namespace HotelReservation.Areas.Company.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Coupon coupon)
+        public async Task<IActionResult> EditAsync(Coupon coupon)
         {
             if (ModelState.IsValid)
             {
                 unitOfWork.CouponRepository.Update(coupon);
-                unitOfWork.Complete();
-
+                await unitOfWork.CompleteAsync();
+                TempData["success"] = "Coupon updated successfully.";
+                Log(nameof(Edit), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
             return View(coupon);
         }
 
-        public IActionResult Delete(int couponId)
+        public async Task<IActionResult> DeleteAsync(int couponId)
         {
             var coupon = unitOfWork.CouponRepository.GetOne(where: e => e.Id == couponId);
 
@@ -90,9 +101,16 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
             unitOfWork.CouponRepository.Delete(coupon);
-            unitOfWork.Complete();
 
+            await unitOfWork.CompleteAsync();
+            TempData["success"] = "Company deleted successfully.";
+            Log(nameof(DeleteAsync), nameof(coupon) + " " + $"{coupon.Code}");
             return RedirectToAction(nameof(Index));
+        }
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

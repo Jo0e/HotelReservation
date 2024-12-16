@@ -1,8 +1,10 @@
 ﻿using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using System.Linq.Expressions;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
@@ -10,10 +12,14 @@ namespace HotelReservation.Areas.Admin.Controllers
     public class CouponController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<CouponController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public CouponController(IUnitOfWork unitOfWork)
+        public CouponController(IUnitOfWork unitOfWork,ILogger<CouponController> logger,UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
+            this.userManager = userManager;
         }
         public IActionResult Index(string? search, int pageNumber = 1)
         {
@@ -44,17 +50,19 @@ namespace HotelReservation.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Coupon coupon)
+        public async Task<IActionResult> Create(Coupon coupon)
         {
             if (ModelState.IsValid)
             {
+
                 unitOfWork.CouponRepository.Create(coupon);
-                unitOfWork.Complete();
+                await unitOfWork.CompleteAsync();
+                TempData["success"] = "Coupon created successfully.";
+                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -82,7 +90,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 unitOfWork.CouponRepository.Update(coupon);
                 unitOfWork.Complete();
-
+                TempData["success"] = "Coupon updated successfully.";
+                Log(nameof(Create), $"coupon {coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
             return View(coupon);
@@ -96,9 +105,14 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             else
             unitOfWork.CouponRepository.Delete(coupon);
-            unitOfWork.Complete();
-
+            unitOfWork.CompleteAsync();
+            TempData["success"] = "Company deleted successfully.";
+            Log(nameof(Delete), nameof(coupon) + " " + $"{coupon.Code}");
             return RedirectToAction(nameof(Index));
+        }
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
         }
     }
 }

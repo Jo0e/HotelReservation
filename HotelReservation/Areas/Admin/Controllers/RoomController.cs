@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using Stripe;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
@@ -11,11 +14,15 @@ namespace HotelReservation.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly ILogger<RoomController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public RoomController(IUnitOfWork unitOfWork, IMapper mapper)
+        public RoomController(IUnitOfWork unitOfWork, IMapper mapper,ILogger<RoomController> logger,UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.logger = logger;
+            this.userManager = userManager;
         }
 
         // GET: RoomController
@@ -64,6 +71,8 @@ namespace HotelReservation.Areas.Admin.Controllers
                 }
                 unitOfWork.RoomRepository.AddRange(rooms);
                 unitOfWork.Complete();
+                TempData["success"] = $"Successfully created {count} room(s).";
+                Log(nameof(Create), nameof(room) + " " + $"count: {count}");
                 return RedirectToAction(nameof(Index));
             }
             return View(room);
@@ -83,6 +92,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             room.IsAvailable = !room.IsAvailable;
             unitOfWork.RoomRepository.Update(room);
             unitOfWork.Complete();
+            TempData["success"] = room.IsAvailable ? "Room is now available." : "Room is now unavailable.";
+            Log(nameof(Book), nameof(room) + " " + $"Book: {room.IsAvailable}");
             return RedirectToAction(nameof(Index));
         }
 
@@ -103,13 +114,22 @@ namespace HotelReservation.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(Room room)
         {
-            if (unitOfWork.RoomRepository.GetOne(where: e => e.Id == room.Id) != null)
+            var toDelete = unitOfWork.RoomRepository.GetOne(where: e => e.Id == room.Id);
+            if ( toDelete!= null )
             {
-                unitOfWork.RoomRepository.Delete(room);
-                unitOfWork.Complete();
+                unitOfWork.RoomRepository.Delete(toDelete);
+                unitOfWork.CompleteAsync();
+                TempData["success"] = "Room deleted successfully.";
+                Log(nameof(Delete), nameof(room) + " " + $"Id: {room.Id}");
                 return RedirectToAction(nameof(Index));
             }
             return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+
+        }
+
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
 
         }
     }

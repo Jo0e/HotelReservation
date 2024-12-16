@@ -17,10 +17,13 @@ namespace HotelReservation.Areas.Company.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
-        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        private readonly ILogger<HotelsController> logger;
+
+        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ILogger<HotelsController> logger)
         {
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
+            this.logger = logger;
         }
 
         // GET: HotelsController
@@ -137,6 +140,8 @@ namespace HotelReservation.Areas.Company.Controllers
                     hotel.CompanyId = company.Id;
 
                     unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
+                    Log(nameof(Create), nameof(hotel) + " " + $"{hotel.Name}");
+                    TempData["success"] = "Hotel created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -154,16 +159,21 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 var user = userManager.GetUserName(User);
                 var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user);
-                var hotel = new Hotel
-                {
-                    CompanyId = company.Id,
-                    ReportId = null
-                };
+                //var hotel = new Hotel
+                //{
+                //    CompanyId = company.Id,
+                //    ReportId = null
+                //};
 
                 ViewData["CompanyId"] = company?.Id;
 
-                var Hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == id);
-                return View(Hotel);
+                var Hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == id && e.CompanyId == company.Id);
+                if (Hotel != null)
+                {
+                    return View(Hotel);
+                }
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+
             }
             catch (Exception)
             {
@@ -184,6 +194,8 @@ namespace HotelReservation.Areas.Company.Controllers
                     var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
                     if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                     unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
+                    Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
+                    TempData["success"] = "Hotel updated successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 return View(hotel);
@@ -193,7 +205,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
+        [HttpPost]
         public ActionResult Delete(int id)
         {
             try
@@ -204,8 +216,9 @@ namespace HotelReservation.Areas.Company.Controllers
                     unitOfWork.ImageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
                 }
                 unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
-
                 unitOfWork.Complete();
+                Log(nameof(Delete), "hotel" + " " + $"{oldHotel.Name}");
+                TempData["success"] = "Hotel deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
@@ -227,9 +240,15 @@ namespace HotelReservation.Areas.Company.Controllers
                     hotelId = int.Parse(Request.Cookies["HotelId"]);
                 }
                 ViewBag.HotelId = hotelId;
-                ViewBag.HotelName = unitOfWork.HotelRepository.GetOne(where: n => n.Id == hotelId)?.Name;
-                var imgs = unitOfWork.ImageListRepository.Get(where: p => p.HotelId == hotelId);
-                return View(imgs);
+                var user = userManager.GetUserName(User);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user);
+                ViewBag.HotelName = unitOfWork.HotelRepository.GetOne(where: n => n.Id == hotelId && n.CompanyId == company.Id)?.Name;
+                if (ViewBag.HotelName != null)
+                {
+                    var imgs = unitOfWork.ImageListRepository.Get(where: p => p.HotelId == hotelId);
+                    return View(imgs);
+                }
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             catch (Exception)
             {
@@ -256,8 +275,14 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId, tracked: false);
+                var user = userManager.GetUserName(User);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked:false);
+                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId &&e.CompanyId==company.Id, tracked: false);
+                if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 unitOfWork.ImageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
+                TempData["success"] = "Images added successfully.";
+
+                Log(nameof(CreateImgList), nameof(imageList) + " " + $"{hotel.Name}");
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
@@ -265,14 +290,17 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
+        [HttpPost]
         public ActionResult DeleteImgList(int id)
         {
             try
             {
                 var img = unitOfWork.ImageListRepository.GetOne(where: e => e.Id == id, tracked: false);
+                if (img == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
+                if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 unitOfWork.ImageListRepository.DeleteImageList(id, hotel.Name);
+                Log(nameof(DeleteImgList), "imageList" + " " + $"{hotel.Name}");
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
@@ -280,19 +308,27 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-
+        [HttpPost]
         public ActionResult DeleteAllImgList(int id)
         {
             try
             {
                 var hotel = unitOfWork.HotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == id, tracked: false);
+                if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
+                TempData["success"] = "All images deleted successfully.";
+                Log(nameof(DeleteAllImgList), "imageList" + " " + $"{hotel.Name}");
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
+        }
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

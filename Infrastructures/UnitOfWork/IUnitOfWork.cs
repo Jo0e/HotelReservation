@@ -1,4 +1,5 @@
 ﻿using Infrastructures.Repository.IRepository;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 
 namespace Infrastructures.UnitOfWork
@@ -22,5 +23,7 @@ namespace Infrastructures.UnitOfWork
         IContactUsRepository ContactUsRepository { get; }
         IMessageRepository MessageRepository { get; }
         int Complete();
+        Task CompleteAsync();
+        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }

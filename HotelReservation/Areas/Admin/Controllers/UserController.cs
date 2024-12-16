@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using Models.ViewModels;
 using Stripe;
+using System.Net.Sockets;
 using Utilities.Utility;
 
 namespace HotelReservation.Areas.Admin.Controllers
@@ -16,12 +17,14 @@ namespace HotelReservation.Areas.Admin.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly IUnitOfWork unitOfWork;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly ILogger<UserController> logger;
 
-        public UserController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork,RoleManager<IdentityRole> roleManager  )
+        public UserController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork,RoleManager<IdentityRole> roleManager,ILogger<UserController> logger)
         {
             this.userManager = userManager;
             this.unitOfWork = unitOfWork;
             this.roleManager = roleManager;
+            this.logger = logger;
         }
 
         // GET: UserController
@@ -81,6 +84,8 @@ namespace HotelReservation.Areas.Admin.Controllers
                             ModelState.AddModelError(string.Empty, error.Description);
                         }
                     }
+                    Log(nameof(Lockout), nameof(User) + " " + $"unlocked {user.Email}");
+                    TempData["success"] = "User unlocked successfully.";
                 }
                 else
                 {
@@ -93,6 +98,8 @@ namespace HotelReservation.Areas.Admin.Controllers
                             ModelState.AddModelError(string.Empty, error.Description);
                         }
                     }
+                    Log(nameof(Lockout), nameof(User) + " " + $"lock {user.Email}");
+                    TempData["success"] = "User locked successfully.";
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -123,7 +130,6 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             try
             {
-
                 var existingUser = await userManager.FindByIdAsync(user.Id);
                 var appUser = existingUser as ApplicationUser;
                 if (appUser == null)
@@ -143,8 +149,22 @@ namespace HotelReservation.Areas.Admin.Controllers
                 if (result.Succeeded)
                 {
                     var oldRole =await userManager.GetRolesAsync(appUser);
-                   await userManager.RemoveFromRolesAsync(appUser,oldRole);
-                   await userManager.AddToRoleAsync(appUser, role);
+                    var removeResult= await userManager.RemoveFromRolesAsync(appUser,oldRole);
+                    if (!removeResult.Succeeded)
+                    {
+                        return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                    }
+                    else
+                    {
+                        var addRoleResult = await userManager.AddToRoleAsync(appUser, role);
+                        if (!addRoleResult.Succeeded)
+                        {
+                            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                        }
+                    }
+
+                    TempData["success"] = "User updated successfully.";
+                    Log(nameof(Edit), nameof(User) + " " + $"{user.Email}");
                     return RedirectToAction(nameof(Index));
                 }
                 foreach (var error in result.Errors)
@@ -168,8 +188,16 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (!result.Succeeded)
             {
                 TempData["Error"] = "Error";
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-             return RedirectToAction(nameof(Index));
+            Log(nameof(Delete), nameof(User) + " " + $"lock {user.Email}");
+            TempData["success"] = "User deleted successfully.";
+            return RedirectToAction(nameof(Index));
+
+        }
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
 
         }
     }

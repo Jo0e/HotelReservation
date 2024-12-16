@@ -1,6 +1,8 @@
-﻿using Infrastructures.Repository.IRepository;
+﻿using HotelReservation.Areas.Admin.Controllers;
+using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Models;
@@ -14,10 +16,14 @@ namespace HotelReservation.Areas.Company.Controllers
     public class RoomTypeController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<RoomTypeController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public RoomTypeController(IUnitOfWork unitOfWork)
+        public RoomTypeController(IUnitOfWork unitOfWork, ILogger<RoomTypeController> logger, UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
+            this.userManager = userManager;
         }
 
         // GET: RoomType/Index
@@ -32,17 +38,26 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 hotelId = int.Parse(Request.Cookies["HotelId"]);
             }
-            types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
-            ViewBag.HotelId = hotelId;
-            return View(types);
+
+            if (CheckAccesses(hotelId))
+            {
+                types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
+                ViewBag.HotelId = hotelId;
+                return View(types);
+            }
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
         }
 
         // GET: RoomTypeController/Create
         public ActionResult Create(int hotelId)
         {
-            ViewBag.HotelId = hotelId;
-            ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
-            return View();
+            if (CheckAccesses(hotelId))
+            {
+                ViewBag.HotelId = hotelId;
+                ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
+                return View();
+            }
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
         }
 
         // POST: RoomTypeController/Create
@@ -54,6 +69,9 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 unitOfWork.RoomTypeRepository.Create(roomType);
                 unitOfWork.Complete();
+                TempData["success"] = "Room type created successfully.";
+                Log(nameof(Create), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
+
                 return RedirectToAction(nameof(Index));
             }
             return View(roomType);
@@ -63,12 +81,16 @@ namespace HotelReservation.Areas.Company.Controllers
         public ActionResult Edit(int id)
         {
             var roomType = unitOfWork.RoomTypeRepository.GetOne(where: e => e.Id == id);
-            ViewBag.HotelId = roomType?.HotelId;
             if (roomType == null)
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-
+            var accesses = CheckAccesses(roomType.HotelId);
+            if (!accesses)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            ViewBag.HotelId = roomType?.HotelId;
             ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
             return View(roomType);
         }
@@ -82,6 +104,9 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 unitOfWork.RoomTypeRepository.Update(roomType);
                 unitOfWork.Complete();
+                TempData["success"] = "Room type updated successfully.";
+                Log(nameof(Edit), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
+
                 return RedirectToAction(nameof(Index), new { hotelId = roomType.HotelId });
             }
             return View(roomType);
@@ -102,12 +127,28 @@ namespace HotelReservation.Areas.Company.Controllers
 
                 unitOfWork.RoomTypeRepository.Delete(roomType);
                 unitOfWork.Complete();
+                Log(nameof(Delete), $"RoomType {roomType.Type - roomType.PricePN}");
+                TempData["success"] = "Room type deleted successfully.";
+
                 return RedirectToAction(nameof(Index), new { hotelId = roomType.HotelId });
             }
             catch
             {
                 return RedirectToAction(nameof(Index));
             }
+        }
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
+        }
+
+        private bool CheckAccesses(int hotelId)
+        {
+            var user = userManager.GetUserName(User);
+            var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked: false);
+            var hotel = unitOfWork.HotelRepository.GetOne(where: a => a.CompanyId == company.Id && a.Id == hotelId, tracked: false);
+            return !(hotel == null);
         }
     }
 }
