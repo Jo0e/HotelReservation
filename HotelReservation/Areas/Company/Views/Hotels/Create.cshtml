@@ -31,7 +31,7 @@
 <hr />
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Create" enctype="multipart/form-data">
+        <form asp-action="Create" enctype="multipart/form-data" id="createHotelForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -75,9 +75,54 @@
     </div>
 </div>
 
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.15/signalr.min.js"></script>
+    <script>
+        // Establish SignalR connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hotelHub")
+            .build();
+
+        connection.start().then(() => {
+            console.log("Connected to SignalR hub");
+        }).catch(function (err) {
+            console.error("SignalR connection error: " + err.toString());
+        });
+
+        // Listen for HotelCreated event
+        connection.on("HotelCreated", function (hotel) {
+            const successMessage = `Hotel "${hotel.name}" has been created successfully!`;
+            alert(successMessage);
+
+            // Optionally, update a list or UI in real time
+            console.log(hotel);
+        });
+
+        // Form submission
+        const createHotelForm = document.getElementById("createHotelForm");
+        createHotelForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Submit form data via AJAX (Optional)
+            const formData = new FormData(createHotelForm);
+
+            fetch('/Company/Hotels/Create', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Hotel created successfully!");
+                    connection.invoke("NotifyClients", data.hotel); // Notify other clients
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error while creating hotel:", error);
+            });
+        });
+    </script>
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

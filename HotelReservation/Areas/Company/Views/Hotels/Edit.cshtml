@@ -75,6 +75,45 @@
         </form>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/1.0.0/signalr.min.js"></script>
+
+<script>
+    // Create a connection to the HotelHub
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/hotelHub")  // This should match the URL where the hub is hosted
+        .build();
+
+    // Start the connection
+    connection.start()
+        .then(() => {
+            console.log("SignalR connection established");
+        })
+        .catch(err => console.error("SignalR connection error: ", err));
+
+    // Listen for the 'ReceiveMessage' event from the server
+    connection.on("ReceiveMessage", function (message) {
+        console.log("Message received: " + message);
+        alert("New update: " + message);  // This will pop up an alert with the message
+    });
+
+    // Listen for the 'HotelCreated' event
+    connection.on("HotelCreated", function (hotel) {
+        console.log("New hotel created:", hotel);
+        // You can update your UI here to reflect the new hotel
+    });
+
+    // Listen for the 'HotelUpdated' event
+    connection.on("HotelUpdated", function (hotel) {
+        console.log("Hotel updated:", hotel);
+        // Update the UI accordingly
+    });
+
+    // Listen for the 'HotelDeleted' event
+    connection.on("HotelDeleted", function (hotelId) {
+        console.log("Hotel deleted with ID:", hotelId);
+        // Update the UI accordingly
+    });
+</script>
 
 
 @section Scripts {

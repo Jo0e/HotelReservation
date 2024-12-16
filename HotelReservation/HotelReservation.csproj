@@ -16,6 +16,8 @@
   <ItemGroup>
 	  <PackageReference Include="AutoMapper" Version="13.0.1" />
 	  <PackageReference Include="EPPlus" Version="7.5.1" />
+	  <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.3" />
+	  <PackageReference Include="Microsoft.AspNet.SignalR.Core" Version="2.4.3" />
 	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
 	  <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.11" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
@@ -28,11 +30,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="Stripe.net" Version="47.1.0" />
   </ItemGroup>
-
-  <ItemGroup>
+	
+	<ItemGroup>
     <ProjectReference Include="..\Infrastructures\Infrastructures.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\Utilities\Utilities.csproj" />

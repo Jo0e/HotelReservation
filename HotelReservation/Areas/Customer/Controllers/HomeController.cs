@@ -6,6 +6,7 @@ using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models.Models;
 using Utilities.Utility;
 
@@ -19,14 +20,16 @@ namespace HotelReservation.Areas.Customer.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IMapper mapper;
+        private readonly IHubContext<HotelHub> hubContext;
 
         public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork,
-            UserManager<IdentityUser> userManager, IMapper mapper)
+            UserManager<IdentityUser> userManager, IMapper mapper, IHubContext<HotelHub> hubContext)
         {
             _logger = logger;
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
             this.mapper = mapper;
+            this.hubContext = hubContext;
         }
 
 

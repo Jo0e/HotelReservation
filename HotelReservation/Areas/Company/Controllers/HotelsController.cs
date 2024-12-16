@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models.Models;
 using Utilities.Profles;
 using Utilities.Utility;
@@ -18,12 +19,14 @@ namespace HotelReservation.Areas.Company.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
         private readonly ILogger<HotelsController> logger;
+        private readonly IHubContext<HotelHub> hubContext;
 
-        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ILogger<HotelsController> logger)
+        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ILogger<HotelsController> logger, IHubContext<HotelHub> hubContext)
         {
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
             this.logger = logger;
+            this.hubContext = hubContext;
         }
 
         // GET: HotelsController
@@ -121,7 +124,7 @@ namespace HotelReservation.Areas.Company.Controllers
         // POST: HotelsController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Hotel hotel, IFormFile ImgFile)
+        public async Task<ActionResult> Create(Hotel hotel, IFormFile ImgFile)
         {
             try
             {
@@ -140,7 +143,12 @@ namespace HotelReservation.Areas.Company.Controllers
                     hotel.CompanyId = company.Id;
 
                     unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
-                    Log(nameof(Create), nameof(hotel) + " " + $"{hotel.Name}");
+                   
+                    await hubContext.Clients.All.SendAsync("HotelCreated", hotel);
+
+                    // Notify clients
+
+                    //Log(nameof(Create), nameof(hotel) + " " + $"{hotel.Name}");
                     TempData["success"] = "Hotel created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -184,7 +192,7 @@ namespace HotelReservation.Areas.Company.Controllers
         // POST: HotelsController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Hotel hotel, IFormFile ImgFile)
+        public async Task<ActionResult> Edit(Hotel hotel, IFormFile ImgFile)
         {
             try
             {
@@ -194,7 +202,9 @@ namespace HotelReservation.Areas.Company.Controllers
                     var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
                     if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                     unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
-                    Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
+                    await hubContext.Clients.All.SendAsync("HotelUpdated", hotel); // Notify clients
+
+                    //Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
                     TempData["success"] = "Hotel updated successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -206,7 +216,7 @@ namespace HotelReservation.Areas.Company.Controllers
             }
         }
         [HttpPost]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
@@ -216,8 +226,10 @@ namespace HotelReservation.Areas.Company.Controllers
                     unitOfWork.ImageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
                 }
                 unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
-                Log(nameof(Delete), "hotel" + " " + $"{oldHotel.Name}");
+                // Log(nameof(Delete), "hotel" + " " + $"{oldHotel.Name}");
                 unitOfWork.Complete();
+                await hubContext.Clients.All.SendAsync("HotelDeleted", id); // Notify clients
+
                 TempData["success"] = "Hotel deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
@@ -276,10 +288,10 @@ namespace HotelReservation.Areas.Company.Controllers
             try
             {
                 var user = userManager.GetUserName(User);
-                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked:false);
-                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId &&e.CompanyId==company.Id, tracked: false);
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked: false);
+                var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId && e.CompanyId == company.Id, tracked: false);
                 if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                Log(nameof(CreateImgList), nameof(imageList) + " " + $"{hotel.Name}");
+                //Log(nameof(CreateImgList), nameof(imageList) + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
                 TempData["success"] = "Images added successfully.";
 
@@ -299,7 +311,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 if (img == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
                 if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                Log(nameof(DeleteImgList), "imageList" + " " + $"{hotel.Name}");
+                //Log(nameof(DeleteImgList), "imageList" + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.DeleteImageList(id, hotel.Name);
                 return RedirectToAction(nameof(ImageList));
             }
@@ -315,7 +327,7 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 var hotel = unitOfWork.HotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == id, tracked: false);
                 if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                Log(nameof(DeleteAllImgList), "imageList" + " " + $"{hotel.Name}");
+                //Log(nameof(DeleteAllImgList), "imageList" + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
                 TempData["success"] = "All images deleted successfully.";
                 return RedirectToAction(nameof(ImageList));
@@ -325,10 +337,10 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
-        public async void Log(string action, string entity)
-        {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
-        }
+        //public async void Log(string action, string entity)
+        //{
+        //    var user = await userManager.GetUserAsync(User);
+        //    LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+        //}
     }
 }

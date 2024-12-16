@@ -1,4 +1,6 @@
 ﻿@model ICollection<Hotel>
+
+<!-- Styles -->
 <style>
     /* Home Page Styles */
     .container {
@@ -69,46 +71,13 @@
             border-color: #007bff;
         }
 
-</style>
-<style>
-    .search-header {
-        text-align: center;
-        margin-bottom: 10px;
-        font-size: 15px;
-        color: #555;
-    }
-
-    .rotator-text {
-        display: inline-block;
-        overflow: hidden;
-        white-space: nowrap;
-        animation: fadeInOut 4s linear infinite;
-    }
-
-    keyframes fadeInOut {
-        0%, 100%
-
-    {
-        opacity: 0;
-    }
-
-    10%, 90% {
-        opacity: 1;
-    }
-
-    }
-</style>
-
-
-<style>
     .badge {
         font-size: 0.8rem;
         margin: 5px auto;
         padding: 5px 10px;
         border-radius: 20px;
     }
-</style>
-<style>
+
     .btn-primary {
         background: linear-gradient(45deg, #007bff, #0056b3);
         transition: 0.3s;
@@ -118,19 +87,15 @@
             transform: translateY(-3px);
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
         }
-</style>
 
-<style>
     body {
         background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     }
-</style>
-<style>
+
     h1.text-center {
         text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
-</style>
-<style>
+
     .filter-sidebar {
         padding: 20px;
         border-radius: 10px;
@@ -143,7 +108,6 @@
         color: #007bff;
         font-weight: bold;
     }
-
 
     .form-group label {
         font-size: 1rem;
@@ -168,214 +132,221 @@
         }
 </style>
 
-
-
-
 <div class="container mt-4">
+ 
     <div class="search-header">
         <div id="search-rotator" class="rotator-text"></div>
     </div>
-    <div class="container mt-4">
-        <form class="d-flex mb-4" method="get" action="@Url.Action("HotelsByCity", "Home")">
-            <input class="form-control me-sm-2"
-                   type="search"
-                   placeholder="Search by Name or Description or City or Address or Amenities"
-                   value="@ViewBag.search"
-                   name="search" />
-            <input type="hidden" value="@ViewBag.City" name="city" />
-            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-        </form>
 
-        @if (ViewBag.search != null)
-        {
-            <h6 class="row-cols-1">
-                Total Results: @ViewBag.totalResult
-            </h6>
-        }
-        <br />
-        <div class="text-center">
-            <h1 class="animated-text"></h1>
+    
+    <form class="d-flex mb-4" method="get" action="@Url.Action("HotelsByCity", "Home")">
+        <input class="form-control me-sm-2" type="search" placeholder="Search by Name or Description or City or Address or Amenities" value="@ViewBag.search" name="search" />
+        <input type="hidden" value="@ViewBag.City" name="city" />
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+    </form>
 
-            <script>
+    @if (ViewBag.search != null)
+    {
+        <h6>Total Results: @ViewBag.totalResult</h6>
+    }
 
-                const text = "Explore Amazing Hotels!";
-                let index = 0;
-                const target = document.querySelector(".animated-text");
-                function typeWriter() {
+    <div class="text-center">
+        <h1 class="animated-text"></h1>
+        <script>
+            const text = "Explore Amazing Hotels!";
+            let index = 0;
+            const target = document.querySelector(".animated-text");
+            function typeWriter() {
                 if (index < text.length) {
-                target.textContent += text[index];
-                index++;
-                setTimeout(typeWriter, 100);
+                    target.textContent += text[index];
+                    index++;
+                    setTimeout(typeWriter, 100);
                 }
-                }
-                typeWriter();
-            </script>
-        </div>
-        <br />
-
-
-        <div class="container mt-4">
-            <div class="row">
-                <div class="col-md-3 justify-content-start">
-                    <form method="get" action="/Customer/Home/HotelsByCity" class="bg-light p-4 shadow rounded">
-                        <h4 class="text-primary mb-4">Filter by:</h4>
-                        <input type="hidden" name="city" value="@ViewBag.City" />
-
-                        <div class="form-group mb-4">
-                            <label class="fw-bold">Filtering On Stars :</label>
-                            @for (var i = 1; i <= 5; i++)
-                            {
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="star @i" name="stars" value="@i" @(ViewBag.Stars.Contains(i) ? "checked" : "")>
-                                    <label class="form-check-label" for="star @i">@i Stars</label>
-                                </div>
-                            }
-
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label class="fw-bold">Filtring On Amenities:</label>
-
-                            @foreach (var item in ViewBag.AllAmenities)
-                            {
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="@item.Name" name="amenities" value="@item.Name" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains(@item.Name) ? "checked" : "")>
-                                    <label class="form-check-label" for="@item.Name">@item.Name</label>
-                                </div>
-                            }
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                    </form>
-                </div>
-
-
-
-                <div class="col-md-9 ">
-                    <div class="row">
-                        @if (Model.Any())
-                        {
-                            <div class="row row-cols-1 row-cols-md-3 g-3 mt-0">
-
-                            @foreach (var hotel in Model)
-                            {
-                                <div class="col-md-4 mb-4 mt-0">
-                                    <div data-aos="fade-up" class="card h-100">
-                                        <img src="~/images/homeImage/@hotel.CoverImg" loading="lazy" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
-                                        <div class="card-body d-flex flex-column" style="">
-                                            <h5 class="card-title"><strong>@hotel.Name</strong> </h5>
-                                            <p>
-                                                @for (int i = 0; i < hotel.Stars; i++)
-                                                {
-                                                    <i class="bi bi-star-fill" style="color: gold;"></i>
-                                                }
-                                            </p>
-                                            <p class="card-text">
-                                                <i class="bi bi-geo-alt"></i>@hotel.City
-                                            </p>
-                                            <p class="card-text">
-                                                @if (hotel.Rooms.Any(p => p.IsAvailable == true))
-                                                {
-                                                    <span class="badge bg-success">Rooms Available </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger">No Available Rooms</span>
-                                                }
-                                            </p>
-
-                                            <p class="card-text">
-                                                @if (hotel.HotelAmenities.Any())
-                                                {
-                                                    @foreach (var amenity in hotel.HotelAmenities)
-                                                    {
-                                                            <span class="badge text-dark" style="background: linear-gradient(135deg, #c3cfe2,#f5f7fa);"><img src="~/images/amenities/@amenity.Amenity.Img" style="height:20px;" alt="Alternate Text" />&ensp;@amenity.Amenity.Name</span>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <span>No amenities available</span>
-                                                }
-                                            </p>
-
-                                            <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary mt-auto">View Details</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                            </div>
-                        }
-                        else
-                        {
-                            <p class="text-center">No hotels found.</p>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Pagination -->
-        <nav aria-label="Page navigation example" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item @(ViewBag.pageNumber <= 1 ? "disabled" : "")">
-                    <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber - 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                @for (int i = 1; i <= ViewBag.totalPages; i++)
-                {
-                    <li class="page-item @(i == ViewBag.pageNumber ? "active" : "")">
-                        <a class="page-link" href="?pageNumber=@i&city=@ViewBag.city&search=@ViewBag.search">@i</a>
-                    </li>
-                }
-                <li class="page-item @(ViewBag.pageNumber >= ViewBag.totalPages ? "disabled" : "")">
-                    <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber + 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+            }
+            typeWriter();
+        </script>
     </div>
 
+    <!-- Filter Sidebar -->
+    <div class="row">
+        <div class="col-md-3 justify-content-start">
+            <form method="get" action="/Customer/Home/HotelsByCity" class="bg-light p-4 shadow rounded">
+                <h4 class="text-primary mb-4">Filter by:</h4>
+                <input type="hidden" name="city" value="@ViewBag.City" />
 
+                <div class="form-group mb-4">
+                    <label class="fw-bold">Filtering On Stars:</label>
+                    @for (var i = 1; i <= 5; i++)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="star @i" name="stars" value="@i" @(ViewBag.Stars.Contains(i) ? "checked" : "")>
+                            <label class="form-check-label" for="star @i">@i Stars</label>
+                        </div>
+                    }
+                </div>
 
+                <div class="form-group mb-4">
+                    <label class="fw-bold">Filtering On Amenities:</label>
+                    @foreach (var item in ViewBag.AllAmenities)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="@item.Name" name="amenities" value="@item.Name" @(ViewBag.Amenities != null && ViewBag.Amenities.Contains(@item.Name) ? "checked" : "")>
+                            <label class="form-check-label" for="@item.Name">@item.Name</label>
+                        </div>
+                    }
+                </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const texts = [
-                "Search by Name",
-                "Search by Description",
-                "Search by Amenities",
-                "Search by Location"
-            ];
-            const rotatorElement = document.getElementById('search-rotator');
-            let index = 0;
+                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+            </form>
+        </div>
 
-            function rotateText() {
-                rotatorElement.textContent = texts[index];
-                index = (index + 1) % texts.length;
+        <!-- Hotels Display -->
+        <div class="col-md-9">
+            <div class="row">
+                @if (Model.Any())
+                {
+                    <div class="row row-cols-1 row-cols-md-3 g-3 mt-0">
+                        @foreach (var hotel in Model)
+                        {
+                            <div class="col-md-4 mb-4 mt-0">
+                                <div class="card h-100">
+                                    <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title"><strong>@hotel.Name</strong></h5>
+                                        <p>@for (int i = 0; i < hotel.Stars; i++)
+                                            {
+                                                <i class="bi bi-star-fill" style="color: gold;"></i>
+                                            }</p>
+                                        <p class="card-text"><i class="bi bi-geo-alt"></i>@hotel.City</p>
+                                        <p class="card-text">
+                                            @if (hotel.Rooms.Any(p => p.IsAvailable == true))
+                                            {
+                                                <span class="badge bg-success">Rooms Available</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">No Available Rooms</span>
+                                            }
+                                        </p>
+                                        <p class="card-text">
+                                            @if (hotel.HotelAmenities.Any())
+                                            {
+                                                @foreach (var amenity in hotel.HotelAmenities)
+                                                {
+                                                    <span class="badge text-dark" style="background: linear-gradient(135deg, #c3cfe2, #f5f7fa);">
+                                                        <img src="~/images/amenities/@amenity.Amenity.Img" style="height: 20px;" alt="Amenity" />&ensp;@amenity.Amenity.Name
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span>No amenities available</span>
+                                            }
+                                        </p>
+                                        <a href="@Url.Action("Details", "Home", new { id = hotel.Id })" class="btn btn-primary mt-auto">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-center">No hotels found.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation example" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(ViewBag.pageNumber <= 1 ? "disabled" : "")">
+                <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber - 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            @for (int i = 1; i <= ViewBag.totalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.pageNumber ? "active" : "")">
+                    <a class="page-link" href="?pageNumber=@i&city=@ViewBag.city&search=@ViewBag.search">@i</a>
+                </li>
             }
+            <li class="page-item @(ViewBag.pageNumber >= ViewBag.totalPages ? "disabled" : "")">
+                <a class="page-link" href="?pageNumber=@(ViewBag.pageNumber + 1)&city=@ViewBag.city&search=@ViewBag.search" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
 
-            rotateText();
-            setInterval(rotateText, 4000);
+<!-- SignalR Script -->
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Establish connection to the SignalR hub
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/hotelHub")
+                .build();
+
+            // Listen for "ReceiveHotel" event and handle it
+            connection.on("ReceiveHotel", (hotel) => {
+                const hotelList = document.getElementById("hotelList");
+                const li = document.createElement("li");
+                li.textContent = `New Hotel Added: ${hotel.name} (${hotel.location})`;
+                hotelList.appendChild(li);
+
+                // Optionally, you could dynamically add the hotel to the list of cards on the page
+                const hotelHtml = `
+                    <div class="col-md-4 mb-4 mt-0" id="hotel-${hotel.id}">
+                        <div class="card h-100">
+                            <img src="/images/homeImage/${hotel.coverImg}" class="card-img-top" alt="${hotel.name}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title"><strong>${hotel.name}</strong></h5>
+                                <p>${'⭐'.repeat(hotel.stars)}</p>
+                                <p class="card-text"><i class="bi bi-geo-alt"></i> ${hotel.city}</p>
+                                <p class="card-text">
+                                    ${hotel.roomsAvailable ?
+                                        '<span class="badge bg-success">Rooms Available</span>' :
+                                        '<span class="badge bg-danger">No Available Rooms</span>'}
+                                </p>
+                                <a href="/Home/Details/${hotel.id}" class="btn btn-primary mt-auto">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.querySelector('.row-cols-1').insertAdjacentHTML('beforeend', hotelHtml);
+            });
+
+            // Handle hotel updates (optional)
+            connection.on("HotelUpdated", function (hotel) {
+                const hotelCard = document.querySelector(`#hotel-${hotel.id}`);
+                if (hotelCard) {
+                    hotelCard.querySelector('.card-title').textContent = hotel.name;
+                    hotelCard.querySelector('img').src = `/images/homeImage/${hotel.coverImg}`;
+                    hotelCard.querySelector('.card-text:nth-of-type(1)').innerHTML = '⭐'.repeat(hotel.stars);
+                    hotelCard.querySelector('.card-text:nth-of-type(2)').innerHTML = `
+                        ${hotel.roomsAvailable ?
+                            '<span class="badge bg-success">Rooms Available</span>' :
+                            '<span class="badge bg-danger">No Available Rooms</span>'}
+                    `;
+                }
+            });
+
+            // Handle hotel deletions (optional)
+            connection.on("HotelDeleted", function (hotelId) {
+                const hotelCard = document.querySelector(`#hotel-${hotelId}`);
+                if (hotelCard) {
+                    hotelCard.remove();
+                }
+            });
+
+            // Start the connection
+            connection.start().catch(function (err) {
+                console.error(err.toString());
+            });
         });
     </script>
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const keywords = ["Name", "Description", "City", "Amenities"];
-            const keywordElement = document.getElementById("search-keywords");
-            let index = 0;
-
-            function rotateKeywords() {
-                keywordElement.textContent = keywords[index];
-                index = (index + 1) % keywords.length;
-            }
-
-            setInterval(rotateKeywords, 2000);
-            rotateKeywords();
-        });
-    </script>
+}
 

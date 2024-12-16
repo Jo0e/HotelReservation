@@ -82,14 +82,23 @@ namespace HotelReservation
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             builder.Services.AddTransient<IEmailSender, EmailSender>();
+            builder.Services.AddSignalR();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.WithOrigins("http://localhost:7287")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials();
+                });
+            });
+
 
             var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -97,18 +106,17 @@ namespace HotelReservation
             app.UseStaticFiles();
 
             app.UseRouting();
-
-            app.UseAuthentication(); 
+            app.UseCors("CorsPolicy");
+            app.UseAuthentication();
             app.UseAuthorization();
-            //app.MapStaticAssets();
 
-            app.MapRazorPages();
+            app.MapHub<HotelHub>("/hotelHub").RequireCors("CorsPolicy");
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
-
+            app.MapRazorPages();
             app.Run();
         }
     }

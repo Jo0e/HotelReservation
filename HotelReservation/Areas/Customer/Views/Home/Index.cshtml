@@ -66,17 +66,13 @@
         margin-top: 20px;
     }
 
-</style>
-
-<style>
     .badge {
         font-size: 0.9rem;
         margin: 2px;
         padding: 5px 10px;
         border-radius: 20px;
     }
-</style>
-<style>
+
     .btn-primary {
         background: linear-gradient(45deg, #007bff, #0056b3);
         transition: 0.3s;
@@ -86,74 +82,58 @@
             transform: translateY(-3px);
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
         }
-</style>
 
-<style>
     body {
         background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     }
-</style>
 
-<style>
     h1.text-center {
         text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
 </style>
 
-
-
-
-<style>
-    .badge {
-        font-size: 0.9rem;
-        margin: 2px;
-        padding: 5px 10px;
-        border-radius: 20px;
-    }
-</style>
-
 <div class="container mt-4">
-        <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
-            <input class="form-control me-sm-2"
-            type="search"
-            placeholder="Search by City "
-            value="@ViewBag.search"
-            name="search" />
-            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-        </form>
+    <!-- Search Form -->
+    <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
+        <input class="form-control me-sm-2"
+               type="search"
+               placeholder="Search by City"
+               value="@ViewBag.search"
+               name="search" />
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+    </form>
 
     @if (ViewBag.search != null)
     {
         <h6 class="row-cols-1">
             Total Results: @ViewBag.totalResult
-    </h6>
+        </h6>
     }
     <br />
     <div class="text-center">
-    <h1 class="animated-text"></h1>
-    <script>
-        const text = "Explore Hotels By City";
-        let index = 0;
-        const target = document.querySelector(".animated-text");
-        function typeWriter() {
-            if (index < text.length) {
-                target.textContent += text[index];
-                index++;
-                setTimeout(typeWriter, 100);
+        <h1 class="animated-text"></h1>
+        <script>
+            const text = "Explore Hotels By City";
+            let index = 0;
+            const target = document.querySelector(".animated-text");
+            function typeWriter() {
+                if (index < text.length) {
+                    target.textContent += text[index];
+                    index++;
+                    setTimeout(typeWriter, 100);
+                }
             }
-        }
-        typeWriter();
-    </script>    
+            typeWriter();
+        </script>
     </div>
     <br />
 
-    <div class="row">
-
+    <div class="row" id="hotelList">
         @if (Model.Any())
         {
             @foreach (var hotel in Model)
             {
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" id="hotel-@hotel.Id">
                     <div class="card">
                         <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
@@ -172,3 +152,48 @@
         }
     </div>
 </div>
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/hotelHub") 
+        .build();
+
+    connection.on("HotelCreated", (hotel) => {
+        console.log("New hotel created:", hotel);
+        const hotelList = document.getElementById("hotelList");
+        const newHotel = document.createElement("div");
+        newHotel.classList.add("col-md-4", "mb-4");
+        newHotel.id = `hotel-${hotel.id}`;
+        newHotel.innerHTML = `
+            <div class="card">
+                <img src="~/images/homeImage/${hotel.coverImg}" class="card-img-top" alt="${hotel.name}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title "><strong>${hotel.city}</strong></h5>
+                    <a href="/Home/HotelsByCity?city=${hotel.city}" class="btn btn-primary">
+                        View All Hotels in ${hotel.city}
+                    </a>
+                </div>
+            </div>
+        `;
+        hotelList.appendChild(newHotel);
+    });
+
+    connection.on("HotelUpdated", (hotel) => {
+        console.log("Hotel updated:", hotel);
+        const hotelElement = document.getElementById(`hotel-${hotel.id}`);
+        if (hotelElement) {
+            hotelElement.querySelector(".card-title").innerHTML = `<strong>${hotel.city}</strong>`;
+            // Update other hotel details if necessary
+        }
+    });
+
+    connection.on("HotelDeleted", (id) => {
+        console.log("Hotel deleted:", id);
+        const hotelElement = document.getElementById(`hotel-${id}`);
+        if (hotelElement) {
+            hotelElement.remove();
+        }
+    });
+
+    connection.start().catch(err => console.error(err));
+</script>
