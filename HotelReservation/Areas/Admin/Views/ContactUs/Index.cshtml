@@ -11,6 +11,8 @@
             toastr.success('@TempData["success"]');
         </script>
     }
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js"></script>
 }
 
 <h1 class="text-center text-primary mb-4">Contact Requests</h1>
@@ -18,7 +20,7 @@
 
 <div class="container">
     <div class="table-responsive shadow-lg rounded bg-white p-4">
-        <table class="table table-hover align-middle">
+        <table id="contactRequestsTable" class="table table-hover align-middle">
             <thead class="table-dark">
                 <tr>
                     <th>Name</th>

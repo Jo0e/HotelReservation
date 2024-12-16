@@ -130,8 +130,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (toDelete != null)
             {
                 unitOfWork.ContactUsRepository.DeleteWithImage(toDelete, "ContactUsImages", toDelete.UserImgRequest);
-                Log(nameof(Delete), "Request" + " " + $"{toDelete.UserRequestString}");
                 await unitOfWork.CompleteAsync();
+                Log(nameof(Delete), "Request" + " " + $"{toDelete.UserRequestString}");
                 TempData["success"] = "Message deleted successfully.";
 
             }
