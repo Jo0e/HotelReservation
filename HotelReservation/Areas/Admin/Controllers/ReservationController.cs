@@ -69,9 +69,9 @@ namespace HotelReservation.Areas.Admin.Controllers
             unitOfWork.RoomRepository.Update(reservationRoom.Room);
             unitOfWork.ReservationRoomRepository.Delete(reservationRoom);
             unitOfWork.ReservationRepository.Delete(reservation);
-            Log("Cancel Reservation",nameof(reservation)+" "+ $"{reservation.Hotel.Name}");
             unitOfWork.CompleteAsync();
 
+            Log("Cancel Reservation",nameof(reservation)+" "+ $"{reservation.Hotel.Name}");
             TempData["success"] = "Reservation deleted successfully.";
 
             return RedirectToAction("Index");
@@ -79,8 +79,8 @@ namespace HotelReservation.Areas.Admin.Controllers
 
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

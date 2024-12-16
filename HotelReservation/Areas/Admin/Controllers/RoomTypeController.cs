@@ -94,15 +94,15 @@ namespace HotelReservation.Areas.Admin.Controllers
             var type = unitOfWork.RoomTypeRepository.GetOne(where: e => e.Id == id);
             if (type == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.RoomTypeRepository.Delete(type);
-            Log(nameof(Delete), nameof(RoomType) + " " + $"{type.Type - type.PricePN}");
             unitOfWork.CompleteAsync();
             TempData["success"] = "Room type deleted successfully.";
+            Log(nameof(Delete), nameof(RoomType) + " " + $"{type.Type - type.PricePN}");
             return RedirectToAction(nameof(Index));
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

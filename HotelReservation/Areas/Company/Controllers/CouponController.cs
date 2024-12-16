@@ -1,5 +1,6 @@
 ﻿using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -8,6 +9,7 @@ using Utilities.Utility;
 namespace HotelReservation.Areas.Company.Controllers
 {
     [Area("Company")]
+    [Authorize(SD.CompanyRole)]
     public class CouponController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -55,9 +57,9 @@ namespace HotelReservation.Areas.Company.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.CouponRepository.Create(coupon);
-                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 await unitOfWork.CompleteAsync();
                 TempData["success"] = "Coupon created successfully.";
+                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -82,10 +84,10 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             if (ModelState.IsValid)
             {
-                Log(nameof(Edit), nameof(coupon) + " " + $"{coupon.Code}");
                 unitOfWork.CouponRepository.Update(coupon);
                 await unitOfWork.CompleteAsync();
                 TempData["success"] = "Coupon updated successfully.";
+                Log(nameof(Edit), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
             return View(coupon);
@@ -99,16 +101,16 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
             unitOfWork.CouponRepository.Delete(coupon);
-            Log(nameof(DeleteAsync), nameof(coupon) + " " + $"{coupon.Code}");
 
             await unitOfWork.CompleteAsync();
             TempData["success"] = "Company deleted successfully.";
+            Log(nameof(DeleteAsync), nameof(coupon) + " " + $"{coupon.Code}");
             return RedirectToAction(nameof(Index));
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }
