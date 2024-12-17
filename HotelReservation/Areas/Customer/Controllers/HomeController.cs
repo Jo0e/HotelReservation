@@ -46,9 +46,11 @@ namespace HotelReservation.Areas.Customer.Controllers
             var hotelsByCity = hotels.GroupBy(h => h.City)
                                .Select(g => g.First())
                                .ToList();
-            int TotalResult = hotels.Count();
 
-            ViewBag.totalResult = TotalResult;
+            var hotelCounts = hotels.GroupBy(e => e.City)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            ViewBag.HotelCounts = hotelCounts;
             ViewBag.search = search;
 
             return View(hotelsByCity);

@@ -98,16 +98,16 @@ namespace HotelReservation.Areas.Admin.Controllers
         {
             var hotelAmenities = new HotelAmenities { AmenityId = amenityId, HotelId = hotelId };
             unitOfWork.HotelAmenitiesRepository.Delete(hotelAmenities);
-            Log(nameof(Delete), "Clear Amenity from hotel");
             unitOfWork.CompleteAsync();
             TempData["success"] = "Amenity successfully removed from the hotel.";
+            Log(nameof(Delete), "Clear Amenity from hotel");
             return RedirectToAction(nameof(Index));
         }
 
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

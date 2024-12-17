@@ -98,10 +98,10 @@ namespace HotelReservation.Areas.Company.Controllers
                     var newRoom = mapper.Map<Room>(room);
                     rooms.Add(newRoom);
                 }
-                Log(nameof(Create), nameof(room) + " " + $"count: {count}");
                 unitOfWork.RoomRepository.AddRange(rooms);
                 unitOfWork.Complete();
                 TempData["success"] = $"Successfully created {count} room(s).";
+                Log(nameof(Create), nameof(room) + " " + $"count: {count}");
 
                 return RedirectToAction(nameof(Index));
             }
@@ -162,8 +162,8 @@ namespace HotelReservation.Areas.Company.Controllers
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
 
         private bool CheckAccesses(int hotelId)

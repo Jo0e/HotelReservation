@@ -17,7 +17,7 @@ namespace HotelReservation.Areas.Company.Controllers
         private readonly ILogger<HotelAmenityController> logger;
         private readonly UserManager<IdentityUser> userManager;
 
-        public HotelAmenityController(IUnitOfWork unitOfWork,ILogger<HotelAmenityController>logger,UserManager<IdentityUser>userManager)
+        public HotelAmenityController(IUnitOfWork unitOfWork, ILogger<HotelAmenityController> logger, UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
             this.logger = logger;
@@ -33,15 +33,19 @@ namespace HotelReservation.Areas.Company.Controllers
                 if (id != 0)
                 {
                     Response.Cookies.Append("HotelIdCookie", id.ToString());
-                    
+
                 }
                 else
                 {
                     id = int.Parse(Request.Cookies["HotelIdCookie"]);
-                    
+
                 }
-                amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
-                return View(amenities);
+                if (CheckAccesses(id))
+                {
+                    amenities = unitOfWork.HotelRepository.HotelsWithAmenities(id);
+                    return View(amenities);
+                }
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             catch
             {
@@ -54,12 +58,16 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             try
             {
-                var amenity = unitOfWork.AmenityRepository.Get();
-                var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get(where: h => h.HotelId == hotelId).Select(a => a.AmenityId).ToList();
-                ViewBag.Amenity = amenity;
-                ViewBag.HotelAmenities = hotelAmenities;
-                ViewBag.HotelId = hotelId;
-                return View();
+                if (CheckAccesses(hotelId))
+                {
+                    var amenity = unitOfWork.AmenityRepository.Get();
+                    var hotelAmenities = unitOfWork.HotelAmenitiesRepository.Get(where: h => h.HotelId == hotelId).Select(a => a.AmenityId).ToList();
+                    ViewBag.Amenity = amenity;
+                    ViewBag.HotelAmenities = hotelAmenities;
+                    ViewBag.HotelId = hotelId;
+                    return View();
+                }
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             catch
             {
@@ -86,10 +94,10 @@ namespace HotelReservation.Areas.Company.Controllers
                             AmenityId = item,
                         };
                         unitOfWork.HotelAmenitiesRepository.Create(amenity);
-                        Log(nameof(Create), "Assign Amenity to hotel");
                     }
                     unitOfWork.Complete();
                     TempData["success"] = "Amenities successfully assigned to the hotel.";
+                    Log(nameof(Create), "Assign Amenity to hotel");
                     return RedirectToAction(nameof(Index));
                 }
                 if (amenitiesId.Count == 0)
@@ -98,9 +106,9 @@ namespace HotelReservation.Areas.Company.Controllers
                     if (toDelete.Any())
                     {
                         unitOfWork.HotelAmenitiesRepository.DeleteRange(toDelete);
-                        Log(nameof(Create), "Clear Amenity from hotel");
                         unitOfWork.Complete();
                         TempData["success"] = "All amenities successfully removed from the hotel.";
+                        Log(nameof(Create), "Clear Amenity from hotel");
                     }
                 }
                 return RedirectToAction(nameof(Index));
@@ -120,9 +128,9 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 var hotelAmenities = new HotelAmenities { AmenityId = amenityId, HotelId = hotelId };
                 unitOfWork.HotelAmenitiesRepository.Delete(hotelAmenities);
-                Log(nameof(Delete), "Clear Amenity from hotel");
                 unitOfWork.Complete();
                 TempData["success"] = "Amenity successfully removed from the hotel.";
+                Log(nameof(Delete), "Clear Amenity from hotel");
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -132,8 +140,16 @@ namespace HotelReservation.Areas.Company.Controllers
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
+        }
+
+        private bool CheckAccesses(int hotelId)
+        {
+            var user = userManager.GetUserName(User);
+            var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked: false);
+            var hotel = unitOfWork.HotelRepository.GetOne(where: a => a.CompanyId == company.Id && a.Id == hotelId, tracked: false);
+            return !(hotel == null);
         }
     }
 }

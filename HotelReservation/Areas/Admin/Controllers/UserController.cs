@@ -188,6 +188,7 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (!result.Succeeded)
             {
                 TempData["Error"] = "Error";
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             Log(nameof(Delete), nameof(User) + " " + $"lock {user.Email}");
             TempData["success"] = "User deleted successfully.";
@@ -196,8 +197,8 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

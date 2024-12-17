@@ -92,10 +92,12 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult Edit(Hotel hotel, IFormFile ImgFile)
         {
             ModelState.Remove(nameof(ImgFile));
+            ModelState.Remove(nameof(hotel.City));
             if (ModelState.IsValid)
             {
                 var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
                 if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                hotel.City ??=oldHotel.City;
                 unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                 TempData["success"] = "Hotel updated successfully.";
                 Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
@@ -125,8 +127,8 @@ namespace HotelReservation.Areas.Admin.Controllers
             if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
             unitOfWork.Complete();
-            Log(nameof(Delete), nameof(hotel));
             TempData["success"] = "Hotel deleted successfully.";
+            Log(nameof(Delete), nameof(hotel));
             return RedirectToAction(nameof(Index));
         }
 
@@ -187,8 +189,8 @@ namespace HotelReservation.Areas.Admin.Controllers
 
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }
