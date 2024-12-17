@@ -24,7 +24,8 @@ namespace HotelReservation.Areas.Customer.Controllers
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            var messages = unitOfWork.MessageRepository.Get(where: m => m.UserId == user.Id);
+            var messages = unitOfWork.MessageRepository.Get(where: m => m.UserId == user.Id)
+                .OrderByDescending(d=>d.MessageDateTime);
             return View(messages);
         }
         public IActionResult ReadMessage(int messageId)
@@ -39,7 +40,6 @@ namespace HotelReservation.Areas.Customer.Controllers
                 message.IsReadied = true;
                 unitOfWork.MessageRepository.Update(message);
                 unitOfWork.Complete();
-                TempData["success"] = "Message marked as read.";
             }
             return RedirectToAction("Index");
         }
