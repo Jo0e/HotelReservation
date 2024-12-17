@@ -44,6 +44,7 @@
     <Folder Include="wwwroot\images\profile\RoweGroup%40hotels.com\" />
     <Folder Include="wwwroot\images\profile\ykj627%40gmail.com\" />
     <Folder Include="wwwroot\images\subImage\Silver Star Hotel\" />
+    <Folder Include="wwwroot\Logs\" />
   </ItemGroup>
 
 </Project>

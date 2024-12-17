@@ -9,7 +9,7 @@ using Utilities.Utility;
 namespace HotelReservation.Areas.Company.Controllers
 {
     [Area("Company")]
-    [Authorize(SD.CompanyRole)]
+    [Authorize(SD.AdminRole)]
     public class AmenityController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -89,8 +89,8 @@ namespace HotelReservation.Areas.Company.Controllers
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

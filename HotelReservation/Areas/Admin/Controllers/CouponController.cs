@@ -91,7 +91,7 @@ namespace HotelReservation.Areas.Admin.Controllers
                 unitOfWork.CouponRepository.Update(coupon);
                 unitOfWork.Complete();
                 TempData["success"] = "Coupon updated successfully.";
-                Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
+                Log(nameof(Create), $"coupon {coupon.Code}");
                 return RedirectToAction(nameof(Index));
             }
             return View(coupon);
@@ -105,15 +105,14 @@ namespace HotelReservation.Areas.Admin.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             else
             unitOfWork.CouponRepository.Delete(coupon);
-            Log(nameof(Delete), nameof(coupon) + " " + $"{coupon.Code}");
             unitOfWork.CompleteAsync();
             TempData["success"] = "Company deleted successfully.";
+            Log(nameof(Delete), nameof(coupon) + " " + $"{coupon.Code}");
             return RedirectToAction(nameof(Index));
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
         }
     }
 }

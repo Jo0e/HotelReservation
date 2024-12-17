@@ -38,27 +38,26 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 hotelId = int.Parse(Request.Cookies["HotelId"]);
             }
-            var accesses = CheckAccesses(hotelId);
-            if (!accesses)
+
+            if (CheckAccesses(hotelId))
             {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
+                ViewBag.HotelId = hotelId;
+                return View(types);
             }
-            types = unitOfWork.RoomTypeRepository.Get(where: a => a.HotelId == hotelId);
-            ViewBag.HotelId = hotelId;
-            return View(types);
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
         }
 
         // GET: RoomTypeController/Create
         public ActionResult Create(int hotelId)
         {
-            var accesses = CheckAccesses(hotelId);
-            if (!accesses)
+            if (CheckAccesses(hotelId))
             {
-                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                ViewBag.HotelId = hotelId;
+                ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
+                return View();
             }
-            ViewBag.HotelId = hotelId;
-            ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
-            return View();
+            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
         }
 
         // POST: RoomTypeController/Create
@@ -69,9 +68,9 @@ namespace HotelReservation.Areas.Company.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.RoomTypeRepository.Create(roomType);
-                Log(nameof(Create), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
                 unitOfWork.Complete();
                 TempData["success"] = "Room type created successfully.";
+                Log(nameof(Create), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
 
                 return RedirectToAction(nameof(Index));
             }
@@ -84,7 +83,7 @@ namespace HotelReservation.Areas.Company.Controllers
             var roomType = unitOfWork.RoomTypeRepository.GetOne(where: e => e.Id == id);
             if (roomType == null)
             {
-            return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             var accesses = CheckAccesses(roomType.HotelId);
             if (!accesses)
@@ -92,8 +91,8 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             ViewBag.HotelId = roomType?.HotelId;
-                ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
-                return View(roomType);
+            ViewBag.Types = new SelectList(Enum.GetValues(typeof(Type)));
+            return View(roomType);
         }
 
         // POST: RoomTypeController/Edit/5
@@ -103,10 +102,10 @@ namespace HotelReservation.Areas.Company.Controllers
         {
             if (ModelState.IsValid)
             {
-                Log(nameof(Edit), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
                 unitOfWork.RoomTypeRepository.Update(roomType);
                 unitOfWork.Complete();
                 TempData["success"] = "Room type updated successfully.";
+                Log(nameof(Edit), nameof(RoomType) + " " + $"{roomType.Type - roomType.PricePN}");
 
                 return RedirectToAction(nameof(Index), new { hotelId = roomType.HotelId });
             }
@@ -140,8 +139,8 @@ namespace HotelReservation.Areas.Company.Controllers
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
 
         private bool CheckAccesses(int hotelId)

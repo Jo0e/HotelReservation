@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
-using Utilities.Profles;
+using Utilities.Profiles;
 using Utilities.Utility;
 
 namespace HotelReservation.Areas.Company.Controllers
@@ -159,11 +159,11 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 var user = userManager.GetUserName(User);
                 var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user);
-                var hotel = new Hotel
-                {
-                    CompanyId = company.Id,
-                    ReportId = null
-                };
+                //var hotel = new Hotel
+                //{
+                //    CompanyId = company.Id,
+                //    ReportId = null
+                //};
 
                 ViewData["CompanyId"] = company?.Id;
 
@@ -216,8 +216,8 @@ namespace HotelReservation.Areas.Company.Controllers
                     unitOfWork.ImageListRepository.DeleteHotelFolder(oldHotel.ImageLists, oldHotel.Name);
                 }
                 unitOfWork.HotelRepository.DeleteWithImage(oldHotel, "homeImage", oldHotel.CoverImg);
-                Log(nameof(Delete), "hotel" + " " + $"{oldHotel.Name}");
                 unitOfWork.Complete();
+                Log(nameof(Delete), "hotel" + " " + $"{oldHotel.Name}");
                 TempData["success"] = "Hotel deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
@@ -279,10 +279,10 @@ namespace HotelReservation.Areas.Company.Controllers
                 var company = unitOfWork.CompanyRepository.GetOne(where: e => e.UserName == user, tracked:false);
                 var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == imageList.HotelId &&e.CompanyId==company.Id, tracked: false);
                 if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                Log(nameof(CreateImgList), nameof(imageList) + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.CreateImagesList(imageList, ImgUrl, hotel.Name);
                 TempData["success"] = "Images added successfully.";
 
+                Log(nameof(CreateImgList), nameof(imageList) + " " + $"{hotel.Name}");
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
@@ -299,8 +299,8 @@ namespace HotelReservation.Areas.Company.Controllers
                 if (img == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
                 var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
                 if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                Log(nameof(DeleteImgList), "imageList" + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.DeleteImageList(id, hotel.Name);
+                Log(nameof(DeleteImgList), "imageList" + " " + $"{hotel.Name}");
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
@@ -315,9 +315,9 @@ namespace HotelReservation.Areas.Company.Controllers
             {
                 var hotel = unitOfWork.HotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == id, tracked: false);
                 if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                Log(nameof(DeleteAllImgList), "imageList" + " " + $"{hotel.Name}");
                 unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
                 TempData["success"] = "All images deleted successfully.";
+                Log(nameof(DeleteAllImgList), "imageList" + " " + $"{hotel.Name}");
                 return RedirectToAction(nameof(ImageList));
             }
             catch (Exception)
@@ -327,8 +327,8 @@ namespace HotelReservation.Areas.Company.Controllers
         }
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

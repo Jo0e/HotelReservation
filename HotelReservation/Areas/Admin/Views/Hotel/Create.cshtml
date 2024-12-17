@@ -36,7 +36,8 @@
 
             <div class="form-group mb-3">
                 <label asp-for="City" class="form-label">City</label>
-                <input asp-for="City" class="form-control" required />
+                <input type="text" id="citySearch" class="form-control mb-2" placeholder="Enter city name..." />
+                <select id="City" asp-for="City" class="form-control" required></select>
                 <span asp-validation-for="City" class="text-danger"></span>
             </div>
 
@@ -78,6 +79,48 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        document.getElementById('citySearch').addEventListener('input', function () {
+            const cityName = this.value.trim();
+            if (cityName.length > 2) { // Fetch data when input length is greater than 2
+                fetch(`https://secure.geonames.org/search?q=${encodeURIComponent(cityName)}&maxRows=10&username=demo`)
+                    .then(response => response.text()) // GeoNames returns XML, parse as text
+                    .then(xmlString => {
+                        // Parse the XML string into a DOM object
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+                        // Extract city names and countries from the XML
+                        const geonames = xmlDoc.getElementsByTagName("geoname");
+                        const citySelect = document.getElementById('City');
+                        citySelect.innerHTML = ''; // Clear existing options
+
+                        if (geonames.length > 0) {
+                            Array.from(geonames).forEach(geoname => {
+                                const cityName = geoname.getElementsByTagName("name")[0]?.textContent;
+                                const countryName = geoname.getElementsByTagName("countryName")[0]?.textContent;
+
+                                if (cityName && countryName) {
+                                    const option = document.createElement('option');
+                                    option.value = cityName;
+                                    option.textContent = `${cityName}, ${countryName}`;
+                                    citySelect.appendChild(option);
+                                }
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.textContent = 'No results found';
+                            option.disabled = true;
+                            citySelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while fetching city data.');
+                    });
+            }
+        });
+    </script>
 }
 
 <style>

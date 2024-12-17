@@ -118,9 +118,9 @@ namespace HotelReservation.Areas.Admin.Controllers
             if ( toDelete!= null )
             {
                 unitOfWork.RoomRepository.Delete(toDelete);
-                Log(nameof(Delete), nameof(room) + " " + $"Id: {room.Id}");
                 unitOfWork.CompleteAsync();
                 TempData["success"] = "Room deleted successfully.";
+                Log(nameof(Delete), nameof(room) + " " + $"Id: {room.Id}");
                 return RedirectToAction(nameof(Index));
             }
             return RedirectToAction("NotFound", "Home", new { area = "Customer" });
@@ -129,8 +129,8 @@ namespace HotelReservation.Areas.Admin.Controllers
 
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id, user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

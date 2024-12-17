@@ -91,16 +91,16 @@ namespace HotelReservation.Areas.Admin.Controllers
         public async Task<ActionResult> Delete(Amenity amenity)
         {
             unitOfWork.AmenityRepository.DeleteWithImage(amenity, "amenities",amenity.Img);
-            Log(nameof(Delete), nameof(amenity) + " " + $"{amenity.Name}");
             await unitOfWork.CompleteAsync();
             TempData["success"] = "Amenity deleted successfully!";
+            Log(nameof(Delete), nameof(amenity) + " " + $"{amenity.Name}");
             return RedirectToAction(nameof(Index));
         }
 
         public async void Log(string action, string entity)
         {
-            var user = await userManager.GetUserAsync(User);
-            LoggerHelper.LogAdminAction(logger, user.Id,user.Email, action, entity);
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
         }
     }
 }

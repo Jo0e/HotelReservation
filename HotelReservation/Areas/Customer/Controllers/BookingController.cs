@@ -1,4 +1,4 @@
-﻿using Infrastructures.Repository.IRepository;
+using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -147,7 +147,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             var totalPrice = (typeModel.PricePN + totalMealPrice) * viewModel.RoomCount *
                              (viewModel.CheckOutDate - viewModel.CheckInDate).Days;
 
-          
+
 
             // Create a reservation
             var reservation = new Reservation
@@ -168,11 +168,8 @@ namespace HotelReservation.Areas.Customer.Controllers
                 if (coupon != null && coupon.Limit > 0)
                 {
                     totalPrice -= (int)(totalPrice * coupon.Discount / 100);
-                    coupon.Limit--;
-                    reservation.TotalPrice= totalPrice;
+                    reservation.TotalPrice = totalPrice;
                     reservation.CouponId = coupon.Id;
-                    unitOfWork.CouponRepository.Update(coupon);
-                    unitOfWork.Complete();
                 }
             }
             // Associate rooms with the reservation
@@ -276,7 +273,7 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
 
 
-        public IActionResult CheckOutSuccess()
+        public async Task<IActionResult> CheckOutSuccess(int reservationId)
         {
             var appUser = userManager.GetUserId(User);
 
@@ -285,38 +282,62 @@ namespace HotelReservation.Areas.Customer.Controllers
                 TempData["Error"] = "Unable to verify the user.";
                 return RedirectToAction("Index", "Home");
             }
-
-            var reservations = unitOfWork.ReservationRoomRepository.Get(
-                include: [e => e.Reservation, e => e.Room],
-                where: e => e.Reservation.UserId == appUser
-            );
-
-            foreach (var reservation in reservations)
+            var reservation = unitOfWork.ReservationRepository.GetOneReservation(reservationId);
+            if (reservation != null && reservation.UserId == appUser)
             {
-
-                if (reservation != null && reservation.Reservation.CheckInDate.Date == DateTime.Now.Date)
+                foreach (var room in reservation.ReservationRooms)
                 {
-                    reservation.Room.IsAvailable = false;
-                    unitOfWork.RoomRepository.Update(reservation.Room);
-                    unitOfWork.Complete();
-                    reservation.Reservation.Status = "Complete";
-                    unitOfWork.ReservationRepository.Update(reservation.Reservation);
-                    unitOfWork.Complete();
+                    room.Room.IsAvailable = false;
+                    unitOfWork.RoomRepository.Update(room.Room);
                 }
-            }
-            var message = new Message
-            {
-                MessageDateTime = DateTime.Now,
-                Title = "Your Reservation",
-                MessageString = $"Thank you for reservation with ID: {reservations.Select(e => e.ReservationID).FirstOrDefault()}" +
-                $"\r\nWith Total Payment: {reservations.Select(e => e.Reservation.TotalPrice).FirstOrDefault()} $",
-                Description = "We hope you have safe travels and enjoy your stay",
-                UserId = appUser,
-            };
-            unitOfWork.MessageRepository.Create(message);
-            unitOfWork.Complete();
+                reservation.Status = "Complete";
+                unitOfWork.ReservationRepository.Update(reservation);
 
-            TempData["Success"] = "Payment successful! Your reservations have been confirmed.";
+                if (reservation.CouponId != null) 
+                {
+                    var coupon = unitOfWork.CouponRepository.GetOne(where:a=>a.Id==reservation.CouponId,tracked:false);
+                    if (coupon != null)
+                    {
+                        coupon.Limit--;
+                        unitOfWork.CouponRepository.Update(coupon);
+                    }
+                }
+                var message = new Message
+                {
+                    MessageDateTime = DateTime.Now,
+                    Title = "Your Reservation",
+                    MessageString = $"Thank you for reservation with ID: {reservation.Id}\r\n" +
+                        $"With Total Payment: {reservation.TotalPrice:C}\r\n" +
+                        $"We Waiting for you at {reservation.Hotel.Name} on {reservation.CheckInDate:MMMM dd, yyyy}\r\n" +
+                        $"Hotel Address: {reservation.Hotel.Address}",
+                    Description = "We hope you have safe travels, and enjoy your stay",
+                    UserId = appUser,
+                };
+                unitOfWork.MessageRepository.Create(message);
+                await unitOfWork.CompleteAsync();
+            }
+
+            //var reservations = unitOfWork.ReservationRoomRepository.Get(
+            //    include: [e => e.Reservation, e => e.Room],
+            //    where: e => e.Reservation.UserId == appUser
+            //);
+
+            //foreach (var reservation in reservations)
+            //{
+
+            //    if (reservation != null && reservation.Reservation.CheckInDate.Date == DateTime.Now.Date)
+            //    {
+            //        reservation.Room.IsAvailable = false;
+            //        unitOfWork.RoomRepository.Update(reservation.Room);
+            //        unitOfWork.Complete();
+            //        reservation.Reservation.Status = "Complete";
+            //        unitOfWork.ReservationRepository.Update(reservation.Reservation);
+            //        unitOfWork.Complete();
+            //    }
+            //}
+            //TempData["Success"] = "Payment successful! Your reservations have been confirmed.";
+
+
             return View();
         }
 
