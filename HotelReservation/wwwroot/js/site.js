@@ -33,7 +33,7 @@ connection.on("AdminNotification", function (contactUsInfo) {
     const table = document.getElementById("contactRequestsTable");
     if (table) {
         const tbody = table.getElementsByTagName('tbody')[0];
-        const newRow = tbody.insertRow();
+        const newRow = tbody.insertRow(0);
 
         // Create cells for the new row
         const cell1 = newRow.insertCell(0);

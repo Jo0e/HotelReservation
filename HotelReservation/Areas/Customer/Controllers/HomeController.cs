@@ -1,11 +1,14 @@
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using AutoMapper;
+using HotelReservation.Hubs;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models.Models;
 using NuGet.Configuration;
 using Utilities.Utility;
@@ -20,14 +23,16 @@ namespace HotelReservation.Areas.Customer.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IMapper mapper;
+        private readonly IHubContext<NotificationHub> hubContext;
 
         public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork,
-            UserManager<IdentityUser> userManager, IMapper mapper)
+            UserManager<IdentityUser> userManager, IMapper mapper,IHubContext<NotificationHub> hubContext)
         {
             _logger = logger;
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
             this.mapper = mapper;
+            this.hubContext = hubContext;
         }
 
 
@@ -194,16 +199,27 @@ namespace HotelReservation.Areas.Customer.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
             var contactUs = GetContactUs(user.Id, user.Email, ContactUs.RequestType.Complaint, UserRequestString, commentId);
-            //var contactUs = new ContactUs
-            //{
-            //    UserId = user.Id,
-            //    Name = user.Email,
-            //    Request = ContactUs.RequestType.Complaint,
-            //    UserRequestString = $"Comment Report: \r\n{UserRequestString}",
-            //    HelperId = commentId,
-            //};
             unitOfWork.ContactUsRepository.Create(contactUs);
+            var message = ConfirmationMessage(user.Id);
+            unitOfWork.MessageRepository.Create(message);
             unitOfWork.Complete();
+
+            // Create a detailed object for the notification
+            var notification = new
+            {
+                contactUs.Id,
+                contactUs.Name,
+                RequestType = contactUs.Request.ToString(),
+                contactUs.UserRequestString
+            };
+            // Convert the object to JSON string
+            var notificationJson = JsonSerializer.Serialize(notification);
+            // Notify admin with detailed contact request info
+
+            await hubContext.Clients.Group("Admins").SendAsync("AdminNotification", notificationJson);
+
+
+
             TempData["success"] = "Your comment report has been submitted successfully.";
             return RedirectToAction("Index");
 
@@ -358,7 +374,18 @@ namespace HotelReservation.Areas.Customer.Controllers
         }
 
 
-
+        private static Message ConfirmationMessage(string userId)
+        {
+            var message = new Message
+            {
+                UserId = userId,
+                Title = "Contact Us",
+                MessageString = $"Thank you for Contacting us, \r\nYour Report Has been submitted successfully ",
+                Description = "We will replay ASAP",
+                MessageDateTime = DateTime.Now,
+            };
+            return message;
+        }
 
 
     }
