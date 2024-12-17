@@ -24,7 +24,7 @@
 
                 <div class="form-group mb-3">
                     <label asp-for="Limit" class="form-label fw-bold">Usage Limit</label>
-                    <input asp-for="Limit" class="form-control" placeholder="Update usage limit" />
+                    <input asp-for="Limit" class="form-control" min="0" placeholder="Update usage limit" />
                     <span asp-validation-for="Limit" class="text-danger"></span>
                 </div>
 

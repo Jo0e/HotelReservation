@@ -43,9 +43,15 @@
                 </li>
                 <li class="nav-item">
                     <a asp-area="Admin" asp-controller="ContactUs" asp-action="Index" class="nav-link btn btn-primary" id="btnContactUs">
-                        <i class="bi bi-chat-right-dots"></i> ContactUs:&nbsp;@contactUsCount
+                        <i class="bi bi-chat-right-dots"></i> ContactUs:&nbsp; <span id="contactCount">@contactUsCount</span>
                     </a>
                 </li>
+                <script>
+                    // Get initial unread contact count from Razor
+                    let unreadContactCount = @contactUsCount;
+                    console.log("Initial Unread Count:", unreadContactCount);
+                </script>
+
                 <li class="nav-item">
                     <a asp-area="Admin" asp-controller="Amenity" asp-action="Index" class="nav-link btn btn-primary" id="btnAmenity">
                         <i class="bi bi-house-add-fill"></i> Manage Amenities
@@ -62,7 +68,7 @@
                     </a>
                 </li>
             }
-            @if(User.IsInRole(SD.CompanyRole))
+            @if (User.IsInRole(SD.CompanyRole))
             {
                 <li class="nav-item">
                     <a asp-area="Company" asp-controller="Hotels" asp-action="Index" class="nav-link btn btn-primary" id="btnHotels">

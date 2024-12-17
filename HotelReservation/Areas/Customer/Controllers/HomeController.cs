@@ -1,12 +1,16 @@
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using AutoMapper;
+using HotelReservation.Hubs;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models.Models;
+using NuGet.Configuration;
 using Utilities.Utility;
 
 
@@ -19,14 +23,16 @@ namespace HotelReservation.Areas.Customer.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IMapper mapper;
+        private readonly IHubContext<NotificationHub> hubContext;
 
         public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork,
-            UserManager<IdentityUser> userManager, IMapper mapper)
+            UserManager<IdentityUser> userManager, IMapper mapper,IHubContext<NotificationHub> hubContext)
         {
             _logger = logger;
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
             this.mapper = mapper;
+            this.hubContext = hubContext;
         }
 
 
@@ -45,9 +51,11 @@ namespace HotelReservation.Areas.Customer.Controllers
             var hotelsByCity = hotels.GroupBy(h => h.City)
                                .Select(g => g.First())
                                .ToList();
-            int TotalResult = hotels.Count();
 
-            ViewBag.totalResult = TotalResult;
+            var hotelCounts = hotels.GroupBy(e => e.City)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            ViewBag.HotelCounts = hotelCounts;
             ViewBag.search = search;
 
             return View(hotelsByCity);
@@ -113,7 +121,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("NotFound", "Home");
         }
 
-
+        [Authorize]
         public async Task<IActionResult> AddComment(int hotelId, string comment)
         {
             var user = await userManager.GetUserAsync(User);
@@ -135,11 +143,13 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Details", new { id = hotelId });
         }
 
+        [Authorize]
         [HttpPost]
-        public IActionResult EditComment(int id, string commentString)
+        public async Task<IActionResult> EditComment(int id, string commentString)
         {
             var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
-            if (comment == null)
+            var user = await userManager.GetUserAsync(User);
+            if (comment == null || user == null || comment.UserId != user.Id)
             {
                 return RedirectToAction("NotFound", "Home");
             }
@@ -150,7 +160,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             TempData["success"] = "Comment edited successfully!";
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
-
+        [Authorize]
         public async Task<IActionResult> LikeComment(int commentId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -167,8 +177,9 @@ namespace HotelReservation.Areas.Customer.Controllers
             var isExist = comment.ReactionUsersId.Any(e => e.Equals(user.Id));
             if (isExist)
             {
-                //comment.ReactionUsersId.Remove(user.Id);
-
+                comment.ReactionUsersId.Remove(user.Id);
+                comment.Likes--;
+                unitOfWork.Complete();
                 return RedirectToAction("Details", new { id = comment.HotelId });
 
             }
@@ -177,7 +188,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             unitOfWork.Complete();
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
-
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReportComment(int commentId, string UserRequestString)
@@ -187,27 +198,44 @@ namespace HotelReservation.Areas.Customer.Controllers
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            var contactUs = new ContactUs
-            {
-                UserId = user.Id,
-                Name = user.Email,
-                Request = ContactUs.RequestType.Complaint,
-                UserRequestString = $"Comment Report: \r\n{UserRequestString}",
-                HelperId = commentId,
-            };
+            var contactUs = GetContactUs(user.Id, user.Email, ContactUs.RequestType.Complaint, UserRequestString, commentId);
             unitOfWork.ContactUsRepository.Create(contactUs);
+            var message = ConfirmationMessage(user.Id);
+            unitOfWork.MessageRepository.Create(message);
             unitOfWork.Complete();
+
+            // Create a detailed object for the notification
+            var notification = new
+            {
+                contactUs.Id,
+                contactUs.Name,
+                RequestType = contactUs.Request.ToString(),
+                contactUs.UserRequestString
+            };
+            // Convert the object to JSON string
+            var notificationJson = JsonSerializer.Serialize(notification);
+            // Notify admin with detailed contact request info
+
+            await hubContext.Clients.Group("Admins").SendAsync("AdminNotification", notificationJson);
+
+
+
             TempData["success"] = "Your comment report has been submitted successfully.";
             return RedirectToAction("Index");
 
         }
-
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteComment(int commentId)
+        public async Task<IActionResult> DeleteComment(int commentId)
         {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             var toDelete = unitOfWork.CommentRepository.GetOne(where: e => e.Id == commentId);
-            if (toDelete != null)
+            if (toDelete != null&&toDelete.UserId==user.Id || toDelete != null&&User.IsInRole(SD.AdminRole))
             {
                 unitOfWork.CommentRepository.Delete(toDelete);
                 unitOfWork.Complete();
@@ -332,7 +360,32 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             return RedirectToAction("AddLogo");
         }
+        private static ContactUs GetContactUs(string userId, string name, ContactUs.RequestType requestType, string RequestString, int commentId)
+        {
+            var contactUs = new ContactUs
+            {
+                UserId = userId,
+                Name = name,
+                Request = requestType,
+                UserRequestString = $"Comment Report: \r\n{RequestString}",
+                HelperId = commentId,
+            };
+            return contactUs;
+        }
 
+
+        private static Message ConfirmationMessage(string userId)
+        {
+            var message = new Message
+            {
+                UserId = userId,
+                Title = "Contact Us",
+                MessageString = $"Thank you for Contacting us, \r\nYour Report Has been submitted successfully ",
+                Description = "We will replay ASAP",
+                MessageDateTime = DateTime.Now,
+            };
+            return message;
+        }
 
 
     }

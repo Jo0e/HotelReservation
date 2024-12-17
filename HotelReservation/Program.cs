@@ -18,6 +18,8 @@ namespace HotelReservation
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddAutoMapper(typeof(Program));
+
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
             builder.Services.AddDbContext<ApplicationDbContext>(options => options
@@ -38,7 +40,7 @@ namespace HotelReservation
                .AddDefaultUI()
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
-           
+
 
             //builder.Services.AddAuthentication().AddGoogle(googleOptions =>
             //{

@@ -17,5 +17,13 @@ namespace Infrastructures.Repository
                 .Include(r => r.ReservationRooms)
                 .ThenInclude(e => e.Room);
         }
+        public Reservation GetOneReservation(int reservationId)
+        {
+            var reservation = dbSet.Include(e=>e.ReservationRooms)
+                .ThenInclude(r=>r.Room)
+                .Include(h=>h.Hotel)
+                .FirstOrDefault(e=>e.Id==reservationId);
+            return reservation;
+        }
     }
 }

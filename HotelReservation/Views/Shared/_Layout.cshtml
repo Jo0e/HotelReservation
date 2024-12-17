@@ -37,10 +37,12 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
             <div class="container-fluid">
-                <h5 style="margin-right:15px;font-size:1.3rem;">
-                    <img src="~/images/logo.png" alt="Logo" class="rounded-circle" style="height:60px; width:60px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-right: 10px;" />
-                    HotelReservation
-                </h5>
+                <a class="text-dark" asp-area="Customer" asp-controller="Home" asp-action="Index" style="text-decoration:none;">
+                    <h5 style="margin-right:15px;font-size:1.3rem;">
+                        <img src="~/images/logo.png" alt="Logo" class="rounded-circle" style="height:60px; width:60px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-right: 10px;" />
+                        HotelReservation
+                    </h5>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -73,15 +75,22 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link active" style="margin-right:15px;" asp-area="Customer" asp-controller="Inbox" asp-action="Index">
-                                    <i class="bi bi-envelope-fill"> @messages</i>
+                                    <i class="bi bi-envelope-fill">
+                                        <span id="message-counter">@messages </span>
+                                    </i>
                                 </a>
                             </li>
                         }
+
                         @if (User.IsInRole(SD.AdminRole) || User.IsInRole(SD.CompanyRole))
                         {
                             <li class="nav-item">
-                                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+                                <button class="btn btn-primary position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
                                     Admin Dashboard
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        ..
+                                        <span class="visually-hidden">unread messages</span>
+                                    </span>
                                 </button>
                             </li>
                         }
@@ -117,6 +126,10 @@
     <script src="~/lib/signalr/signalr.min.js"></script>
     <script src="~/lib/signalr/dist/browser/signalr.js"></script>
     <script type="module" src="~/js/site.js"></script> <!-- Marked as Module -->
+    @section Scripts {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+        <script src="/js/site.js"></script>
+    }
     <script>
         AOS.init();
     </script>
@@ -134,5 +147,7 @@
 
 
     @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Weather", required: false)
+    @await RenderSectionAsync("SignalR", required: false)
 </body>
 </html>

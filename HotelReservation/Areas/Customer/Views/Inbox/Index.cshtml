@@ -4,6 +4,10 @@
     ViewData["Title"] = "Inbox";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section SignalR {
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js"></script>
+}
 
 <div class="container mt-5">
     <h1 class="mb-4 text-primary text-center">@ViewData["Title"]</h1>
@@ -11,14 +15,14 @@
     <div class="chat-list">
         @foreach (var item in Model)
         {
-            <div class="chat-item d-flex align-items-start shadow-sm mb-3">
+            <div class="chat-item align-items-start shadow-sm mb-3">
                 <div class="avatar rounded-circle me-3">
                     <span class="initials">
                         @item.Title.Substring(0, 1).ToUpper()
                     </span>
                 </div>
-                <div class="chat-content flex-grow-1">
-                    <h5 class="chat-title mb-1 text-truncate">@item.Title</h5>
+                <div class="chat-content flex-grow-1 mt-2">
+                    <h5 class="chat-title mb-1 text-truncate fw-bold text-black">@item.Title</h5>
                     <p class="chat-message mb-2 text-dark">
                         @item.MessageString
                     </p>
@@ -28,15 +32,15 @@
                 </div>
                 <div class="chat-actions text-end">
                     <small class="text-muted ">@item.MessageDateTime.ToString("g")</small>
-                    <div class="d-flex justify-content-end">
-                    <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm ms-1">
+                    <div class=" justify-content-end">
+                        <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm ms-1">
                             <i class="@(item.IsReadied ? "bi bi-check-circle-fill text-success" : "bi bi-check2-all")"></i>
                         </a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm ms-2">
-                        <i class="bi bi-trash"></i>
-                    </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm ms-2">
+                            <i class="bi bi-trash"></i>
+                        </a>
                     </div>
-                    </div>
+                </div>
             </div>
         }
     </div>

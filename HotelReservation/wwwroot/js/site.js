@@ -33,7 +33,7 @@ connection.on("AdminNotification", function (contactUsInfo) {
     const table = document.getElementById("contactRequestsTable");
     if (table) {
         const tbody = table.getElementsByTagName('tbody')[0];
-        const newRow = tbody.insertRow();
+        const newRow = tbody.insertRow(0);
 
         // Create cells for the new row
         const cell1 = newRow.insertCell(0);
@@ -65,4 +65,87 @@ connection.on("AdminNotification", function (contactUsInfo) {
         // Scroll to the new row for visibility
         newRow.scrollIntoView();
     }
+    // Update the unread contact counter dynamically
+    unreadContactCount += 1; // Increment the count
+    updateUnreadContactCounter(unreadContactCount);
 });
+
+
+function updateUnreadContactCounter(newCount) {
+    const navbarCounter = document.getElementById('contactCount');
+    if (navbarCounter) {
+        console.log("navbarCounter Count:", navbarCounter);
+        navbarCounter.textContent = newCount;
+    }
+
+    const offcanvasCounter = document.querySelector('.badge.rounded-pill.bg-danger');
+    if (offcanvasCounter) {
+        console.log("offcanvasCounter Count:", offcanvasCounter);
+        offcanvasCounter.textContent = "New!";
+    }
+
+    console.log("Updated unread count:", newCount);
+}
+
+
+
+///////////////////
+// Define a function to receive Customer notifications from the hub
+connection.on("CustomerNotification", function (messageInfo, messageCount) {
+    console.log("Customer notification: " + messageInfo);
+
+
+
+    // Update the message counter
+    const messageCounter = document.getElementById('message-counter');
+    try {
+        messageCounter.textContent = messageCount;
+        console.log("Message count: " + messageCount);
+    } catch (error) {
+        console.error("Error updating message counter:", error);
+    }
+
+    // Assuming contactUsInfo is JSON
+    const message = JSON.parse(messageInfo);
+
+    // Display Toastr notification
+    toastr.info(`New Message request ${message.Title}`);
+
+    // Find the chat list container
+    const chatList = document.querySelector('.chat-list');
+
+    // Create a new chat item element
+    const newChatItem = document.createElement('div');
+    newChatItem.classList.add('chat-item', 'align-items-start', 'shadow-sm', 'mb-3');
+    newChatItem.innerHTML = `
+        <div class="avatar rounded-circle me-3">
+            <span class="initials">${message.Title.charAt(0).toUpperCase()}</span>
+        </div>
+        <div class="chat-content flex-grow-1 mt-2">
+            <h5 class="chat-title mb-1 text-truncate fw-bold text-black">${message.Title}</h5>
+            <p class="chat-message mb-2 text-dark">${message.MessageString}</p>
+            <p class="chat-description mb-0 text-muted"><small>${message.Description}</small></p>
+        </div>
+        <div class="chat-actions text-end">
+            <small class="text-muted">${new Date(message.MessageDateTime).toLocaleString()}</small>
+            <div class="justify-content-end">
+                <a href="/Customer/Inbox/ReadMessage?messageId=${message.Id}" class="btn btn-outline-primary btn-sm ms-1">
+                    <i class="${message.IsReadied ? 'bi bi-check-circle-fill text-success' : 'bi bi-check2-all'}"></i>
+                </a>
+                <a href="/Customer/Inbox/Delete?id=${message.Id}" class="btn btn-outline-danger btn-sm ms-2">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </div>
+    `;
+
+
+
+    // Append the new chat item to the chat list
+    chatList.prepend(newChatItem);
+
+    // Scroll to the new row for visibility
+    newChatItem.scrollIntoView();
+
+});
+

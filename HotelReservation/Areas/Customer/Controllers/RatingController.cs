@@ -1,4 +1,5 @@
 ﻿using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Models.Models;
 namespace HotelReservation.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize]
     public class RatingController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

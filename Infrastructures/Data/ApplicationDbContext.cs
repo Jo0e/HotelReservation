@@ -28,7 +28,7 @@ namespace Infrastructures.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        //public DbSet<Reply> Replies { get; set; }
+        //public DbSet<Reply> Replies { get; set; } 
         public DbSet<ContactUs> ContactUs { get; set; }
         public DbSet<Message> Message { get; set; }
 
@@ -52,21 +52,6 @@ namespace Infrastructures.Data
 
             modelBuilder.Entity<ReservationRoom>()
                 .HasKey(e => new { e.ReservationID, e.RoomId });
-
-            //modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
-            //{
-            //    entity.HasKey(login => new { login.LoginProvider, login.ProviderKey });
-            //});
-
-            //modelBuilder.Entity<IdentityUserRole<string>>(entity =>
-            //{
-            //    entity.HasKey(role => new { role.UserId, role.RoleId });
-            //});
-
-            //modelBuilder.Entity<IdentityUserToken<string>>(entity =>
-            //{
-            //    entity.HasKey(token => new { token.UserId, token.LoginProvider, token.Name });
-            //});
 
             modelBuilder.Entity<Hotel>()
             .HasOne(h => h.company)
@@ -118,16 +103,11 @@ namespace Infrastructures.Data
            .HasForeignKey(r => r.HotelId)
            .OnDelete(DeleteBehavior.Restrict);
 
-            // modelBuilder.Entity<Comment>()
-            //.HasMany(c => c.Replies)
-            //.WithOne(r => r.Comment)
-            //.HasForeignKey(r => r.CommentId)
-            //.OnDelete(DeleteBehavior.NoAction); 
 
             modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomAvailableOnCheckOuts"));
             modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomUnavailableOnCheckIns"));
             modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("RemovePendingReservations"));
-
+            modelBuilder.Entity<Coupon>().ToTable(t => t.HasTrigger("TRG_DeleteExpiredOrDepletedCoupons"));
 
 
 
