@@ -5,6 +5,10 @@ namespace HotelReservation.Hubs
 {
     public class NotificationHub : Hub
     {
+        public async Task NotifyNewHotel(string hotelJson)
+        {
+            await Clients.All.SendAsync("NewHotelNotification", hotelJson);
+        }
         public async Task SendMessage(string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", message);
