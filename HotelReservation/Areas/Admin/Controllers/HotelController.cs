@@ -92,10 +92,12 @@ namespace HotelReservation.Areas.Admin.Controllers
         public ActionResult Edit(Hotel hotel, IFormFile ImgFile)
         {
             ModelState.Remove(nameof(ImgFile));
+            ModelState.Remove(nameof(hotel.City));
             if (ModelState.IsValid)
             {
                 var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
                 if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                hotel.City ??=oldHotel.City;
                 unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
                 TempData["success"] = "Hotel updated successfully.";
                 Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
