@@ -1,11 +1,14 @@
 ﻿using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize]
     public class InboxController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

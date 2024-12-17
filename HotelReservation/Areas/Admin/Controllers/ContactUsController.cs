@@ -1,5 +1,6 @@
 ﻿using HotelReservation.Hubs;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -15,6 +16,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace HotelReservation.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.AdminRole)]
     public class ContactUsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

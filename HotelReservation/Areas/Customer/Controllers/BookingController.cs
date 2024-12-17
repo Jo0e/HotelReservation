@@ -1,5 +1,6 @@
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -29,7 +30,6 @@ namespace HotelReservation.Areas.Customer.Controllers
             this.unitOfWork = unitOfWork;
 
         }
-
         [HttpGet]
         public IActionResult Filter(int hotelId, Models.Models.Type RoomType)
         {
@@ -41,7 +41,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             var roomsCount = rooms.Select(a => a.IsAvailable == true).Count();
             return View(rooms);
         }
-
+        [Authorize]
         [HttpGet]
         public IActionResult Book(TypeViewModel typeModel)
         {
@@ -190,7 +190,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
 
         }
-
+        [Authorize]
         public IActionResult Pay(int reservationId)
         {
             var appUser = userManager.GetUserId(User);

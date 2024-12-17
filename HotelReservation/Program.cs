@@ -40,7 +40,7 @@ namespace HotelReservation
                .AddDefaultUI()
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
-           
+
 
             //builder.Services.AddAuthentication().AddGoogle(googleOptions =>
             //{

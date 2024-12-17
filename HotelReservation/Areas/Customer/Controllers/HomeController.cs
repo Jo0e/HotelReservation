@@ -116,7 +116,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("NotFound", "Home");
         }
 
-
+        [Authorize]
         public async Task<IActionResult> AddComment(int hotelId, string comment)
         {
             var user = await userManager.GetUserAsync(User);
@@ -138,11 +138,13 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Details", new { id = hotelId });
         }
 
+        [Authorize]
         [HttpPost]
-        public IActionResult EditComment(int id, string commentString)
+        public async Task<IActionResult> EditComment(int id, string commentString)
         {
             var comment = unitOfWork.CommentRepository.GetOne(where: p => p.Id == id);
-            if (comment == null)
+            var user = await userManager.GetUserAsync(User);
+            if (comment == null || user == null || comment.UserId != user.Id)
             {
                 return RedirectToAction("NotFound", "Home");
             }
@@ -153,7 +155,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             TempData["success"] = "Comment edited successfully!";
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
-
+        [Authorize]
         public async Task<IActionResult> LikeComment(int commentId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -170,8 +172,9 @@ namespace HotelReservation.Areas.Customer.Controllers
             var isExist = comment.ReactionUsersId.Any(e => e.Equals(user.Id));
             if (isExist)
             {
-                //comment.ReactionUsersId.Remove(user.Id);
-
+                comment.ReactionUsersId.Remove(user.Id);
+                comment.Likes--;
+                unitOfWork.Complete();
                 return RedirectToAction("Details", new { id = comment.HotelId });
 
             }
@@ -180,7 +183,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             unitOfWork.Complete();
             return RedirectToAction("Details", new { id = comment.HotelId });
         }
-
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReportComment(int commentId, string UserRequestString)
@@ -205,13 +208,18 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction("Index");
 
         }
-        
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteComment(int commentId)
+        public async Task<IActionResult> DeleteComment(int commentId)
         {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
             var toDelete = unitOfWork.CommentRepository.GetOne(where: e => e.Id == commentId);
-            if (toDelete != null)
+            if (toDelete != null&&toDelete.UserId==user.Id || toDelete != null&&User.IsInRole(SD.AdminRole))
             {
                 unitOfWork.CommentRepository.Delete(toDelete);
                 unitOfWork.Complete();
