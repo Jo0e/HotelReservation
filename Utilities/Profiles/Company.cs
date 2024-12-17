@@ -2,7 +2,7 @@
 using Models.Models;
 using Models.ViewModels;
 
-namespace Utilities.Profles
+namespace Utilities.Profiles
 {
     public class MappingProfile : Profile
     {
