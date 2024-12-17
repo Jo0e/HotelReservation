@@ -6,18 +6,7 @@ namespace HotelReservation.Hubs
 {
     public class NotificationHub : Hub
     {
-
-        public async Task NotifyNewHotel(string hotelJson)
-        {
-            await Clients.All.SendAsync("NewHotelNotification", hotelJson);
-        }
-        public async Task SendMessage(string message)
-        {
-            await Clients.All.SendAsync("ReceiveMessage", message);
-        }
-
         private static readonly Dictionary<string, string> UserConnections = new Dictionary<string, string>();
-
 
         public override async Task OnConnectedAsync()
         {
@@ -64,7 +53,7 @@ namespace HotelReservation.Hubs
             await Clients.Group("Admins").SendAsync("AdminNotification", contactUsInfo);
         }
 
-        public async Task NotifyUser(string messageInfo,int messageCount, string userId)
+        public async Task NotifyUser(string messageInfo, int messageCount, string userId)
         {
             if (UserConnections.TryGetValue(userId, out var connectionId))
             {
