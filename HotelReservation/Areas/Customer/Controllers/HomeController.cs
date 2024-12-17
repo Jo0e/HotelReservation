@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
+using NuGet.Configuration;
 using Utilities.Utility;
 
 
@@ -189,21 +190,22 @@ namespace HotelReservation.Areas.Customer.Controllers
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            var contactUs = new ContactUs
-            {
-                UserId = user.Id,
-                Name = user.Email,
-                Request = ContactUs.RequestType.Complaint,
-                UserRequestString = $"Comment Report: \r\n{UserRequestString}",
-                HelperId = commentId,
-            };
+            var contactUs = GetContactUs(user.Id, user.Email, ContactUs.RequestType.Complaint, UserRequestString, commentId);
+            //var contactUs = new ContactUs
+            //{
+            //    UserId = user.Id,
+            //    Name = user.Email,
+            //    Request = ContactUs.RequestType.Complaint,
+            //    UserRequestString = $"Comment Report: \r\n{UserRequestString}",
+            //    HelperId = commentId,
+            //};
             unitOfWork.ContactUsRepository.Create(contactUs);
             unitOfWork.Complete();
             TempData["success"] = "Your comment report has been submitted successfully.";
             return RedirectToAction("Index");
 
         }
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteComment(int commentId)
@@ -334,6 +336,20 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             return RedirectToAction("AddLogo");
         }
+        private static ContactUs GetContactUs(string userId, string name, ContactUs.RequestType requestType, string RequestString, int commentId)
+        {
+            var contactUs = new ContactUs
+            {
+                UserId = userId,
+                Name = name,
+                Request = requestType,
+                UserRequestString = $"Comment Report: \r\n{RequestString}",
+                HelperId = commentId,
+            };
+            return contactUs;
+        }
+
+
 
 
 

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
-using Utilities.Profles;
+using Utilities.Profiles;
 using Utilities.Utility;
 
 namespace HotelReservation.Areas.Company.Controllers
