@@ -66,3 +66,55 @@ connection.on("AdminNotification", function (contactUsInfo) {
         newRow.scrollIntoView();
     }
 });
+// Import SignalR if necessary
+// import * as signalR from "../lib/signalr/dist/browser/signalr";
+
+const hotelConnection = new signalR.HubConnectionBuilder()
+    .withUrl("/hotelHub")
+    .build();
+
+// Start the connection
+async function startHotelConnection() {
+    try {
+        await hotelConnection.start();
+        console.log("Connected to HotelHub.");
+    } catch (err) {
+        console.error("Error connecting to HotelHub:", err);
+        setTimeout(startHotelConnection, 5000); // Retry connection
+    }
+}
+
+startHotelConnection();
+
+// Listen for the "NewHotelAdded" event
+hotelConnection.on("NewHotelAdded", function (hotelJson) {
+    console.log("New hotel notification received:", hotelJson);
+
+    const hotel = JSON.parse(hotelJson);
+
+    // Display a Toastr notification
+    toastr.success(`A new hotel "${hotel.Name}" has been added in ${hotel.City}.`);
+
+    // Update the hotels list if it exists on the page
+    const hotelsTable = document.getElementById("hotelsTable");
+    if (hotelsTable) {
+        const tbody = hotelsTable.getElementsByTagName("tbody")[0];
+        const newRow = tbody.insertRow();
+
+        // Add table cells
+        const cell1 = newRow.insertCell(0); // ID
+        const cell2 = newRow.insertCell(1); // Name
+        const cell3 = newRow.insertCell(2); // City
+        const cell4 = newRow.insertCell(3); // Stars
+
+        // Populate cells
+        cell1.textContent = hotel.Id;
+        cell2.textContent = hotel.Name;
+        cell3.textContent = hotel.City;
+        cell4.textContent = hotel.Stars;
+
+        // Scroll to the new row for visibility
+        newRow.scrollIntoView();
+    }
+});
+

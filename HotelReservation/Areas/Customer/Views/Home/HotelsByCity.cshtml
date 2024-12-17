@@ -337,9 +337,147 @@
             </ul>
         </nav>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signalr/5.0.13/signalr.min.js"></script>
+    <script src="~/js/site.js"></script>
 
+    <script>
+        // Script for handling the HotelHub and Notifications
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
 
+        // Start the connection and handle errors
+        async function start() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+            } catch (err) {
+                console.error(err);
+                setTimeout(start, 5000); // Retry after 5 seconds
+            }
+        }
 
+        // Start the SignalR connection
+        start();
+
+        // Define a function to receive admin notifications from the hub
+        connection.on("AdminNotification", function (contactUsInfo) {
+            console.log("Admin notification: " + contactUsInfo);
+
+            const contact = JSON.parse(contactUsInfo);
+
+            // Display Toastr notification
+            toastr.info(`New Contact Us request from ${contact.Name}: ${contact.RequestType}`);
+
+            // Update the table if it exists on the page
+            const table = document.getElementById("contactRequestsTable");
+            if (table) {
+                const tbody = table.getElementsByTagName('tbody')[0];
+                const newRow = tbody.insertRow();
+
+                // Create cells for the new row
+                const cell1 = newRow.insertCell(0);
+                const cell2 = newRow.insertCell(1);
+                const cell3 = newRow.insertCell(2);
+                const cell4 = newRow.insertCell(3);
+
+                // Populate cells with contact information
+                cell1.innerHTML = contact.Name;
+                cell2.innerHTML = contact.RequestType;
+                cell3.innerHTML = contact.UserRequestString.length > 20 ? contact.UserRequestString.substring(0, 18) + "..." : contact.UserRequestString;
+
+                // Create actions cell with buttons
+                cell4.className = "text-center";
+                cell4.innerHTML = `
+                    <div class="btn-group">
+                        <a href="/Admin/ContactUs/Details?reqId=${contact.Id}" class="btn btn-info btn-sm" title="View Details">
+                            <i class="bi bi-eye"></i> Details
+                        </a>
+                        <button type="button" class="btn btn-danger btn-sm delete-contact" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${contact.Id}" title="Delete">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                        <a href="/Admin/ContactUs/ReadMessage?messageId=${contact.Id}" class="btn btn-outline-primary btn-sm read-status" title="Mark as Read">
+                            <i class="bi bi-check2-all"></i>
+                        </a>
+                    </div>
+                `;
+
+                // Scroll to the new row for visibility
+                newRow.scrollIntoView();
+            }
+        });
+
+        // SignalR connection for HotelHub
+        const hotelConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/hotelHub")
+            .build();
+
+        async function startHotelConnection() {
+            try {
+                await hotelConnection.start();
+                console.log("Connected to HotelHub.");
+            } catch (err) {
+                console.error("Error connecting to HotelHub:", err);
+                setTimeout(startHotelConnection, 5000); // Retry connection
+            }
+        }
+
+         startHotelConnection();
+
+           hotelConnection.on("NewHotelAdded", function (hotelJson) {
+            console.log("New hotel notification received:", hotelJson);
+
+            const hotel = JSON.parse(hotelJson);
+
+            // Display a Toastr notification
+            if (window.toastr) {
+                toastr.success(`A new hotel "${hotel.Name}" has been added in ${hotel.City}.`);
+            } else {
+                console.error("Toastr is not loaded. Please check your setup.");
+            }
+
+            // Generate hotel card dynamically
+            const newHotelCard = `
+            <div class="col-md-4 mb-4 mt-0">
+                <div class="card h-100">
+                    <img src="/images/homeImage/${hotel.CoverImg}" loading="lazy" class="card-img-top" alt="${hotel.Name}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title"><strong>${hotel.Name}</strong></h5>
+                        <p>${'<i class="bi bi-star-fill" style="color: gold;"></i>'.repeat(hotel.Stars)}</p>
+                        <p class="card-text"><i class="bi bi-geo-alt"></i>${hotel.City}</p>
+                        <p class="card-text">
+                            ${hotel.Rooms.some(p => p.IsAvailable)
+                                ? '<span class="badge bg-success">Rooms Available</span>'
+                                : '<span class="badge bg-danger">No Available Rooms</span>'}
+                        </p>
+                        <p class="card-text">
+                            ${
+                                hotel.HotelAmenities.length > 0
+                                    ? hotel.HotelAmenities.map(
+                                          (amenity) => `
+                                <span class="badge text-dark" style="background: linear-gradient(135deg, #c3cfe2, #f5f7fa);">
+                                    <img src="/images/amenities/${amenity.Amenity.Img}" style="height:20px;" alt="${amenity.Amenity.Name}" />
+                                    &ensp;${amenity.Amenity.Name}
+                                </span>`
+                                      ).join("")
+                                    : "No amenities available"
+                            }
+                        </p>
+                        <a href="/Home/Details/${hotel.Id}" class="btn btn-primary mt-auto">View Details</a>
+                    </div>
+                </div>
+            </div>
+            `;
+
+            // Append the new hotel card to the list
+            const hotelsContainer = document.querySelector('.row.row-cols-1.row-cols-md-3.g-3.mt-0');
+            if (hotelsContainer) {
+                hotelsContainer.insertAdjacentHTML("afterbegin", newHotelCard);
+            } else {
+                console.error("Hotels container not found. Please check your HTML structure.");
+            }
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
