@@ -26,6 +26,11 @@ namespace Infrastructures.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<RoomType> RoomTypes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        //public DbSet<Reply> Replies { get; set; }
+        public DbSet<ContactUs> ContactUs { get; set; }
+        public DbSet<Message> Message { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -78,6 +83,62 @@ namespace Infrastructures.Data
             .WithOne(r => r.Hotel)
             .HasForeignKey<Report>(r => r.HotelId);
 
+            modelBuilder.Entity<Rating>()
+            .HasOne(r => r.Hotel)
+            .WithMany(h => h.Ratings)
+            .HasForeignKey(r => r.HotelId);
+
+            modelBuilder.Entity<Hotel>()
+            .HasMany(r => r.Rooms)
+            .WithOne(h => h.Hotel)
+            .HasForeignKey(r => r.HotelId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Room>()
+            .HasOne(r => r.RoomType)
+            .WithMany(rt => rt.Rooms)
+            .HasForeignKey(r => r.RoomTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RoomType>()
+            .HasOne(rt => rt.Hotel)
+            .WithMany(h => h.RoomTypes)
+            .HasForeignKey(rt => rt.HotelId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Reservation>()
+            .HasOne(r => r.User)
+            .WithMany(u => u.Reservations)
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Reservation>()
+           .HasOne(r => r.Hotel)
+           .WithMany(u => u.Reservations)
+           .HasForeignKey(r => r.HotelId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+            // modelBuilder.Entity<Comment>()
+            //.HasMany(c => c.Replies)
+            //.WithOne(r => r.Comment)
+            //.HasForeignKey(r => r.CommentId)
+            //.OnDelete(DeleteBehavior.NoAction); 
+
+            modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomAvailableOnCheckOuts"));
+            modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomUnavailableOnCheckIns"));
+            modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("RemovePendingReservations"));
+
+
+
+
         }
+
+
+
+
+
     }
+    
 }
+
+

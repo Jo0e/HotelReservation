@@ -1,52 +1,83 @@
 ﻿using AutoMapper;
 using Infrastructures.Repository.IRepository;
+using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Models.Models;
+using Models.ViewModels;
 using Utilities.Utility;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HotelReservation.Areas.Admin.Controllers
 {
-    [Authorize(SD.AdminRole)]
+    [Authorize(Roles = SD.AdminRole)]
+    [Area("Admin")]
     public class CompanyController : Controller
     {
-        private readonly ICompanyRepository companyRepository;
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly ILogger<CompanyController> logger;
+        private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
-        public CompanyController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ICompanyRepository companyRepository ,IMapper mapper)
+        public CompanyController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper, ILogger<CompanyController> logger)
         {
-            this.companyRepository = companyRepository;
+            this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.logger = logger;
             this.userManager = userManager;
-            
             this.roleManager = roleManager;
         }
-        public IActionResult Index()
+        [HttpGet]
+        public IActionResult Index(string? search, int pageNumber = 1)
         {
-            var Company = companyRepository.Get();
-            return View(Company);
-            
+            const int pageSize = 10;
+            var companies = unitOfWork.CompanyRepository.Get();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                companies = companies.Where(c =>
+                    c.UserName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    c.Addres.Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var totalItems = companies.Count();
+            var pagedCompanies = companies
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.SearchText = search;
+
+            return View(pagedCompanies);
         }
         public IActionResult Create()
         {
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(Company company)
+        [ValidateAntiForgeryToken]
+
+        public async Task<IActionResult> Create(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
+            ModelState.Remove(nameof(ProfileImage));
             if (ModelState.IsValid)
             {
-
-                var newUser = mapper.Map<ApplicationUser>(company);
-                               
-                var result = await userManager.CreateAsync(newUser, company.Passwords);
+                var newUser = Activator.CreateInstance<ApplicationUser>();
+                newUser = mapper.Map<ApplicationUser>(companyVM);
+                newUser.UserName = companyVM.Email;
+                var result = await userManager.CreateAsync(newUser, companyVM.Passwords);
 
                 if (result.Succeeded)
                 {
-                    
+                    unitOfWork.CompanyRepository.CreateProfileImage(newUser, ProfileImage);
                     if (!await roleManager.RoleExistsAsync(SD.CompanyRole))
                     {
                         await roleManager.CreateAsync(new IdentityRole(SD.CompanyRole));
@@ -54,15 +85,20 @@ namespace HotelReservation.Areas.Admin.Controllers
 
                     await userManager.AddToRoleAsync(newUser, SD.CompanyRole);
 
-                    companyRepository.Create(company);
-                    companyRepository.Commit();
-
-                    TempData["SuccessMessage"] = "Company created and role assigned successfully.";
+                    var company = mapper.Map<Models.Models.Company>(companyVM);
+                    company.UserName = newUser.UserName;
+                    company.Addres = companyVM.Addres;
+                    company.ProfileImage = newUser.ProfileImage;
+                    company.Passwords = newUser.PasswordHash;
+                    unitOfWork.CompanyRepository.Create(company);
+                    unitOfWork.Complete();
+                    TempData["success"] = "Company created successfully.";
+                    Log(nameof(Create), nameof(company) + " " + $"{company.Email}");
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    
+
                     foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
@@ -70,44 +106,84 @@ namespace HotelReservation.Areas.Admin.Controllers
                 }
             }
 
-            TempData["ErrorMessage"] = "There was an error creating the company.";
-            return View(company);
+            return View(companyVM);
         }
         public IActionResult Edit(int id)
         {
-            var company = companyRepository.GetOne(where:e=>e.Id==id);
+            var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == id);
             if (company == null) return NotFound();
-
             return View(company);
         }
         [HttpPost]
-        public IActionResult Edit(Company company)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(CompanyViewModel companyVM, IFormFile ProfileImage)
         {
+            ModelState.Remove(nameof(ProfileImage));
+            ModelState.Remove(nameof(companyVM.Passwords));
+            ModelState.Remove(nameof(companyVM.ConfirmPassword));
+
             if (ModelState.IsValid)
             {
-                companyRepository.Update(company);
-                companyRepository.Commit();
+                var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == companyVM.Id, tracked: false);
+                if (company == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                var user = await userManager.FindByEmailAsync(company.Email);
+                var appUser = user as ApplicationUser;
 
-                TempData["SuccessMessage"] = "Company details updated successfully.";
+                if (appUser == null)
+                {
+                    return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                }
+                appUser.Email = company.Email;
+                appUser.PhoneNumber = company.PhoneNumber;
+                appUser.City = company.Addres;
+                unitOfWork.CompanyRepository.UpdateProfileImage(appUser, ProfileImage);
+
+                var result = await userManager.UpdateAsync(appUser);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(companyVM);
+                }
+                mapper.Map(companyVM, company);
+                company.ProfileImage = appUser.ProfileImage;
+                unitOfWork.CompanyRepository.Update(company);
+                unitOfWork.Complete();
+                TempData["success"] = "Company updated successfully.";
+                Log(nameof(Edit), nameof(company) + " " + $"{company.Email}");
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = "There was an error updating the company details.";
-            return View(company);
+            return View(companyVM);
         }
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var company = companyRepository.GetOne(where:e=>e.Id==id);
-            if (company == null) 
-                return NotFound();
+            var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == id);
+            if (company == null)
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
 
-            companyRepository.Delete(company);
-            companyRepository.Commit();
+            var user = await userManager.FindByEmailAsync(company.Email);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+            }
+            await userManager.DeleteAsync(user);
+            Thread.Sleep(500);
+            unitOfWork.CompanyRepository.DeleteProfileImage(company);
+            unitOfWork.CompanyRepository.Delete(company);
+            unitOfWork.Complete();
+            TempData["success"] = "Company deleted successfully.";
 
-            TempData["SuccessMessage"] = "Company deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 
 
+        public async void Log(string action, string entity)
+        {
+            LoggerHelper.LogAdminAction(logger, User.Identity.Name, action, entity);
+
+        }
     }
 }

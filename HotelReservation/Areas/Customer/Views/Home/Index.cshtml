@@ -1,8 +1,174 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ICollection<Hotel>
+
+@section Scripts {
+        ﻿﻿@if (TempData["success"] != null)
+    {
+        <script>
+            toastr.success('@TempData["success"]')
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            toastr.error('@TempData["Error"]');
+        </script>
+    }
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .container {
+        margin-top: 30px;
+    }
+
+    h1.text-center {
+        font-size: 2.5rem;
+        color: #343a40;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
+
+    .card-title {
+        font-size: 1.5rem;
+        color: #343a40;
+        font-weight: bold;
+    }
+
+    .card .btn-primary {
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+    }
+
+        .card .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .pagination {
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+</style>
+
+<style>
+    .badge {
+        font-size: 0.9rem;
+        margin: 2px;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+</style>
+<style>
+    .btn-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        transition: 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+</style>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    }
+</style>
+
+<style>
+    h1.text-center {
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+</style>
+
+
+
+
+<style>
+    .badge {
+        font-size: 0.9rem;
+        margin: 2px;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+</style>
+
+<div class="container mt-4">
+        <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
+            <input class="form-control me-sm-2"
+            type="search"
+            placeholder="Search by City "
+            value="@ViewBag.search"
+            name="search" />
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+        </form>
+
+    @if (ViewBag.search != null)
+    {
+        <h6 class="row-cols-1">
+            Total Results: @ViewBag.totalResult
+    </h6>
+    }
+    <br />
+    <div class="text-center">
+    <h1 class="animated-text"></h1>
+    <script>
+        const text = "Explore Hotels By City";
+        let index = 0;
+        const target = document.querySelector(".animated-text");
+        function typeWriter() {
+            if (index < text.length) {
+                target.textContent += text[index];
+                index++;
+                setTimeout(typeWriter, 100);
+            }
+        }
+        typeWriter();
+    </script>    
+    </div>
+    <br />
+
+    <div class="row">
+
+        @if (Model.Any())
+        {
+            @foreach (var hotel in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="~/images/homeImage/@hotel.CoverImg" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title "><strong>@hotel.City</strong> </h5>
+                            <a href="@Url.Action("HotelsByCity", "Home", new { city = hotel.City })" class="btn btn-primary">
+                                View All Hotels in @hotel.City
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center">No hotels found.</p>
+        }
+    </div>
 </div>

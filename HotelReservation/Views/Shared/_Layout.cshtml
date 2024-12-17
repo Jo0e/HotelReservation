@@ -1,52 +1,138 @@
-﻿<!DOCTYPE html>
+﻿@using Infrastructures.Data
+@using Microsoft.AspNetCore.Identity
+@using Utilities.Utility
+@inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext Context
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - HotelReservation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css">
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/HotelReservation.styles.css" asp-append-version="true" />
+    <link href="~/css/custom.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+
+
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HotelReservation</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <h5 style="margin-right:15px;font-size:1.3rem;">
+                    <img src="~/images/logo.png" alt="Logo" class="rounded-circle" style="height:60px; width:60px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-right: 10px;" />
+                    HotelReservation
+                </h5>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Left links -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link active" style="margin-right:15px;" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-fill"></i> Home
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                        @{
+                            ApplicationUser user;
+                            int messages;
+                            if (User.Identity.IsAuthenticated)
+                            {
+                                user = await UserManager.GetUserAsync(User) as ApplicationUser;
+                                messages = Context.Message.Where(e => e.UserId == user.Id && e.IsReadied == false).Count();
+                            }
+                            else
+                            {
+                                user = null;
+                                messages = 0;
+                            }
+
+                        }
+                        @if (user != null && user.MessageString != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link active" style="margin-right:15px;" asp-area="Customer" asp-controller="Inbox" asp-action="Index">
+                                    <i class="bi bi-envelope-fill"> @messages</i>
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole(SD.AdminRole) || User.IsInRole(SD.CompanyRole))
+                        {
+                            <li class="nav-item">
+                                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+                                    Admin Dashboard
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+
                         <partial name="_LoginPartial.cshtml"></partial>
                     </ul>
-                    
-                    
                 </div>
             </div>
         </nav>
     </header>
+    @Html.Partial("_DashboardPartial")
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    @*     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2024 - HotelReservation - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/scripts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script type="module" src="~/js/site.js"></script> <!-- Marked as Module -->
+    <script>
+        AOS.init();
+    </script>
+    <style>
+
+        .toast-top-right {
+            top: 83px;
+        }
+    </style>
+    <script>
+        toastr.options = {
+            "positionClass": "toast-top-right",
+        };
+    </script>
+
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

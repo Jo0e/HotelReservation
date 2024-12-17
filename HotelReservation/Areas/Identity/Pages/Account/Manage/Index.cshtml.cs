@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Infrastructures.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -17,13 +18,15 @@ namespace HotelReservation.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IUserRepository userRepository;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,IUserRepository userRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            this.userRepository = userRepository;
         }
 
         /// <summary>
@@ -63,6 +66,9 @@ namespace HotelReservation.Areas.Identity.Pages.Account.Manage
             [Required]
             [Display(Name = "City")]
             public string City { get; set; }
+
+            [Display(Name = "Profile Photo")]
+            public IFormFile ProfileImage { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -127,7 +133,19 @@ namespace HotelReservation.Areas.Identity.Pages.Account.Manage
                 }
 
             }
-            await _signInManager.RefreshSignInAsync(user);
+
+            if (Input.ProfileImage != null)
+            {
+                userRepository.UpdateProfileImage(user, Input.ProfileImage);
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to set City.";
+                    return RedirectToPage();
+                }
+            }
+
+                await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }

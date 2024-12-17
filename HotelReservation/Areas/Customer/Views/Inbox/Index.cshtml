@@ -1,0 +1,113 @@
+﻿@model IEnumerable<Models.Models.Message>
+
+@{
+    ViewData["Title"] = "Inbox";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-primary text-center">@ViewData["Title"]</h1>
+
+    <div class="chat-list">
+        @foreach (var item in Model)
+        {
+            <div class="chat-item d-flex align-items-start shadow-sm mb-3">
+                <div class="avatar rounded-circle me-3">
+                    <span class="initials">
+                        @item.Title.Substring(0, 1).ToUpper()
+                    </span>
+                </div>
+                <div class="chat-content flex-grow-1">
+                    <h5 class="chat-title mb-1 text-truncate">@item.Title</h5>
+                    <p class="chat-message mb-2 text-dark">
+                        @item.MessageString
+                    </p>
+                    <p class="chat-description mb-0 text-muted">
+                        <small>@item.Description</small>
+                    </p>
+                </div>
+                <div class="chat-actions text-end">
+                    <small class="text-muted ">@item.MessageDateTime.ToString("g")</small>
+                    <div class="d-flex justify-content-end">
+                    <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm ms-1">
+                            <i class="@(item.IsReadied ? "bi bi-check-circle-fill text-success" : "bi bi-check2-all")"></i>
+                        </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm ms-2">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                    </div>
+                    </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+    }
+
+    .chat-list {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .chat-item {
+        padding: 1rem;
+        background-color: #ffffff;
+        border-radius: 8px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .chat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        background-color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .chat-content {
+        overflow: hidden;
+    }
+
+    .chat-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .chat-message {
+        font-size: 1rem;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .chat-description {
+        font-size: 0.875rem;
+    }
+
+    .chat-actions {
+        min-width: 120px;
+    }
+
+    .btn-outline-danger {
+        font-size: 0.75rem;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+</style>

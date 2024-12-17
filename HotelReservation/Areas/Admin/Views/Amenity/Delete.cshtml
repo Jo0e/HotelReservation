@@ -1,0 +1,70 @@
+﻿@model Models.Models.Amenity
+
+@{
+    ViewData["Title"] = "Delete Amenity";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h1 class="text-center text-danger mb-4">@ViewData["Title"]</h1>
+
+    <div class="alert alert-warning text-center">
+        <h4>Are you sure you want to delete this amenity?</h4>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 bg-light p-4 rounded shadow">
+            <dl class="row">
+                <dt class="col-sm-4">Amenity Name</dt>
+                <dd class="col-sm-8">@Model.Name</dd>
+
+                <dt class="col-sm-4">Image</dt>
+                <dd class="col-sm-8">
+                    <img src="~/images/amenities/@Model.Img" alt="Amenity Image" class="img-thumbnail" />
+                </dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to delete this amenity?');">
+                    Confirm Delete
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .form-label {
+        color: #212529;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+    .shadow-lg {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+</style>

@@ -1,0 +1,100 @@
+﻿@using Infrastructures.Data
+@using Microsoft.AspNetCore.Identity
+@using Utilities.Utility
+@inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext Context
+@{
+    // IdentityUser user;
+    int contactUsCount;
+    var user = await UserManager.GetUserAsync(User);
+    if (User.Identity.IsAuthenticated && await UserManager.IsInRoleAsync(user, SD.AdminRole))
+    {
+        contactUsCount = Context.ContactUs.Where(e => e.IsReadied == false).Count();
+    }
+    else
+    {
+        contactUsCount = 0;
+    }
+}
+<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Admin Dashboard</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column" role="group" aria-label="Basic example">
+            @if (User.IsInRole(SD.AdminRole))
+            {
+                <li class="nav-item">
+                    <a asp-area="Admin" asp-controller="Hotel" asp-action="Index" class="nav-link btn btn-primary" id="btnHotels">
+                        <i class="fa-solid fa-hotel"></i> Manage Hotels
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a asp-area="Admin" asp-controller="Company" asp-action="Index" class="nav-link btn btn-primary" id="btnCompany">
+                        <i class="bi bi-buildings"></i> Manage Companies
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index" class="nav-link btn btn-primary" id="btnUser">
+                        <i class="bi bi-people-fill"></i> Manage Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="Admin" asp-controller="ContactUs" asp-action="Index" class="nav-link btn btn-primary" id="btnContactUs">
+                        <i class="bi bi-chat-right-dots"></i> ContactUs:&nbsp;@contactUsCount
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="Admin" asp-controller="Amenity" asp-action="Index" class="nav-link btn btn-primary" id="btnAmenity">
+                        <i class="bi bi-house-add-fill"></i> Manage Amenities
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="Admin" asp-controller="Coupon" asp-action="Index" class="nav-link btn btn-primary" id="btnCoupon">
+                        <i class="fa-solid fa-ticket"></i> Manage Coupon
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Logs/AdminActions.json" class="nav-link btn btn-primary" id="btnAmenity">
+                        <i class="bi bi-substack"></i> View Log
+                    </a>
+                </li>
+            }
+            @if(User.IsInRole(SD.CompanyRole))
+            {
+                <li class="nav-item">
+                    <a asp-area="Company" asp-controller="Hotels" asp-action="Index" class="nav-link btn btn-primary" id="btnHotels">
+                        <i class="fa-solid fa-hotel"></i> Manage Hotels
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="Company" asp-controller="Coupon" asp-action="Index" class="nav-link btn btn-primary" id="btnAmenity">
+                        <i class="fa-solid fa-ticket"></i> Manage Coupon
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<style>
+    .offcanvas-start {
+        background: linear-gradient(180deg, #007bff, #0056b3);
+        color: #fff;
+    }
+
+    .offcanvas-title {
+        color: #fff;
+    }
+
+    .offcanvas .nav-link {
+        color: #fff;
+        margin: 10px 0;
+    }
+
+        .offcanvas .nav-link:hover {
+            background-color: #495057;
+        }
+</style>

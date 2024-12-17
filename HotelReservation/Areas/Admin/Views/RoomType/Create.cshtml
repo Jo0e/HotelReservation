@@ -1,0 +1,103 @@
+﻿@model Models.Models.RoomType
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1 class="text-center mb-4">Create Room Type</h1>
+
+<div class="card mx-auto" style="max-width: 500px;">
+    <div class="card-body">
+        <h4 class="card-title text-center">Room Type Details</h4>
+        <hr />
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Type" class="form-label">Room Type</label>
+                <select asp-for="Type" class="form-select" asp-items="@ViewBag.Types" required></select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="MaxPersons" class="form-label">Max Persons</label>
+                <input asp-for="MaxPersons" class="form-control" required />
+                <span asp-validation-for="MaxPersons" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="MealPrice" class="form-label">Meal Price</label>
+                <input asp-for="MealPrice" class="form-control" placeholder="(Leave it empty if there is no Meals option)" />
+                <span asp-validation-for="MealPrice" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PricePN" class="form-label">Price Per Night</label>
+                <input asp-for="PricePN" class="form-control" min="1" required />
+                <span asp-validation-for="PricePN" class="text-danger"></span>
+            </div>
+
+            <input asp-for="HotelId" value="@ViewBag.hotelId" type="hidden" />
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="text-center mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+
+    h1 {
+        color: #343a40;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-secondary:hover {
+            background-color: #565e64;
+            border-color: #565e64;
+        }
+
+    .form-select, .form-control {
+        border-radius: 5px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+</style>

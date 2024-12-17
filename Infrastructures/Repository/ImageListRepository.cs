@@ -18,12 +18,10 @@ namespace Infrastructures.Repository
             {
                 var hotelFolderPath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\images\\subImage\\{hotelName}");
 
-                // Create the directory if it doesn't exist
-                if (!Directory.Exists(hotelFolderPath))
+                if (!Directory.Exists(hotelFolderPath)) 
                 {
                     Directory.CreateDirectory(hotelFolderPath);
                 }
-
                 foreach (var imageFile in imageFiles)
                 {
                     if (imageFile.Length > 0)

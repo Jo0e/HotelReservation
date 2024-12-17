@@ -1,0 +1,26 @@
+﻿@using Models.Models
+@model Room
+
+@{
+    ViewData["Title"] = "Delete Room";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Delete Room</h1>
+
+<hr />
+<div>
+    <h3>Are you sure you want to delete this room?</h3>
+    <div>
+        <strong>Room ID:</strong> @Model.Id<br />
+        <strong>Hotel:</strong> @Model.Hotel.Name<br />
+        <strong>Room Type:</strong> @Model.RoomType.Type<br />
+        <strong>Is Available:</strong> @(Model.IsAvailable ? "Yes" : "No")
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Delete" class="btn btn-danger" />
+    <a asp-action="Index" asp-route-id="@Model.HotelId" class="btn btn-secondary">Cancel</a>
+</form>
