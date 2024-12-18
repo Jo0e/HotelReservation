@@ -160,6 +160,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var users = userManager.Users.ToList();
             var company = unitOfWork.CompanyRepository.GetOne(where: e => e.Id == id);
             if (company == null)
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
@@ -169,6 +170,21 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
+            var userRoles = await userManager.GetRolesAsync(user);
+            foreach (var role in userRoles)
+            {
+                await userManager.RemoveFromRoleAsync(user, role);
+            }
+            var deleteUserResult = await userManager.DeleteAsync(user);
+            if (!deleteUserResult.Succeeded)
+            {
+                foreach (var error in deleteUserResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
             await userManager.DeleteAsync(user);
             Thread.Sleep(500);
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
