@@ -53,7 +53,16 @@ namespace HotelReservation.Hubs
             await Clients.Group("Admins").SendAsync("AdminNotification", contactUsInfo);
         }
 
-        public async Task NotifyUser(string messageInfo, int messageCount, string userId)
+
+        
+    
+        public async Task NotifyAdminReservation(string reservationInfo)
+        {
+            await Clients.Group("Admins").SendAsync("AdminNotification", reservationInfo);
+        }
+
+        public async Task NotifyUser(string messageInfo,int messageCount, string userId)
+
         {
             if (UserConnections.TryGetValue(userId, out var connectionId))
             {
@@ -61,5 +70,6 @@ namespace HotelReservation.Hubs
             }
         }
     }
+
 
 }

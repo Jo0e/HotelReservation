@@ -1,17 +1,21 @@
+using HotelReservation.Hubs;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Models.Models;
 using Models.ViewModels;
-
+using Newtonsoft.Json;
 using Stripe.Checkout;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace HotelReservation.Areas.Customer.Controllers
 {
@@ -20,16 +24,18 @@ namespace HotelReservation.Areas.Customer.Controllers
     public class BookingController : Controller
     {
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IHubContext<NotificationHub> hubContext;
         private readonly IUnitOfWork unitOfWork;
 
 
-        public BookingController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        public BookingController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager,
+            IHubContext<NotificationHub> hubContext)
         {
             this.userManager = userManager;
+            this.hubContext = hubContext;
             this.unitOfWork = unitOfWork;
 
         }
-
         [HttpGet]
         public IActionResult Filter(int hotelId, Models.Models.Type RoomType)
         {
@@ -41,7 +47,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             var roomsCount = rooms.Select(a => a.IsAvailable == true).Count();
             return View(rooms);
         }
-
+        [Authorize]
         [HttpGet]
         public IActionResult Book(TypeViewModel typeModel)
         {
@@ -190,7 +196,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
 
         }
-
+        [Authorize]
         public IActionResult Pay(int reservationId)
         {
             var appUser = userManager.GetUserId(User);
@@ -275,7 +281,7 @@ namespace HotelReservation.Areas.Customer.Controllers
 
         public async Task<IActionResult> CheckOutSuccess(int reservationId)
         {
-            var appUser = userManager.GetUserId(User);
+            var appUser = await userManager.GetUserAsync(User);
 
             if (appUser == null)
             {
@@ -283,7 +289,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                 return RedirectToAction("Index", "Home");
             }
             var reservation = unitOfWork.ReservationRepository.GetOneReservation(reservationId);
-            if (reservation != null && reservation.UserId == appUser)
+            if (reservation != null && reservation.UserId == appUser.Id)
             {
                 foreach (var room in reservation.ReservationRooms)
                 {
@@ -293,7 +299,11 @@ namespace HotelReservation.Areas.Customer.Controllers
                 reservation.Status = "Complete";
                 unitOfWork.ReservationRepository.Update(reservation);
 
+
                 if (reservation.CouponId != null)
+
+                if (reservation.CouponId != null) 
+
                 {
                     var coupon = unitOfWork.CouponRepository.GetOne(where: a => a.Id == reservation.CouponId, tracked: false);
                     if (coupon != null)
@@ -302,6 +312,24 @@ namespace HotelReservation.Areas.Customer.Controllers
                         unitOfWork.CouponRepository.Update(coupon);
                     }
                 }
+
+                var reservationInfo = JsonConvert.SerializeObject(new
+                {
+                    reservationId,
+                    reservation.RoomCount,
+                    reservation.NAdult,
+                    reservation.NChildren,
+                    reservation.CheckInDate,
+                    reservation.CheckOutDate,
+                    reservation.TotalPrice,
+                    User = new { appUser.Email },
+                    Hotel = new { reservation.Hotel.Id, reservation.Hotel.Name },
+                    reservation.Status
+                });
+
+                await hubContext.Clients.Group("Admins").SendAsync("NotifyAdminReservation", reservationInfo);
+
+
                 var message = new Message
                 {
                     MessageDateTime = DateTime.Now,
@@ -311,7 +339,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                         $"We Waiting for you at {reservation.Hotel.Name} on {reservation.CheckInDate:MMMM dd, yyyy}\r\n" +
                         $"Hotel Address: {reservation.Hotel.Address}",
                     Description = "We hope you have safe travels, and enjoy your stay",
-                    UserId = appUser,
+                    UserId = appUser.Id,
                 };
                 unitOfWork.MessageRepository.Create(message);
                 await unitOfWork.CompleteAsync();
