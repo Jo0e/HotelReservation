@@ -149,3 +149,65 @@ connection.on("CustomerNotification", function (messageInfo, messageCount) {
 
 });
 
+
+document.addEventListener('DOMContentLoaded', function () {
+    const currentHotelId = document.getElementById("hotel-id").value;
+
+    connection.on("NotifyAdminReservation", function (reservationInfo) {
+        console.log("Reservation notification: " + reservationInfo);
+
+        // Assuming contactUsInfo is JSON
+        const reserve = JSON.parse(reservationInfo);
+
+
+        // Update the table if it exists on the page
+        if (reserve.Hotel.Id === parseInt(currentHotelId)) {
+
+            const table = document.getElementById("table-reservation");
+            if (table) {
+                const tbody = table.getElementsByTagName('tbody')[0];
+                const newRow = tbody.insertRow(0);
+                newRow.classList.add('text-center'); 
+
+                // Create cells for the new row
+                const cell1 = newRow.insertCell(0);
+                const cell2 = newRow.insertCell(1);
+                const cell3 = newRow.insertCell(2);
+                const cell4 = newRow.insertCell(3);
+                const cell5 = newRow.insertCell(4);
+                const cell6 = newRow.insertCell(5);
+                const cell7 = newRow.insertCell(6);
+                const cell8 = newRow.insertCell(7);
+                const cell9 = newRow.insertCell(8);
+                const cell10 = newRow.insertCell(9);
+
+                // Populate cells with reservation data
+                cell1.innerHTML = reserve.RoomCount;
+                cell2.innerHTML = reserve.NAdult;
+                cell3.innerHTML = reserve.NChildren;
+                cell4.innerHTML = new Date(reserve.CheckInDate).toLocaleDateString();
+                cell5.innerHTML = new Date(reserve.CheckOutDate).toLocaleDateString();
+                cell6.innerHTML = reserve.TotalPrice.toFixed(2);
+                cell7.innerHTML = reserve.User.Email;
+                cell8.innerHTML = reserve.Hotel.Name;
+                cell9.innerHTML = reserve.Status;
+
+                // Add action buttons
+                cell10.innerHTML = `
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-reservation-id="${reserve.Id}">
+                Cancel Reservation
+            </button>
+        `;
+
+                newRow.scrollIntoView();
+                console.log("New row added to the table.");
+            }
+            else {
+                console.error("Table element not found.");
+            }
+        }
+        else {
+            console.error(`Hotel ID mismatch. Received: ${reserve.Hotel.Id}, Current: ${currentHotelId}`);
+        }
+    });
+});
