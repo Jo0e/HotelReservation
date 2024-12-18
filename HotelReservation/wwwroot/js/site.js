@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (table) {
                 const tbody = table.getElementsByTagName('tbody')[0];
                 const newRow = tbody.insertRow(0);
-                newRow.classList.add('text-center'); 
+                newRow.classList.add('text-center');
 
                 // Create cells for the new row
                 const cell1 = newRow.insertCell(0);

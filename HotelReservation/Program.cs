@@ -112,6 +112,8 @@ namespace HotelReservation
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
             app.MapHub<NotificationHub>("/notificationHub");
+            app.MapHub<HotelHub>("/hotelHub");
+
             app.Run();
         }
     }

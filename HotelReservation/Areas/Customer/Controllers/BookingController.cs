@@ -298,9 +298,9 @@ namespace HotelReservation.Areas.Customer.Controllers
                 }
                 reservation.Status = "Complete";
                 unitOfWork.ReservationRepository.Update(reservation);
-                if (reservation.CouponId != null) 
+                if (reservation.CouponId != null)
                 {
-                    var coupon = unitOfWork.CouponRepository.GetOne(where:a=>a.Id==reservation.CouponId,tracked:false);
+                    var coupon = unitOfWork.CouponRepository.GetOne(where: a => a.Id == reservation.CouponId, tracked: false);
                     if (coupon != null)
                     {
                         coupon.Limit--;

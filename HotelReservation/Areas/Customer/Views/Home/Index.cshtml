@@ -1,7 +1,7 @@
 @model ICollection<Hotel>
 
 @section Scripts {
-    ﻿﻿@if (TempData["success"] != null)
+        ﻿﻿@if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
@@ -20,85 +20,85 @@
 }
 <style>
     .container {
-    margin-top: 30px;
+        margin-top: 30px;
     }
 
     h1.text-center {
-    font-size: 2.5rem;
-    color: #343a40;
-    font-weight: bold;
-    margin-bottom: 20px;
+        font-size: 2.5rem;
+        color: #343a40;
+        font-weight: bold;
+        margin-bottom: 20px;
     }
 
     .card {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
     }
 
-    .card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
 
-    .card img {
-    height: 200px;
-    object-fit: cover;
-    }
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
 
     .card-title {
-    font-size: 1.5rem;
-    color: #343a40;
-    /* font-weight: bold; */
+        font-size: 1.5rem;
+        color: #343a40;
+        /* font-weight: bold; */
     }
 
     .card .btn-primary {
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
     }
 
-    .card .btn-primary:hover {
-    background-color: #0056b3;
-    }
+        .card .btn-primary:hover {
+            background-color: #0056b3;
+        }
 
     .pagination {
-    justify-content: center;
-    margin-top: 20px;
+        justify-content: center;
+        margin-top: 20px;
     }
 
 </style>
 
 <style>
     .badge {
-    font-size: 0.9rem;
-    margin: 2px;
-    padding: 5px 10px;
-    border-radius: 20px;
+        font-size: 0.9rem;
+        margin: 2px;
+        padding: 5px 10px;
+        border-radius: 20px;
     }
 </style>
 <style>
     .btn-primary {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    transition: 0.3s;
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        transition: 0.3s;
     }
 
-    .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
 </style>
 
 <style>
     body {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     }
 </style>
 
 <style>
     h1.text-center {
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
 </style>
 
@@ -107,20 +107,20 @@
 
 <style>
     .badge {
-    font-size: 0.9rem;
-    margin: 2px;
-    padding: 5px 10px;
-    border-radius: 20px;
+        font-size: 0.9rem;
+        margin: 2px;
+        padding: 5px 10px;
+        border-radius: 20px;
     }
 </style>
 
 <div class="container mt-4">
     <form class="d-flex" method="get" action="@Url.Action("Index", "Home")">
         <input class="form-control me-sm-2"
-        type="search"
-        placeholder="Search by City "
-        value="@ViewBag.search"
-        name="search" />
+               type="search"
+               placeholder="Search by City "
+               value="@ViewBag.search"
+               name="search" />
         <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
     </form>
 
@@ -165,16 +165,16 @@
                             <input type="hidden" class="subCity" value="@hotel.City?.Split('|')[0]" />
                             <input type="hidden" class="hotelId" value="@hotel.Id" />
                             <p class="text-muted">
-                               You can discover @ViewBag.HotelCounts[@hotel.City] hotels in @hotel.City?.Split('|')[0]
-                                </p>
+                                You can discover @ViewBag.HotelCounts[@hotel.City] hotels in @hotel.City?.Split('|')[0]
+                            </p>
                             <a href="@Url.Action("HotelsByCity", "Home", new { city = hotel.City })" class="btn btn-primary mt-1">
                                 View All Hotels in @hotel.City?.Split('|')[0]
                             </a>
                         </div>
                     </div>
                 </div>
-           
-                }
+
+            }
             @section Weather {
             <script>
                 const weatherApiKey = "f46561b4e00342ce808140958241712";
@@ -234,7 +234,7 @@
                 }
             </script>
             }
-            
+
 
         }
         else
