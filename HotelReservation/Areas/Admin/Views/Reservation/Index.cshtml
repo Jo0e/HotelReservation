@@ -4,15 +4,19 @@
     ViewData["Title"] = "Reservations";
 }
 @section Scripts {
-        ﻿﻿@if (TempData["success"] != null)
+
+    ﻿﻿@if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
         </script>
     }
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js"></script>
 }
 
 <div class="container mt-5">
+    <input type="hidden" id="hotel-id" value="@ViewBag.HotelId" />
 
     <div class="d-flex align-items-center mt-3 mb-4 mb-3">
         <a asp-controller="Hotel" asp-action="Index" class="btn btn-outline-primary me-3">
@@ -22,7 +26,7 @@
     </div>
 
     <div class="table-responsive mt-4">
-        <table class="table table-striped table-bordered align-middle">
+        <table id="table-reservation" class="table table-striped table-bordered align-middle">
             <thead class="table-dark text-center">
                 <tr>
                     <th>Room Count</th>
@@ -33,6 +37,7 @@
                     <th>Total Price</th>
                     <th>User Name</th>
                     <th>Hotel Name</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -48,6 +53,7 @@
                         <td>@reservation.TotalPrice</td>
                         <td>@reservation.User.UserName</td>
                         <td>@reservation.Hotel.Name</td>
+                        <td>@reservation.Status</td>
                         <td>
                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-reservation-id="@reservation.Id">
                                 Cancel Reservation

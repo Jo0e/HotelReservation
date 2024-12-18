@@ -14,10 +14,13 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using HotelReservation.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+using Utilities.Utility;
 
 namespace HotelReservation.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize]
     public class ContactUsController : Controller
     {
 

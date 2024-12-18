@@ -1,9 +1,14 @@
-﻿using Infrastructures.UnitOfWork;
+﻿using HotelReservation.Hubs;
+using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.IdentityModel.Tokens;
 using Models.Models;
+using Newtonsoft.Json;
 using NuGet.Protocol.Plugins;
 using Utilities.Utility;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -11,22 +16,26 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace HotelReservation.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.AdminRole)]
     public class ContactUsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly ILogger<ContactUs> logger;
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IHubContext<NotificationHub> hubContext;
 
-        public ContactUsController(IUnitOfWork unitOfWork, ILogger<ContactUs> logger, UserManager<IdentityUser> userManager)
+        public ContactUsController(IUnitOfWork unitOfWork, ILogger<ContactUs> logger,
+            UserManager<IdentityUser> userManager,IHubContext<NotificationHub> hubContext)
         {
             this.unitOfWork = unitOfWork;
             this.logger = logger;
             this.userManager = userManager;
+            this.hubContext = hubContext;
         }
 
         public IActionResult Index()
         {
-            var contactMessage = unitOfWork.ContactUsRepository.Get();
+            var contactMessage = unitOfWork.ContactUsRepository.Get().OrderByDescending(a=>a.Id);
             return View(contactMessage);
         }
         public IActionResult Details(int reqId)
@@ -47,13 +56,30 @@ namespace HotelReservation.Areas.Admin.Controllers
             }
             return View(req);
         }
-        public IActionResult Respond(Models.Models.Message message)
+        public async Task<IActionResult> Respond(Models.Models.Message message)
         {
             message.MessageDateTime = DateTime.Now;
             if (ModelState.IsValid)
             {
                 unitOfWork.MessageRepository.Create(message);
                 unitOfWork.Complete();
+
+                // Notify clients
+                var messageInfo = JsonConvert.SerializeObject(new
+                {
+                    message.Id,
+                    message.Title,
+                    message.MessageString,
+                    message.Description,
+                    message.MessageDateTime,
+                    message.IsReadied,
+                    message.UserId
+                });
+                var userMessageCount = unitOfWork.MessageRepository.Get(where: m => m.UserId == message.UserId &
+                m.IsReadied == false,tracked:false).Count();
+
+                await hubContext.Clients.Group("Customers").SendAsync("CustomerNotification", messageInfo,userMessageCount, message.UserId);
+
                 Log(nameof(Respond), nameof(message) + " " + $"{message.Title}");
                 TempData["success"] = "Response sent successfully.";
                 return RedirectToAction("Index");

@@ -1,5 +1,6 @@
 ﻿using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using Type = Models.Models.Type;
 namespace HotelReservation.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.AdminRole)]
     public class RoomTypeController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

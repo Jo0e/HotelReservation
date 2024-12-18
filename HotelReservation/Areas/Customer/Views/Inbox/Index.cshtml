@@ -4,6 +4,10 @@
     ViewData["Title"] = "Inbox";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section SignalR {
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js"></script>
+}
 
 <div class="container mt-5">
     <h1 class="mb-4 text-primary text-center">@ViewData["Title"]</h1>
@@ -29,14 +33,14 @@
                 <div class="chat-actions text-end">
                     <small class="text-muted ">@item.MessageDateTime.ToString("g")</small>
                     <div class=" justify-content-end">
-                    <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm ms-1">
+                        <a asp-action="ReadMessage" asp-route-messageId="@item.Id" class="btn btn-outline-primary btn-sm ms-1">
                             <i class="@(item.IsReadied ? "bi bi-check-circle-fill text-success" : "bi bi-check2-all")"></i>
                         </a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm ms-2">
-                        <i class="bi bi-trash"></i>
-                    </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm ms-2">
+                            <i class="bi bi-trash"></i>
+                        </a>
                     </div>
-                    </div>
+                </div>
             </div>
         }
     </div>

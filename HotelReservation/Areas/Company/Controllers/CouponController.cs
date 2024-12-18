@@ -9,7 +9,7 @@ using Utilities.Utility;
 namespace HotelReservation.Areas.Company.Controllers
 {
     [Area("Company")]
-    [Authorize(SD.CompanyRole)]
+    [Authorize(Roles = SD.CompanyRole)]
     public class CouponController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

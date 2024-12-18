@@ -1,5 +1,6 @@
 ﻿using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
@@ -9,6 +10,7 @@ using Utilities.Utility;
 namespace HotelReservation.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.AdminRole)]
     public class CouponController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
