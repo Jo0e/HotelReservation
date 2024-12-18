@@ -53,9 +53,6 @@ namespace HotelReservation.Hubs
             await Clients.Group("Admins").SendAsync("AdminNotification", contactUsInfo);
         }
 
-
-        
-    
         public async Task NotifyAdminReservation(string reservationInfo)
         {
             await Clients.Group("Admins").SendAsync("AdminNotification", reservationInfo);
@@ -70,6 +67,5 @@ namespace HotelReservation.Hubs
             }
         }
     }
-
 
 }
