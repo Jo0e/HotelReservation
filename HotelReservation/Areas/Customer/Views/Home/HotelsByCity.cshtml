@@ -269,6 +269,9 @@
                                                 {
                                                     <i class="bi bi-star-fill" style="color: gold;"></i>
                                                 }
+                                                @if(hotel.Ratings.Any()){
+                                                        <span class="badge bg-warning" style="margin-left:10px;">@hotel.Ratings.Average(r => r.Value).ToString("F1") <i class="bi bi-heart-fill" style="color: red;"></i> </span>
+                                                    }
                                             </p>
                                             <p class="card-text">
                                                 <i class="bi bi-geo-alt"></i>@hotel.City

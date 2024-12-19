@@ -56,13 +56,12 @@ namespace HotelReservation.Areas.Admin.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Coupon coupon)
+        public IActionResult Create(Coupon coupon)
         {
             if (ModelState.IsValid)
             {
-
                 unitOfWork.CouponRepository.Create(coupon);
-                await unitOfWork.CompleteAsync();
+                unitOfWork.Complete();
                 TempData["success"] = "Coupon created successfully.";
                 Log(nameof(Create), nameof(coupon) + " " + $"{coupon.Code}");
                 return RedirectToAction(nameof(Index));

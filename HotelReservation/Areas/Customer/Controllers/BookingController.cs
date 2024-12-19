@@ -80,47 +80,23 @@ namespace HotelReservation.Areas.Customer.Controllers
             if (appUserId == null)
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
 
+            var tempNAdult = viewModel.NAdult;
+
             // Handel the NAdult 
             if (viewModel.ChildrenAge != null)
                 foreach (var item in viewModel.ChildrenAge)
                     if (item > 5)
                         viewModel.NAdult++;
 
-
             // Fetch available rooms
-            var availableRoomsAfterCheckout = unitOfWork.RoomRepository.Get(
-                where: r => r.HotelId == typeModel.HotelId
-                         && r.RoomType.Type == typeModel.RoomType
-                         && r.RoomType.PricePN == typeModel.PricePN
-                         && r.RoomType.MaxPersons >= viewModel.NAdult
-                         && (!viewModel.IncludesMeal || r.RoomType.MealPrice == typeModel.MealPrice)
-                         && (r.ReservationRooms == null || !r.ReservationRooms.Any() ||
-                             r.ReservationRooms.All(rr =>
-                                 rr.Reservation.CheckOutDate < viewModel.CheckInDate ||
-                                 rr.Reservation.CheckInDate > viewModel.CheckOutDate
-                             )
-                         ),
-                include: [r => r.RoomType]
-            ).ToList();
+            var availableRoomsAfterCheckout = unitOfWork.RoomRepository.AvailableRooms(viewModel,typeModel);
 
 
             // Fetch rooms near checkout
-            var nearCheckoutRooms = unitOfWork.RoomRepository.Get(
-                where: r => r.HotelId == typeModel.HotelId
-                         && r.RoomType.Type == typeModel.RoomType
-                         && r.ReservationRooms.Any(rr => rr.Reservation.CheckOutDate > DateTime.Now
-                                                       && rr.Reservation.CheckOutDate <= viewModel.CheckInDate),
-                include: [r => r.ReservationRooms, r => r.RoomType]
-            ).ToList();
+            var nearCheckoutRooms = unitOfWork.RoomRepository.NearCheckout(viewModel,typeModel);
 
             // Fetch the next available rooms after CheckOutDate
-            var nextAvailableRooms = unitOfWork.RoomRepository.Get(
-                    where: r => r.HotelId == typeModel.HotelId
-                             && r.RoomType.Type == typeModel.RoomType
-                             && r.RoomType.PricePN == typeModel.PricePN
-                             && !r.IsAvailable,
-                    include: [r => r.ReservationRooms]).ToList();
-
+            var nextAvailableRooms = unitOfWork.RoomRepository.NextAvailable(typeModel);
 
 
             // Check if there are enough available rooms after checkout
@@ -153,8 +129,6 @@ namespace HotelReservation.Areas.Customer.Controllers
             var totalPrice = (typeModel.PricePN + totalMealPrice) * viewModel.RoomCount *
                              (viewModel.CheckOutDate - viewModel.CheckInDate).Days;
 
-
-
             // Create a reservation
             var reservation = new Reservation
             {
@@ -162,7 +136,8 @@ namespace HotelReservation.Areas.Customer.Controllers
                 CheckInDate = viewModel.CheckInDate,
                 CheckOutDate = viewModel.CheckOutDate,
                 RoomCount = viewModel.RoomCount,
-                NAdult = viewModel.NAdult,
+                //NAdult = viewModel.NAdult,
+                NAdult = tempNAdult,
                 NChildren = viewModel.NChildren ?? 0,
                 TotalPrice = totalPrice,
                 UserId = appUserId,
@@ -231,20 +206,6 @@ namespace HotelReservation.Areas.Customer.Controllers
 
             // Recalculate total price (if necessary, especially if a coupon is applied)
             double totalPrice = reservation.TotalPrice;
-
-            // If a coupon is applied, you may need to adjust the total price based on the coupon
-            //if (reservation.CouponId.HasValue)
-            //{
-            //    var coupon = unitOfWork.CouponRepository.GetOne(where: c => c.Id == reservation.CouponId);
-            //    if (coupon != null && coupon.Limit > 0)
-            //    {
-            //        totalPrice -= (totalPrice * coupon.Discount / 100);
-            //        coupon.Limit--;
-            //        unitOfWork.CouponRepository.Update(coupon);
-            //        unitOfWork.Complete();
-
-            //    }
-            //}
 
             // Create the Stripe session options
             var options = new SessionCreateOptions
@@ -324,42 +285,10 @@ namespace HotelReservation.Areas.Customer.Controllers
 
                 await hubContext.Clients.Group("Admins").SendAsync("NotifyAdminReservation", reservationInfo);
 
-
-                var message = new Message
-                {
-                    MessageDateTime = DateTime.Now,
-                    Title = "Your Reservation",
-                    MessageString = $"Thank you for reservation with ID: {reservation.Id}\r\n" +
-                        $"With Total Payment: {reservation.TotalPrice:C}\r\n" +
-                        $"We Waiting for you at {reservation.Hotel.Name} on {reservation.CheckInDate:MMMM dd, yyyy}\r\n" +
-                        $"Hotel Address: {reservation.Hotel.Address}",
-                    Description = "We hope you have safe travels, and enjoy your stay",
-                    UserId = appUser.Id,
-                };
-                unitOfWork.MessageRepository.Create(message);
+                SendReservationMessage(reservation,appUser.Id);
+                
                 await unitOfWork.CompleteAsync();
             }
-
-            //var reservations = unitOfWork.ReservationRoomRepository.Get(
-            //    include: [e => e.Reservation, e => e.Room],
-            //    where: e => e.Reservation.UserId == appUser
-            //);
-
-            //foreach (var reservation in reservations)
-            //{
-
-            //    if (reservation != null && reservation.Reservation.CheckInDate.Date == DateTime.Now.Date)
-            //    {
-            //        reservation.Room.IsAvailable = false;
-            //        unitOfWork.RoomRepository.Update(reservation.Room);
-            //        unitOfWork.Complete();
-            //        reservation.Reservation.Status = "Complete";
-            //        unitOfWork.ReservationRepository.Update(reservation.Reservation);
-            //        unitOfWork.Complete();
-            //    }
-            //}
-            //TempData["Success"] = "Payment successful! Your reservations have been confirmed.";
-
 
             return View();
         }
@@ -386,7 +315,22 @@ namespace HotelReservation.Areas.Customer.Controllers
             return View();
         }
 
+        private void SendReservationMessage(Reservation reservation, string userId)
+        {
+            var message = new Message
+            {
+                MessageDateTime = DateTime.Now,
+                Title = "Your Reservation",
+                MessageString = $"Thank you for reservation with ID: {reservation.Id}\r\n" +
+                        $"With Total Payment: {reservation.TotalPrice:C}\r\n" +
+                        $"We Waiting for you at {reservation.Hotel.Name} on {reservation.CheckInDate:MMMM dd, yyyy}\r\n" +
+                        $"Hotel Address: {reservation.Hotel.Address}",
+                Description = "We hope you have safe travels, and enjoy your stay",
+                UserId = userId,
+            };
+            unitOfWork.MessageRepository.Create(message);
 
+        }
 
     }
 }
