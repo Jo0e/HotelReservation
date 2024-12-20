@@ -34,16 +34,20 @@ namespace Infrastructures.Repository
 
         public ICollection<Room> NearCheckout(ReservationViewModel viewModel, TypeViewModel typeModel)
         {
+            var currentDate = DateTime.Now.Date;
+            var sixDaysAfterToday = currentDate.AddDays(6);
+
             var rooms = dbSet.Include(r => r.RoomType)
-                .Include(r => r.ReservationRooms)
-                .Where(
-                     r => r.HotelId == typeModel.HotelId
-                         && r.RoomType.Type == typeModel.RoomType
-                         && r.ReservationRooms.Any(rr => rr.Reservation.CheckOutDate > DateTime.Now
-                                                       && rr.Reservation.CheckOutDate <= viewModel.CheckInDate
-                ));
-            return rooms.ToList();
+                   .Include(r => r.ReservationRooms)
+                   .ThenInclude(rr => rr.Reservation)
+                   .Where(r => r.HotelId == typeModel.HotelId
+                               && r.RoomType.Type == typeModel.RoomType
+                               && r.ReservationRooms.Any(rr => rr.Reservation.CheckOutDate > currentDate && rr.Reservation.CheckOutDate <= sixDaysAfterToday))
+                   .ToList();
+
+            return rooms;
         }
+
 
         public ICollection<Room> NextAvailable(TypeViewModel typeModel)
         {
