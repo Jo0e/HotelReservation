@@ -103,7 +103,7 @@ namespace HotelReservation.Areas.Customer.Controllers
             if (availableRoomsAfterCheckout == null || availableRoomsAfterCheckout.Count < viewModel.RoomCount)
             {
                 TempData["Error"] = "No rooms available for your selected dates or near future.";
-                return RedirectToAction(nameof(Book), new { hotelId = viewModel.HotelId });
+                return RedirectToAction(nameof(Book), typeModel );
             }
 
 
@@ -121,7 +121,7 @@ namespace HotelReservation.Areas.Customer.Controllers
                     TempData["ErrorMessage"] = "No rooms available for your selected dates or near checkout.";
                 }
 
-                return RedirectToAction(nameof(Book), new { hotelId = viewModel.HotelId });
+                return RedirectToAction(nameof(Book), typeModel);
             }
 
             // Calculate total price
