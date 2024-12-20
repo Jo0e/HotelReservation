@@ -14,7 +14,6 @@ using Models.ViewModels;
 using Newtonsoft.Json;
 using Stripe.Checkout;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text.Json;
 
@@ -64,14 +63,15 @@ namespace HotelReservation.Areas.Customer.Controllers
                          && r.RoomType.PricePN == typeModel.PricePN
                           && (r.RoomType.MealPrice == typeModel.MealPrice || (r.RoomType.MealPrice == null && typeModel.MealPrice == null)))
              .Count();
-            
+
+
             ViewBag.Type = typeModel;
             ViewBag.availableRooms = availableRoomsCount;
 
             return View(hotel);
 
         }
-      
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Book(ReservationViewModel viewModel, TypeViewModel typeModel)
@@ -88,37 +88,40 @@ namespace HotelReservation.Areas.Customer.Controllers
                     if (item > 5)
                         viewModel.NAdult++;
 
-            var availableRoomsAfterCheckout = unitOfWork.RoomRepository.AvailableRooms(viewModel, typeModel);
+            // Fetch available rooms
+            var availableRoomsAfterCheckout = unitOfWork.RoomRepository.AvailableRooms(viewModel,typeModel);
 
+
+            // Fetch rooms near checkout
+            var nearCheckoutRooms = unitOfWork.RoomRepository.NearCheckout(viewModel,typeModel);
+
+            // Fetch the next available rooms after CheckOutDate
+            var nextAvailableRooms = unitOfWork.RoomRepository.NextAvailable(typeModel);
+
+
+            // Check if there are enough available rooms after checkout
             if (availableRoomsAfterCheckout == null || availableRoomsAfterCheckout.Count < viewModel.RoomCount)
             {
-                var nearCheckoutRooms = unitOfWork.RoomRepository.NearCheckout(viewModel, typeModel);
-                List<DateTime> dateTimes = new List<DateTime>();
-                foreach (var near in nearCheckoutRooms)
-                {
-                    foreach (var room in near.ReservationRooms)
-                    {
-                        dateTimes.Add(room.Reservation.CheckOutDate);
-                    }
-                }
+                TempData["Error"] = "No rooms available for your selected dates or near future.";
+                return RedirectToAction(nameof(Book), typeModel );
+            }
+
+
+            // Check if there are enough available rooms after checkout
+            if (availableRoomsAfterCheckout == null || availableRoomsAfterCheckout.Count < viewModel.RoomCount)
+            {
+                ViewBag.NearCheckoutRooms = nearCheckoutRooms;
 
                 if (nearCheckoutRooms != null && nearCheckoutRooms.Any())
                 {
-
-                    var firstCheckoutDate = dateTimes.FirstOrDefault();
-                    var nextDay = firstCheckoutDate.AddDays(1); 
-
-                   
-                    TempData["NearCheckout"] = firstCheckoutDate.ToShortDateString();
-                    TempData["NextDay"] = nextDay.ToShortDateString();
+                    TempData["ErrorMessage"] = "No rooms available for your selected dates. Rooms near checkout are available.";
                 }
                 else
                 {
                     TempData["ErrorMessage"] = "No rooms available for your selected dates or near checkout.";
                 }
 
-                // Redirect back to the Book GET method with hotelId
-                return RedirectToAction(nameof(Book), viewModel);
+                return RedirectToAction(nameof(Book), typeModel);
             }
 
             // Calculate total price
@@ -168,7 +171,6 @@ namespace HotelReservation.Areas.Customer.Controllers
             return RedirectToAction(nameof(Pay), new { reservationId = reservation.Id });
 
         }
-        
         [Authorize]
         public IActionResult Pay(int reservationId)
         {
