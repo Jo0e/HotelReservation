@@ -1,36 +1,40 @@
-﻿@model Hotel
+﻿
+
+
+@model Hotel
 @{
     ViewData["Title"] = "Book";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 @section Scripts {
-                ﻿﻿@if (TempData["success"] != null)
+    @if (TempData["success"] != null)
     {
         <script>
             toastr.success('@TempData["success"]')
         </script>
     }
 
-    @if (TempData["Error"] != null)
+    @if (TempData["ErrorMessage"] != null)
     {
         <script>
-            toastr.error('@TempData["Error"]');
+            toastr.error('@TempData["ErrorMessage"]');
         </script>
     }
 }
 
 <style>
-
     .hotel-section h1 {
-        font-size: 2rem;
-        font-weight: bold;
+    font-size: 2rem;
+    font-weight: bold;
     }
 
     .hotel-section p {
-        font-size: 1rem;
-        margin-top: 15px;
+    font-size: 1rem;
+    margin-top: 15px;
     }
 </style>
+
 @if (Model == null)
 {
     <div class="alert alert-danger text-center" role="alert">
@@ -59,7 +63,6 @@ else
                         </div>
                     </div>
                     <div class="p-0 mt-3">
-
                         <div class="card h-100 w-100 shadow-sm">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="card-title mb-0">Room Type: @ViewBag.Type.RoomType <i class="fa-sharp-duotone fa-solid fa-bed"></i></h5>
@@ -80,14 +83,12 @@ else
             <div class="col-md-9">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        @*                         <h3 class="card-title text-center mb-4">Booking Form</h3>
- *@                        <form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
+                        <form asp-controller="Booking" asp-action="Book" method="post" class="booking-form">
                             <input type="hidden" name="HotelId" value="@Model.Id" />
                             <input type="hidden" name="RoomType" value="@ViewBag.Type.RoomType" />
                             <input type="hidden" name="PricePN" value="@ViewBag.Type.PricePN" />
                             <input type="hidden" name="MealPrice" value="@ViewBag.Type.MealPrice" />
                             <input type="hidden" name="MaxPersons" value="@ViewBag.Type.MaxPersons" />
-
                             <div class="mb-3">
                                 <label for="adults" class="form-label">Number of Adults</label>
                                 <input type="number" id="adults" name="NAdult" value="1" min="1" max="@ViewBag.Type.MaxPersons" required class="form-control" />
@@ -119,7 +120,8 @@ else
                                         <option value="false">No</option>
                                     </select>
                                 }
-                                else{
+                                else
+                                {
                                     <select id="meals" name="IncludesMeal" class="form-select">
                                         <option value="false">No</option>
                                         <option disabled value="true">Yes</option>
@@ -144,72 +146,30 @@ else
                     </div>
                 </div>
             </div>
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-warning mt-4">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
 
-            <script>
-                function updateChildAgeInputs() {
-                    const numberOfChildren = document.getElementById("children").value;
-                    const childAgesContainer = document.getElementById("childAgesContainer");
-                    childAgesContainer.innerHTML = "";
+            @if (TempData["NearCheckout"] != null && TempData["NextDay"] != null)
+            {
+                <div class="alert alert-info mt-4">
+                    <h5>Next Available Room:</h5>
+                    <ul>
+                        <li><strong>Near CheckOutDate:</strong> @TempData["NearCheckout"]</li>
+                    </ul>
+                    
+                    <p><strong>Note:</strong> This room is available, but it may not match your initial criteria. Would you like to book this room for the next day (i.e., @TempData["NextDay"])?</p>
 
-                    for (let i = 0; i < numberOfChildren; i++) {
-                        const input = document.createElement("input");
-                        input.type = "number";
-                        input.name = `ChildrenAge[${i}]`;
-                        input.placeholder = `Age of Child ${i + 1}`;
-                        input.className = "form-control mt-2";
-                        input.required = true;
-                        input.max = 18;
-                        input.min = 1;
-                        childAgesContainer.appendChild(input);
-                    }
-                }
+                </div>
+            }
 
-                document.addEventListener("DOMContentLoaded", function () {
-                    const checkInInput = document.getElementById('checkInDate');
-                    const checkOutInput = document.getElementById('checkOutDate');
-                    const form = document.querySelector(".booking-form");
-
-                    form.addEventListener("submit", function (event) {
-                        const checkInDate = new Date(checkInInput.value);
-                        const checkOutDate = new Date(checkOutInput.value);
-                        const now = new Date();
-
-                        if (checkInDate < now.setHours(0, 0, 0, 0)) {
-                            toastr.error("Check-In date cannot be in the past.");
-                            event.preventDefault();
-                            return false;
-                        }
-
-                        if (checkOutDate <= checkInDate) {
-                            toastr.error("Check-Out date must be after Check-In date.");
-                            event.preventDefault();
-                            return false;
-                        }
-                    });
-                });
-            </script>
 
         </div>
     </div>
-
-    @if (ViewBag.NearCheckoutRooms != null && ((List<Room>)ViewBag.NearCheckoutRooms).Any())
-    {
-        <h3>Rooms near checkout:</h3>
-        <ul>
-            @foreach (var room in (List<Room>)ViewBag.NearCheckoutRooms)
-            {
-                <li>Room ID: @room.Id - Type: @room.RoomType.Type</li>
-            }
-        </ul>
-    }
-    else if (TempData["ErrorMessage"] != null)
-    {
-        <p class="text-danger">@TempData["ErrorMessage"]</p>
-    }
 }
-
-
-
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -217,3 +177,49 @@ else
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.5.4/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+<script>
+    function updateChildAgeInputs() {
+        const numberOfChildren = document.getElementById("children").value;
+        const childAgesContainer = document.getElementById("childAgesContainer");
+        childAgesContainer.innerHTML = "";
+
+        for (let i = 0; i < numberOfChildren; i++) {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.name = `ChildrenAge[${i}]`;
+            input.placeholder = `Age of Child ${i + 1}`;
+            input.className = "form-control mt-2";
+            input.required = true;
+            input.max = 18;
+            input.min = 1;
+            childAgesContainer.appendChild(input);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInInput = document.getElementById('checkInDate');
+        const checkOutInput = document.getElementById('checkOutDate');
+        const form = document.querySelector(".booking-form");
+
+        form.addEventListener("submit", function (event) {
+            const checkInDate = new Date(checkInInput.value);
+            const checkOutDate = new Date(checkOutInput.value);
+            const now = new Date();
+
+            if (checkInDate < now.setHours(0, 0, 0, 0)) {
+                toastr.error("Check-In date cannot be in the past.");
+                event.preventDefault();
+                return false;
+            }
+
+            if (checkOutDate <= checkInDate) {
+                toastr.error("Check-Out date must be after Check-In date.");
+                event.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>
+
+
