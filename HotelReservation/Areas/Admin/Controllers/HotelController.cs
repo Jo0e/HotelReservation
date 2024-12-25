@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using Stripe;
 using Utilities.Utility;
@@ -21,7 +22,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         private readonly ILogger<HotelController> logger;
         private readonly UserManager<IdentityUser> userManager;
 
-        public HotelController(IUnitOfWork unitOfWork, ILogger<HotelController> logger,UserManager<IdentityUser> userManager)
+        public HotelController(IUnitOfWork unitOfWork, ILogger<HotelController> logger, UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
             this.logger = logger;
@@ -31,7 +32,7 @@ namespace HotelReservation.Areas.Admin.Controllers
         // GET: HotelController
         public ActionResult Index(string? search, int pageNumber = 1)
         {
-            const int pageSize = 4;
+            const int pageSize = 6;
             var hotels = unitOfWork.HotelRepository.Get(include: [p => p.company]);
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -71,11 +72,19 @@ namespace HotelReservation.Areas.Admin.Controllers
             ModelState.Remove(nameof(ImgFile));
             if (ModelState.IsValid)
             {
-                unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
-                TempData["success"] = "Hotel created successfully.";
-                Log(nameof(Create), nameof(hotel) + " " + $"{hotel.Name}");
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
+                    TempData["success"] = "Hotel created successfully.";
+                    Log(nameof(Create), nameof(hotel) + " " + $"{hotel.Name}");
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "A hotel with the same name already exists in this city.");
+                }
             }
+            ViewBag.CompanyId = unitOfWork.CompanyRepository.Get();
             return View(hotel);
 
         }
@@ -97,15 +106,24 @@ namespace HotelReservation.Areas.Admin.Controllers
             ModelState.Remove(nameof(hotel.City));
             if (ModelState.IsValid)
             {
-                var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
-                if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-                hotel.City ??=oldHotel.City;
-                unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
-                TempData["success"] = "Hotel updated successfully.";
-                Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    var oldHotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == hotel.Id);
+                    if (oldHotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
+                    hotel.City ??= oldHotel.City;
+                    unitOfWork.HotelRepository.UpdateImage(hotel, ImgFile, oldHotel.CoverImg, "homeImage", "CoverImg");
+                    TempData["success"] = "Hotel updated successfully.";
+                    Log(nameof(Edit), nameof(hotel) + " " + $"{hotel.Name}");
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "A hotel with the same name already exists in this city.");
+                }
             }
-            return NotFound();
+
+            ViewBag.CompanyId = unitOfWork.CompanyRepository.Get();
+            return View(hotel);
 
         }
 
@@ -169,22 +187,22 @@ namespace HotelReservation.Areas.Admin.Controllers
 
         public ActionResult DeleteImgList(int id)
         {
-            var img = unitOfWork.ImageListRepository.GetOne(where: e => e.Id == id , tracked:false);
+            var img = unitOfWork.ImageListRepository.GetOne(where: e => e.Id == id, tracked: false);
             if (img == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-            var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId , tracked: false);
+            var hotel = unitOfWork.HotelRepository.GetOne(where: e => e.Id == img.HotelId, tracked: false);
             if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
-            unitOfWork.ImageListRepository.DeleteImageList(id,hotel.Name);
+            unitOfWork.ImageListRepository.DeleteImageList(id, hotel.Name);
             Log(nameof(DeleteImgList), $"imageList {hotel.Name}");
             TempData["success"] = "Image deleted successfully.";
             return RedirectToAction(nameof(ImageList));
         }
 
-        public ActionResult DeleteAllImgList(int hotelId) 
+        public ActionResult DeleteAllImgList(int hotelId)
         {
-            var hotel = unitOfWork.HotelRepository.GetOne(include: [e=>e.ImageLists],where: e => e.Id == hotelId, tracked: false);
+            var hotel = unitOfWork.HotelRepository.GetOne(include: [e => e.ImageLists], where: e => e.Id == hotelId, tracked: false);
             if (hotel == null) return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             TempData["success"] = "All images deleted successfully.";
-            unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists,hotel.Name);
+            unitOfWork.ImageListRepository.DeleteHotelFolder(hotel.ImageLists, hotel.Name);
             Log(nameof(DeleteAllImgList), $"imageList {hotel.Name}");
             return RedirectToAction(nameof(ImageList));
         }

@@ -103,6 +103,11 @@ namespace Infrastructures.Data
            .HasForeignKey(r => r.HotelId)
            .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Hotel>()
+            .HasIndex(h => new { h.Name, h.City })
+            .IsUnique()
+            .HasDatabaseName("IX_Hotel_Name_City_Unique");
+
 
             modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomAvailableOnCheckOuts"));
             modelBuilder.Entity<Reservation>().ToTable(t => t.HasTrigger("SetRoomUnavailableOnCheckIns"));
@@ -118,7 +123,7 @@ namespace Infrastructures.Data
 
 
     }
-    
+
 }
 
 

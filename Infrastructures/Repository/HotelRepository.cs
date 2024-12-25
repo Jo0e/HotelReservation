@@ -28,6 +28,7 @@ namespace Infrastructures.Repository
             {
                 var hotels = dbSet.Where(e => e.City == city)
                     .Include(r => r.Rooms)
+                    .Include(r=>r.Ratings)
                     .Include(a => a.HotelAmenities)
                     .ThenInclude(a => a.Amenity).ToList();
                 return hotels;

@@ -102,7 +102,7 @@
 
                                 if (cityName && countryName) {
                                     const option = document.createElement('option');
-                                    option.value = cityName;
+                                    option.value = `${cityName} | ${countryName}`;
                                     option.textContent = `${cityName}, ${countryName}`;
                                     citySelect.appendChild(option);
                                 }
