@@ -1,13 +1,17 @@
-﻿using Infrastructures.Repository;
+﻿using HotelReservation.Hubs;
+using Infrastructures.Repository;
 using Infrastructures.Repository.IRepository;
 using Infrastructures.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models.Models;
 using Utilities.Profiles;
 using Utilities.Utility;
+using System.Text.Json;
+
 
 namespace HotelReservation.Areas.Company.Controllers
 {
@@ -18,12 +22,14 @@ namespace HotelReservation.Areas.Company.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<IdentityUser> userManager;
         private readonly ILogger<HotelsController> logger;
+        private readonly IHubContext<HotelHub> hubContext;
 
-        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ILogger<HotelsController> logger)
+        public HotelsController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ILogger<HotelsController> logger, IHubContext<HotelHub> hubContext)
         {
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
             this.logger = logger;
+            this.hubContext = hubContext;
         }
 
         // GET: HotelsController
@@ -141,6 +147,20 @@ namespace HotelReservation.Areas.Company.Controllers
 
                     unitOfWork.HotelRepository.CreateWithImage(hotel, ImgFile, "homeImage", "CoverImg");
                     Log(nameof(Create), nameof(hotel) + " " + $"{hotel.Name}");
+
+                    // Notify all clients about the new hotel
+                    var notification = new
+                    {
+                        hotel.Id,
+                        hotel.Name,
+                        hotel.City,
+                        hotel.Stars,
+                        hotel.Description
+                    };
+
+                    var notificationJson = JsonSerializer.Serialize(notification);
+                    hubContext.Clients.All.SendAsync("NewHotelAdded", notificationJson);
+
                     TempData["success"] = "Hotel created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -152,6 +172,7 @@ namespace HotelReservation.Areas.Company.Controllers
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
         }
+    
 
         public ActionResult Edit(int id)
         {

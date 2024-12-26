@@ -169,7 +169,16 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 return RedirectToAction("NotFound", "Home", new { area = "Customer" });
             }
-            await userManager.DeleteAsync(user);
+
+            var deleteUserResult = await userManager.DeleteAsync(user);
+            if (!deleteUserResult.Succeeded)
+            {
+                foreach (var error in deleteUserResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return RedirectToAction(nameof(Index));
+            }
             Thread.Sleep(500);
             unitOfWork.CompanyRepository.DeleteProfileImage(company);
             unitOfWork.CompanyRepository.Delete(company);

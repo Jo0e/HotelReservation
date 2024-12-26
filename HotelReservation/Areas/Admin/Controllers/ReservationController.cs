@@ -34,7 +34,9 @@ namespace HotelReservation.Areas.Admin.Controllers
             {
                 id = int.Parse(Request.Cookies["HotelIdCookie"]);
             }
-            var reservations = unitOfWork.ReservationRepository.Get(where: e => e.HotelId == id, include: [e => e.User, e => e.Hotel]);
+            var reservations = unitOfWork.ReservationRepository.Get(where: e => e.HotelId == id, include: [e => e.User, e => e.Hotel])
+                .OrderByDescending(a=>a.CreatedAt);
+            ViewBag.HotelId = id;            
             return View(reservations);
         }
 

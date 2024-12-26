@@ -86,6 +86,7 @@ else
                             <input type="hidden" name="RoomType" value="@ViewBag.Type.RoomType" />
                             <input type="hidden" name="PricePN" value="@ViewBag.Type.PricePN" />
                             <input type="hidden" name="MealPrice" value="@ViewBag.Type.MealPrice" />
+                            <input type="hidden" name="MaxPersons" value="@ViewBag.Type.MaxPersons" />
 
                             <div class="mb-3">
                                 <label for="adults" class="form-label">Number of Adults</label>
@@ -128,7 +129,7 @@ else
 
                             <div class="mb-3">
                                 <label for="rooms" class="form-label">Number of Rooms</label>
-                                <input type="number" id="rooms" name="RoomCount" value="1" min="1" max="@ViewBag.availableRooms" required class="form-control" />
+                                <input type="number" id="rooms" name="RoomCount" value="1" min="1" max="@ViewBag.availableRooms == 0? 1: @ViewBag.availableRooms" required class="form-control" />
                             </div>
 
                             <div class="mb-3">

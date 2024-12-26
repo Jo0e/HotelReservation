@@ -40,7 +40,7 @@ namespace HotelReservation
                .AddDefaultUI()
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
-           
+
 
             //builder.Services.AddAuthentication().AddGoogle(googleOptions =>
             //{
@@ -112,6 +112,8 @@ namespace HotelReservation
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
             app.MapHub<NotificationHub>("/notificationHub");
+            app.MapHub<HotelHub>("/hotelHub");
+
             app.Run();
         }
     }
